@@ -163,6 +163,42 @@ export default function App() {
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false); // Light Mode Default
 
+  // ---- LIGHTWEIGHT NATIVE SEO ROUTING SYNC ----
+  useEffect(() => {
+    const syncToolFromUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      const toolId = params.get('tool');
+      if (toolId) {
+        const foundTool = TOOLS.find(t => t.id === toolId);
+        if (foundTool) {
+          setSelectedTool(foundTool);
+          document.title = `${foundTool.name} - Career Pouch`;
+          const metaDesc = document.querySelector('meta[name="description"]');
+          if (metaDesc) {
+            metaDesc.setAttribute('content', `${foundTool.description} Free offline-first developer and business utility tool inside Career Pouch.`);
+          }
+          // Scroll into view elegantly on direct load
+          setTimeout(() => {
+            document.getElementById('tool-workspace-anchor')?.scrollIntoView({ behavior: 'smooth' });
+          }, 300);
+        } else {
+          setSelectedTool(null);
+          document.title = 'Career Pouch - 48-in-1 Dynamic Utility Briefcase';
+        }
+      } else {
+        setSelectedTool(null);
+        document.title = 'Career Pouch - 48-in-1 Dynamic Utility Briefcase';
+      }
+    };
+
+    // Main mount check
+    syncToolFromUrl();
+
+    // Listen to native back/forward browser buttons
+    window.addEventListener('popstate', syncToolFromUrl);
+    return () => window.removeEventListener('popstate', syncToolFromUrl);
+  }, []);
+
   // ---- DYNAMIC NAVIGATION PINNED FAVORITES STATE ----
   const [pinnedToolIds, setPinnedToolIds] = useState<string[]>(() => {
     try {
@@ -221,6 +257,15 @@ export default function App() {
     setSelectedTool(null);
     setSelectedCategory('all');
     setSearchQuery('');
+    
+    // Smoothly update URL to root
+    window.history.pushState({}, '', window.location.pathname);
+    document.title = 'Career Pouch - 48-in-1 Dynamic Utility Briefcase';
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Career Pouch is a 48-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.');
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -236,6 +281,18 @@ export default function App() {
 
   const handleSelectTool = (tool: Tool) => {
     setSelectedTool(tool);
+    
+    // Update URL with query parameters elegantly
+    const newUrl = `${window.location.pathname}?tool=${encodeURIComponent(tool.id)}`;
+    window.history.pushState({ toolId: tool.id }, '', newUrl);
+    
+    // Swap SEO titles & description metadata
+    document.title = `${tool.name} - Career Pouch`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', `${tool.description} Free offline-first developer and business utility tool inside Career Pouch.`);
+    }
+
     // Auto scroll to active tool workspace elegantly
     setTimeout(() => {
       document.getElementById('tool-workspace-anchor')?.scrollIntoView({ behavior: 'smooth' });
@@ -244,6 +301,14 @@ export default function App() {
 
   const handleCloseTool = () => {
     setSelectedTool(null);
+    
+    // Smoothly remove URL parameter on close
+    window.history.pushState({}, '', window.location.pathname);
+    document.title = 'Career Pouch - 48-in-1 Dynamic Utility Briefcase';
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Career Pouch is a 48-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.');
+    }
   };
 
   // Directly select a featured tool from category block footer click
