@@ -9,11 +9,18 @@ interface AdsterraBannerProps {
 
 export const AdsterraBanner: React.FC<AdsterraBannerProps> = ({ 
   id, 
-  bannerKey = '29552977',
+  bannerKey,
   width = 728,
   height = 90
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // Fallback to environment variables if set, otherwise use the provided bannerKey prop or hardcoded fallbacks
+  const envKey = width === 728 
+    ? import.meta.env.VITE_ADSTERRA_LEADERBOARD_KEY 
+    : import.meta.env.VITE_ADSTERRA_SQUARE_KEY;
+  
+  const activeKey = envKey || bannerKey || (width === 728 ? '29552977' : '29553000');
 
   useEffect(() => {
     const el = containerRef.current;
@@ -111,7 +118,7 @@ export const AdsterraBanner: React.FC<AdsterraBannerProps> = ({
 
               <script type="text/javascript">
                 var atOptions = {
-                  'key' : '${bannerKey}',
+                  'key' : '${activeKey}',
                   'format' : 'iframe',
                   'height' : ${height},
                   'width' : ${width},
@@ -135,7 +142,7 @@ export const AdsterraBanner: React.FC<AdsterraBannerProps> = ({
                   }, 1200);
                 });
               </script>
-              <script type="text/javascript" src="https://www.highperformanceformat.com/${bannerKey}/invoke.js"></script>
+              <script type="text/javascript" src="https://www.highperformanceformat.com/${activeKey}/invoke.js"></script>
             </body>
           </html>
         `);
@@ -176,7 +183,7 @@ export const AdsterraBanner: React.FC<AdsterraBannerProps> = ({
       }
     };
 
-  }, [id, bannerKey, width, height]);
+  }, [id, activeKey, width, height]);
 
   return <div id={id} ref={containerRef} />;
 };
