@@ -1202,16 +1202,22 @@ export default function App() {
               </button>
             </div>
             
-            {/* Leaderboard banner itself */}
-            <div className="w-full flex items-center justify-center">
-              <AdsterraBanner id="ad-sticky-footer" bannerKey="29552977" />
+            {/* Leaderboard banner itself (scaled down by ~50%) */}
+            <div className="w-full flex items-center justify-center h-[50px] overflow-hidden">
+              <div className="transform scale-[0.55] origin-center shrink-0">
+                <AdsterraBanner 
+                  id="ad-sticky-footer" 
+                  bannerKey="29552977" 
+                  className="w-[728px] h-[90px] flex items-center justify-center overflow-hidden bg-transparent"
+                />
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {/* Extra spacing at bottom of entire container when sticky ad is active to prevent blocking content */}
-      {isStickyAdVisible && <div className="h-[120px] shrink-0" />}
+      {isStickyAdVisible && <div className="h-[68px] shrink-0" />}
       </div>
     </div>
   );

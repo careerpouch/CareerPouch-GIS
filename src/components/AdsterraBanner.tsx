@@ -5,13 +5,15 @@ interface AdsterraBannerProps {
   bannerKey?: string;
   width?: number;
   height?: number;
+  className?: string;
 }
 
 export const AdsterraBanner: React.FC<AdsterraBannerProps> = ({ 
   id, 
   bannerKey,
   width = 728,
-  height = 90
+  height = 90,
+  className
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -30,7 +32,9 @@ export const AdsterraBanner: React.FC<AdsterraBannerProps> = ({
     el.innerHTML = '';
 
     // Style the containers to maintain custom height and center them
-    if (width === 728) {
+    if (className) {
+      el.className = className;
+    } else if (width === 728) {
       el.className = 'w-full min-h-[96px] flex items-center justify-center my-6 overflow-hidden bg-slate-950/20 border border-slate-805/40 rounded-xl max-w-[728px] mx-auto';
     } else {
       // Grid Card block dimensions format
