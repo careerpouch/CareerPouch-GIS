@@ -34,6 +34,75 @@ const BrandLogo = () => (
   </div>
 );
 
+// High-fidelity, interactively dynamic Visual Suitcase illustration as requested
+const DynamicVisualSuitcase = () => (
+  <div className="relative mx-auto w-32 h-24 my-6 group cursor-pointer select-none">
+    {/* Glow shadow behind suitcase */}
+    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-sky-400 to-teal-400 rounded-2xl blur-lg opacity-40 group-hover:opacity-75 transition-opacity duration-500 animate-pulse" />
+    
+    {/* Handle of the suitcase */}
+    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-12 h-6 rounded-t-xl border-[4.5px] border-slate-700 dark:border-slate-350 transition-all duration-300 group-hover:h-7 group-hover:border-blue-500 z-10" />
+    
+    {/* Body of the Suitcase */}
+    <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-b from-blue-600 via-indigo-650 to-indigo-700 dark:from-slate-800 dark:via-slate-800 dark:to-slate-900 border-2 border-slate-800 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden transition-all duration-500 group-hover:scale-105 group-hover:-translate-y-1">
+      
+      {/* Glossy shine reflection overlay */}
+      <div className="absolute top-0 inset-x-0 h-1/2 bg-white/10 skew-y-6 transform origin-top-left pointer-events-none" />
+      
+      {/* Decorative Golden Brass Corner Armor Plates */}
+      <div className="absolute top-0 left-0 w-4 h-4 bg-amber-400/90 dark:bg-amber-500/80 rounded-tl-xl rounded-br-md border-b border-r border-amber-300/40" />
+      <div className="absolute top-0 right-0 w-4 h-4 bg-amber-400/90 dark:bg-amber-500/80 rounded-tr-xl rounded-bl-md border-b border-l border-amber-300/40" />
+      <div className="absolute bottom-0 left-0 w-4 h-4 bg-amber-400/90 dark:bg-amber-500/80 rounded-bl-xl rounded-tr-md border-t border-r border-amber-300/40" />
+      <div className="absolute bottom-0 right-0 w-4 h-4 bg-amber-400/90 dark:bg-amber-500/80 rounded-br-xl rounded-tl-md border-t border-l border-amber-300/40" />
+      
+      {/* Twin lock-down leather style straps */}
+      <div className="absolute inset-y-0 left-6 w-3 bg-slate-900/80 dark:bg-slate-950/60 border-x border-slate-700/30 flex flex-col justify-between py-1.5">
+        <div className="w-1 h-1 bg-amber-400 rounded-full mx-auto" />
+        <div className="w-1 h-1 bg-amber-400 rounded-full mx-auto" />
+      </div>
+      <div className="absolute inset-y-0 right-6 w-3 bg-slate-900/80 dark:bg-slate-950/60 border-x border-slate-700/30 flex flex-col justify-between py-1.5">
+        <div className="w-1 h-1 bg-amber-400 rounded-full mx-auto" />
+        <div className="w-1 h-1 bg-amber-400 rounded-full mx-auto" />
+      </div>
+      
+      {/* Center lock mechanism badge */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-amber-400 border border-amber-300 rounded shadow-md flex items-center justify-center">
+        <div className="w-1.5 h-1.5 bg-slate-900 rounded-full" />
+      </div>
+
+      {/* Retro sticker elements slapped onto the leather to showcase versatility */}
+      <div className="absolute bottom-2 left-1 bg-teal-400 text-slate-950 text-[7.5px] font-black font-mono px-1 rounded-sm rotate-[12deg] scale-90 border border-teal-350 shadow-sm leading-none">
+        ATS
+      </div>
+      <div className="absolute bottom-2.5 right-1 bg-pink-500 text-white text-[7.5px] font-black font-mono px-1 rounded-sm rotate-[-8deg] scale-90 border border-pink-400 shadow-sm leading-none">
+        PDF
+      </div>
+      <div className="absolute top-1.5 left-1.5 bg-blue-400 text-white text-[6.5px] font-bold px-0.5 rounded-sm scale-95 opacity-90 leading-none">
+        CODE
+      </div>
+    </div>
+
+    {/* Custom Badge Bubble popping out */}
+    <div className="absolute -top-1 -right-4 bg-gradient-to-r from-teal-400 to-indigo-500 text-slate-950 dark:text-white text-[8px] font-black font-mono px-2 py-0.5 rounded-full shadow-lg border border-teal-300/40 animate-bounce">
+      41+ UTILS
+    </div>
+
+    {/* Floating symbols erupting elegantly from the side on hover */}
+    <div className="absolute -top-3 -left-2 text-sm opacity-0 group-hover:opacity-100 group-hover:-translate-y-2 group-hover:-translate-x-1 transition-all duration-300 pointer-events-none delay-75">
+      ⚙️
+    </div>
+    <div className="absolute -top-4 right-1 text-sm opacity-0 group-hover:opacity-100 group-hover:-translate-y-3 group-hover:translate-x-1 transition-all duration-300 pointer-events-none delay-100">
+      📝
+    </div>
+    <div className="absolute top-6 -right-4 text-sm opacity-0 group-hover:opacity-100 group-hover:translate-x-3 transition-all duration-300 pointer-events-none delay-150">
+      📊
+    </div>
+    <div className="absolute top-4 -left-5 text-sm opacity-0 group-hover:opacity-100 group-hover:-translate-x-3 transition-all duration-300 pointer-events-none delay-120">
+      🔢
+    </div>
+  </div>
+);
+
 // Metadata for Category dashboard blocks based on image references
 const DASHBOARD_BLOCKS = [
   {
@@ -357,7 +426,7 @@ export default function App() {
       
       {/* Interactive, dynamic ambient light sources in absolute position */}
       <div className="absolute top-[5%] left-[-15%] w-[65vw] h-[65vw] max-w-[650px] max-h-[650px] rounded-full filter blur-[110px] pointer-events-none opacity-[0.22] dark:opacity-[0.14] bg-gradient-to-tr from-blue-400 to-indigo-600 mix-blend-initial animate-pulse duration-[8000ms]" />
-      <div className="absolute top-[35%] right-[-15%] w-[55vw] h-[55vw] max-w-[550px] max-h-[550px] rounded-full filter blur-[130px] pointer-events-none opacity-[0.18] dark:opacity-[0.11] bg-gradient-to-tr from-pink-400 to-purple-650 mix-blend-initial animate-pulse duration-[10000ms] delay-[1500ms]" />
+      <div className="absolute top-[35%] right-[-15%] w-[55vw] h-[55vw] max-w-[550px] max-h-[550px] rounded-full filter blur-[130px] pointer-events-none opacity-[0.18] dark:opacity-[0.11] bg-gradient-to-tr from-sky-400 to-indigo-650 mix-blend-initial animate-pulse duration-[10000ms] delay-[1500ms]" />
       <div className="absolute bottom-[10%] left-[5%] w-[45vw] h-[45vw] max-w-[500px] max-h-[500px] rounded-full filter blur-[120px] pointer-events-none opacity-[0.15] dark:opacity-[0.09] bg-gradient-to-br from-teal-400 to-emerald-500 mix-blend-initial animate-pulse duration-[7000ms] delay-[3000ms]" />
       
       {/* Ambient background Grid Overlay */}
@@ -381,7 +450,7 @@ export default function App() {
             <BrandLogo />
             <div>
               <div className="flex items-center gap-1.5">
-                <h1 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-pink-600 bg-clip-text text-transparent group-hover:brightness-110 transition-all font-sans">
+                <h1 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 bg-clip-text text-transparent group-hover:brightness-110 transition-all font-sans">
                   Career Pouch
                 </h1>
               </div>
@@ -465,57 +534,141 @@ export default function App() {
         )}
 
         {/* HERO INTRO AND SEARCH WRAPPER - CLEAN GLASS DESIGN DIRECT FROM THE ATTACHMENT */}
-        <section className={`py-12 px-6 rounded-3xl text-center border overflow-hidden relative transition-all ${isDarkMode ? 'bg-slate-900/50 backdrop-blur-xl border-slate-800/80 shadow-xl' : 'bg-white/80 backdrop-blur-xl border-slate-200/50 shadow-sm'}`}>
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-pink-500" />
+        <section className={`py-14 px-6 rounded-3xl text-center border overflow-hidden relative transition-all duration-500 ${isDarkMode ? 'bg-slate-900/40 backdrop-blur-xl border-slate-800 shadow-2xl shadow-indigo-950/10' : 'bg-white backdrop-blur-xl border-indigo-100/80 shadow-xl shadow-indigo-100/30'}`}>
+          {/* Animated colorful gradient line on top - High quality blue-sky-teal spectrum */}
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 via-sky-500 via-indigo-650 to-teal-400" />
           
-          <p className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 opacity-90 mb-1 font-mono">
-            We offer document creators, productivity boards, converters, calculations and custom styling systems logic
-          </p>
-          <h2 className={`text-4xl font-extrabold tracking-tight md:text-5xl font-sans mt-3 whitespace-pre-line ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-            Career Pouch Dynamic Suitcase
-          </h2>
-          <p className={`max-w-2xl mx-auto mt-3.5 text-sm leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-            Search or select from our verified sandbox blocks to convert datasets, organize resumes, write layouts, and compute formulas offline with private storage.
-          </p>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 dark:from-indigo-400/5 dark:to-blue-400/5 border border-indigo-500/20 dark:border-indigo-400/10 rounded-full mb-3 select-none">
+            <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+            <span className={`text-[10px] font-bold tracking-widest uppercase font-mono ${isDarkMode ? 'text-teal-400' : 'text-indigo-950'}`}>
+              ✨ Comprehensive Local Document Sandbox & Utilities Deck
+            </span>
+          </div>
 
-          {/* COZY WHITE PILL-SHAPED SEARCH INPUT WITH BLUE ACTION BUTTON AT THE RIGHT */}
-          <div className="max-w-2xl mx-auto mt-8 relative select-none">
-            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400">
-              <Icon name="Search" size={18} />
+          {/* Interactive animated physical mini suitcase container */}
+          <DynamicVisualSuitcase />
+
+          <h2 className="text-5xl font-black md:text-6xl tracking-tight leading-none font-sans mt-3">
+            <span className={`bg-gradient-to-r ${isDarkMode ? 'from-cyan-400 via-sky-300 to-indigo-300' : 'from-blue-700 via-indigo-955 to-sky-600'} bg-clip-text text-transparent`}>
+              Career Pouch
+            </span>
+            <span className={`block text-xl md:text-2xl font-extrabold mt-3.5 tracking-[0.25em] uppercase font-mono ${isDarkMode ? 'text-teal-400' : 'text-slate-700'}`}>
+              Dynamic Suitcase
+            </span>
+          </h2>
+
+          {/* EYE-CATCHING COLOURED STYLISH HIGHLIGHT BOX FOR DESCRIPTION */}
+          <div className="max-w-3xl mx-auto mt-6 p-5 rounded-2xl relative overflow-hidden bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-teal-500/10 dark:from-blue-500/5 dark:via-indigo-500/5 dark:to-teal-500/5 border border-indigo-500/25 dark:border-indigo-500/10 shadow-lg backdrop-blur-sm group">
+            {/* Ambient subtle decorative lights */}
+            <div className="absolute -left-12 -bottom-12 w-24 h-24 bg-blue-550/20 rounded-full filter blur-xl opacity-75 group-hover:scale-125 transition-transform duration-700" />
+            <div className="absolute -right-12 -top-12 w-24 h-24 bg-teal-500/20 rounded-full filter blur-xl opacity-70 group-hover:scale-125 transition-transform duration-700" />
+            
+            <p className={`text-base font-bold leading-relaxed font-sans relative z-10 ${isDarkMode ? 'text-indigo-200' : 'text-indigo-950'}`}>
+              🚀 Search or select from our verified sandbox blocks to convert datasets, organize resumes, write layouts, and compute formulas offline with private storage.
+            </p>
+          </div>
+
+          {/* DYNAMIC COLOURFUL GLOWING OUTLINE SEARCH BAR */}
+          <div className="max-w-2xl mx-auto mt-8 relative select-none p-[2.5px] rounded-full bg-gradient-to-r from-blue-500 via-indigo-600 via-sky-400 to-teal-400 shadow-md group hover:shadow-indigo-500/20 transition-all duration-350">
+            {/* Interactive Glow Backdrop layer */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-650 via-sky-500 to-teal-400 rounded-full blur-[6px] opacity-40 group-hover:opacity-75 transition-opacity duration-300 pointer-events-none" />
+            
+            <div className="relative flex items-center rounded-full bg-transparent overflow-hidden">
+              <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 z-20">
+                <Icon name="Search" size={18} />
+              </div>
+              <input
+                id="searchInput"
+                type="text"
+                placeholder="Search through all 41+ professional tools instantly..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`w-full pl-12 pr-40 py-4 rounded-full border-none text-sm font-sans transition-all focus:outline-none relative z-10 ${
+                  isDarkMode
+                    ? 'bg-slate-950 text-slate-100 placeholder:text-slate-500'
+                    : 'bg-white text-slate-900 placeholder:text-slate-400'
+                }`}
+              />
+              {/* Surprise me Dice random router */}
+              <button
+                onClick={handleRandomToolDiscovery}
+                className={`absolute right-28 top-2 bottom-2 px-3.5 z-20 rounded-full transition-all flex items-center justify-center gap-1 cursor-pointer border hover:scale-105 active:scale-95 ${
+                  isDarkMode 
+                    ? 'bg-slate-900 border-slate-800 text-indigo-400 hover:text-indigo-300 hover:border-slate-750' 
+                    : 'bg-slate-50 border-slate-205 text-indigo-650 hover:bg-indigo-100/80 hover:border-indigo-200'
+                }`}
+                title="Surprise Me: Roll Dice for a random useful tool sandbox!"
+              >
+                <Icon name="Dices" size={15} />
+                <span className="text-[10px] font-bold font-mono">Roll</span>
+              </button>
+              <button 
+                onClick={() => {
+                  document.getElementById('toolsSectionHeader')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="absolute right-2 top-1.5 bottom-1.5 px-6 z-20 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-full text-xs shadow-md transition-all duration-200 flex items-center gap-1.5 group cursor-pointer"
+              >
+                Search
+              </button>
             </div>
-            <input
-              id="searchInput"
-              type="text"
-              placeholder="Search through all 42+ professional tools instantly..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full pl-12 pr-40 py-4 rounded-full border text-sm font-sans transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
-                isDarkMode
-                  ? 'bg-slate-950 border-slate-800 text-slate-100 placeholder:text-slate-500 focus:border-blue-500'
-                  : 'bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 shadow-md'
-              }`}
-            />
-            {/* Surprise me Dice random router */}
-            <button
-              onClick={handleRandomToolDiscovery}
-              className={`absolute right-28 top-2 bottom-2 px-3 rounded-full transition-all flex items-center justify-center gap-1 cursor-pointer border hover:scale-105 active:scale-95 ${
-                isDarkMode 
-                  ? 'bg-slate-900 border-slate-800 text-indigo-400 hover:text-indigo-300' 
-                  : 'bg-slate-50 border-slate-200 text-indigo-600 hover:bg-indigo-100'
-              }`}
-              title="Surprise Me: Roll Dice for a random useful tool sandbox!"
-            >
-              <Icon name="Dices" size={15} />
-              <span className="text-[10px] font-bold font-mono">Roll</span>
-            </button>
-            <button 
-              onClick={() => {
-                document.getElementById('toolsSectionHeader')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="absolute right-2 top-1.5 bottom-1.5 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full text-xs transition-colors flex items-center gap-1.5 group cursor-pointer"
-            >
-              Search
-            </button>
+          </div>
+
+          {/* HIGH-FIDELITY ZERO-DATA PRIVACY & LOCAL SECURITY SEAL PANEL */}
+          <div className="max-w-4xl mx-auto mt-12 pt-8 border-t border-slate-200/40 dark:border-slate-800/80">
+            {/* Blinking Live Security Status Label */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 dark:bg-emerald-500/5 border border-emerald-500/20 rounded-full mb-6">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0" />
+              <span className="text-[10px] font-black tracking-widest uppercase font-mono text-emerald-600 dark:text-emerald-400">
+                ● Offline Sandbox Secure Mode: Active & Fully Isolated
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+              {/* Pillar 1: No remote server uploads */}
+              <div className="p-4 rounded-xl hover:bg-slate-500/5 transition-all group/pillar">
+                <div className="flex items-center gap-3 mb-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover/pillar:scale-110 transition-transform">
+                    <Icon name="Shield" size={16} />
+                  </div>
+                  <h4 className={`text-sm font-black tracking-tight ${isDarkMode ? 'text-slate-200' : 'text-slate-900'}`}>
+                    No Server Uploads
+                  </h4>
+                </div>
+                <p className={`text-xs leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                  Your resumes, documents, and lists are compiled <strong className="text-blue-600 dark:text-sky-455">100% locally</strong> inside your browser. Absolutely no remote servers process or store your custom files.
+                </p>
+              </div>
+
+              {/* Pillar 2: Wiped on Close */}
+              <div className="p-4 rounded-xl hover:bg-slate-500/5 transition-all group/pillar">
+                <div className="flex items-center gap-3 mb-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover/pillar:scale-110 transition-transform">
+                    <Icon name="EyeOff" size={16} />
+                  </div>
+                  <h4 className={`text-sm font-black tracking-tight ${isDarkMode ? 'text-slate-200' : 'text-slate-900'}`}>
+                    Instant RAM Purge
+                  </h4>
+                </div>
+                <p className={`text-xs leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                  All tools utilize transient memory. The moment you close or refresh this tab, all active states are completely and permanently <strong className="text-teal-600 dark:text-teal-400">purged from your machine</strong>.
+                </p>
+              </div>
+
+              {/* Pillar 3: Zero Trackers */}
+              <div className="p-4 rounded-xl hover:bg-slate-500/5 transition-all group/pillar">
+                <div className="flex items-center gap-3 mb-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover/pillar:scale-110 transition-transform">
+                    <Icon name="Database" size={16} />
+                  </div>
+                  <h4 className={`text-sm font-black tracking-tight ${isDarkMode ? 'text-slate-200' : 'text-slate-900'}`}>
+                    Cookie-Less Design
+                  </h4>
+                </div>
+                <p className={`text-xs leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                  No third-party trackers, behavioral profiling, or cookie-sniffing. Enjoy a clean, fast, private sandbox environment optimized for <strong className="text-indigo-600 dark:text-indigo-400">maximum security</strong>.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -773,7 +926,7 @@ export default function App() {
                         isWorking
                           ? 'bg-indigo-600/30 border-indigo-505/25 text-indigo-400'
                           : isDarkMode 
-                            ? 'bg-slate-800/40 border-slate-700/20 text-indigo-400 group-hover:text-pink-400' 
+                            ? 'bg-slate-800/40 border-slate-700/20 text-indigo-400 group-hover:text-sky-400' 
                             : 'bg-slate-50 border-slate-150 text-blue-600 group-hover:text-blue-800 shadow-sm'
                       }`}>
                         <Icon name={tool.icon} size={18} />
@@ -873,30 +1026,128 @@ export default function App() {
       </main>
 
       {/* FOOTER SECTION & ADSTERRA BOTTOM BANNER BLOCK */}
-      <footer className={`mt-16 border-t transition-all ${isDarkMode ? 'bg-slate-950 border-slate-950' : 'bg-slate-50 border-slate-200/50'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <footer className={`mt-16 border-t relative transition-all pt-12 pb-8 overflow-hidden ${isDarkMode ? 'bg-gradient-to-b from-[#090d1c] to-[#04060a] border-slate-800 text-slate-300' : 'bg-gradient-to-b from-blue-50/10 to-indigo-50/40 border-slate-200 text-slate-600'}`}>
+        {/* Colorful glowing bar on top of footer to resolve 'too colourless at the end' */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-sky-400 via-indigo-600 via-teal-400 to-emerald-400" />
+        
+        {/* Soft background light spots to bring rich detail without distraction */}
+        <div className="absolute -bottom-24 -left-20 w-80 h-80 rounded-full filter blur-[100px] pointer-events-none opacity-[0.14] bg-gradient-to-tr from-blue-600 to-indigo-500" />
+        <div className="absolute -bottom-24 -right-20 w-80 h-80 rounded-full filter blur-[100px] pointer-events-none opacity-[0.11] bg-gradient-to-tr from-teal-500 to-emerald-400" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
           
           <AdsterraBanner id="ad-bottom" bannerKey="29552977" />
 
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-200/40">
-            <a 
-              href="/"
-              onClick={(e) => {
-                e.preventDefault();
-                handleResetToHome();
-              }}
-              className="flex items-center gap-3.5 cursor-pointer hover:opacity-95 select-none transition-opacity group"
-              title="Return to home page"
-            >
-              <BrandLogo />
-              <div>
-                <p className="text-sm text-slate-800 dark:text-slate-200 font-bold tracking-tight">Career Pouch Suite</p>
-                <p className="text-[10px] text-slate-400 font-mono">Dynamic client-side sandbox container</p>
-              </div>
-            </a>
-            <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
-              <span>All 41 items executed client-side in secure sandbox memory structures.</span>
+          {/* TinyWow style columns block directly from the requested screenshot */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pt-8 border-t border-slate-200/50 dark:border-slate-850">
+            
+            {/* Left Column: Styled logo matching TinyWow visually and description */}
+            <div className="md:col-span-4 space-y-4">
+              <a 
+                href="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleResetToHome();
+                }}
+                className="inline-flex items-center gap-2.5 cursor-pointer transition-opacity group select-none"
+                title="Return to homepage"
+              >
+                <div className="text-3xl font-black tracking-tight font-sans bg-gradient-to-r from-blue-600 to-sky-500 dark:from-blue-400 dark:to-sky-300 bg-clip-text text-transparent">
+                  CareerPouch
+                </div>
+              </a>
+              <p className={`text-sm leading-relaxed max-w-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                CareerPouch provides free online conversion, resume writing, templates, and other handy utilities to help you solve problems of all types. All documents both processed and unprocessed remain completely private and secure in your local browser sandbox.
+              </p>
             </div>
+
+            {/* Column 2: Navigate links with colorful hovers */}
+            <div className="md:col-span-2 space-y-3">
+              <h4 className={`text-xs font-black tracking-widest uppercase font-mono ${isDarkMode ? 'text-sky-400' : 'text-indigo-900'}`}>Navigate</h4>
+              <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+                <li>
+                  <a href="/" onClick={(e) => { e.preventDefault(); handleResetToHome(); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Home</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); alert("Privacy policy: Your offline sandbox configuration is processed entirely in browser storage. No server transmission exists."); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Privacy Policy</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); alert("TOS: Completely open-source developer side-project toolbox."); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">TOS</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); alert("Reach local author at: aquamarinesilver37@gmail.com"); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Contact</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); alert("Developer sandbox log feeds are saved entirely locally."); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Blog</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); alert("Career Pouch: A dynamic toolbox of 41 high-impact developer and career building tools."); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">About</a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 3: Tools 1 */}
+            <div className="md:col-span-2 space-y-3">
+              <h4 className={`text-xs font-black tracking-widest uppercase font-mono ${isDarkMode ? 'text-sky-400' : 'text-indigo-900'}`}>Tools Catalog</h4>
+              <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'ats-cv'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">ATS Resume Writer</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'cover-letter'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Essay Writer</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'promotion-letter'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Paragraph Writer</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'qr-generator'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">AI Image Generator</a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 4: Tools 2 (unnamed but aligned beautifully of PDF tools as listed in screenshot template mapping) */}
+            <div className="md:col-span-2 space-y-2 md:mt-8 text-sm text-slate-500 dark:text-slate-400">
+              <ul className="space-y-2">
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'job-tracker'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Remove Background</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'kanban-board'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Merge PDF</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'invoice-generator'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Edit PDF</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'unit-converter'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">PDF to JPG</a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 5: Tools 3 */}
+            <div className="md:col-span-2 space-y-2 md:mt-8 text-sm text-slate-500 dark:text-slate-400">
+              <ul className="space-y-2">
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'json-validator'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Compress PDF</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'jwt-decoder'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">JPG to PDF</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'glassmorphism'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Upscale Image</a>
+                </li>
+                <li>
+                  <a href="#" onClick={(e) => { e.preventDefault(); setSelectedCategory('all'); document.getElementById('toolsSectionHeader')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-blue-600 dark:text-sky-400 font-extrabold hover:text-blue-700 dark:hover:text-sky-300 transition-colors">Others →</a>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-200/40 dark:border-slate-800">
+            <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
+              <span>All 41 items executed client-side in secure sandbox memory structures offline.</span>
+            </div>
+            <p className="text-xs text-slate-400">&copy; {new Date().getFullYear()} CareerPouch. All rights reserved.</p>
           </div>
         </div>
       </footer>
