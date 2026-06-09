@@ -166,13 +166,25 @@ export default function App() {
   // ---- LIGHTWEIGHT NATIVE SEO ROUTING SYNC ----
   useEffect(() => {
     const syncToolFromUrl = () => {
+      const pathname = window.location.pathname;
+      const hash = window.location.hash;
       const params = new URLSearchParams(window.location.search);
-      const toolId = params.get('tool');
+      
+      let toolId = params.get('tool');
+      
+      if (!toolId && pathname && pathname.startsWith('/tools/')) {
+        toolId = pathname.replace(/^\/tools\//, '').replace(/\/$/, '');
+      }
+      
+      if (!toolId && hash && hash.startsWith('#/tools/')) {
+        toolId = hash.replace(/^#\/tools\//, '');
+      }
+      
       if (toolId) {
         const foundTool = TOOLS.find(t => t.id === toolId);
         if (foundTool) {
           setSelectedTool(foundTool);
-          document.title = `${foundTool.name} - Career Pouch`;
+          document.title = `${foundTool.name} - Free Offline Builder | Career Pouch`;
           const metaDesc = document.querySelector('meta[name="description"]');
           if (metaDesc) {
             metaDesc.setAttribute('content', `${foundTool.description} Free offline-first developer and business utility tool inside Career Pouch.`);
@@ -259,7 +271,7 @@ export default function App() {
     setSearchQuery('');
     
     // Smoothly update URL to root
-    window.history.pushState({}, '', window.location.pathname);
+    window.history.pushState({}, '', '/');
     document.title = 'Career Pouch - 48-in-1 Dynamic Utility Briefcase';
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
@@ -282,15 +294,15 @@ export default function App() {
   const handleSelectTool = (tool: Tool) => {
     setSelectedTool(tool);
     
-    // Update URL with query parameters elegantly
-    const newUrl = `${window.location.pathname}?tool=${encodeURIComponent(tool.id)}`;
+    // Update URL with clean paths for Programmatic SEO
+    const newUrl = `/tools/${tool.id}`;
     window.history.pushState({ toolId: tool.id }, '', newUrl);
     
     // Swap SEO titles & description metadata
-    document.title = `${tool.name} - Career Pouch`;
+    document.title = `${tool.name} - Free Offline Builder | Career Pouch`;
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute('content', `${tool.description} Free offline-first developer and business utility tool inside Career Pouch.`);
+      metaDesc.setAttribute('content', `${tool.description} Free, 100% offline-first developer and career utility on Career Pouch.`);
     }
 
     // Auto scroll to active tool workspace elegantly
@@ -302,8 +314,8 @@ export default function App() {
   const handleCloseTool = () => {
     setSelectedTool(null);
     
-    // Smoothly remove URL parameter on close
-    window.history.pushState({}, '', window.location.pathname);
+    // Smoothly remove product subpath on close
+    window.history.pushState({}, '', '/');
     document.title = 'Career Pouch - 48-in-1 Dynamic Utility Briefcase';
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
@@ -357,8 +369,12 @@ export default function App() {
         {/* HEADER SECTION */}
         <header className={`sticky top-0 z-40 backdrop-blur-md border-b transition-all ${isDarkMode ? 'bg-[#090d16]/80 border-slate-800' : 'bg-white/80 border-slate-200'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
-          <div 
-            onClick={handleResetToHome}
+          <a 
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              handleResetToHome();
+            }}
             className="flex items-center gap-3.5 animate-fade cursor-pointer hover:opacity-95 transition-all select-none group"
             title="Return to home page"
           >
@@ -371,7 +387,7 @@ export default function App() {
               </div>
               <p className="text-[10px] text-slate-400 font-mono tracking-wider font-bold">41-in-1 DYNAMIC UTILITY BRIEFCASE</p>
             </div>
-          </div>
+          </a>
 
           <div className="flex items-center gap-4">
             {/* Dark & Light System Theme Switcher */}
@@ -422,9 +438,13 @@ export default function App() {
               </div>
               <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full scrollbar-none">
                 {TOOLS.filter(t => t.category === selectedTool.category).map(sibling => (
-                  <button
+                  <a
                     key={sibling.id}
-                    onClick={() => handleSelectTool(sibling)}
+                    href={`/tools/${sibling.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleSelectTool(sibling);
+                    }}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold font-sans transition-all shrink-0 cursor-pointer border ${
                       sibling.id === selectedTool.id
                         ? 'bg-indigo-600 text-white border-transparent shadow shadow-indigo-600/20'
@@ -432,7 +452,7 @@ export default function App() {
                     }`}
                   >
                     {sibling.name}
-                  </button>
+                  </a>
                 ))}
               </div>
             </div>
@@ -648,12 +668,16 @@ export default function App() {
                     <span className="text-slate-400 font-medium flex items-center gap-1">
                       Featured Tool:
                     </span>
-                    <button
-                      onClick={(e) => handleSelectFeaturedTool(e, block.featuredId)}
+                    <a
+                      href={`/tools/${block.featuredId}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleSelectFeaturedTool(e, block.featuredId);
+                      }}
                       className={`px-3 py-1 text-[11px] font-extrabold rounded-full border transition-all cursor-pointer ${block.btnColorTheme}`}
                     >
                       {block.featuredName}
-                    </button>
+                    </a>
                   </div>
                 </div>
               );
@@ -723,9 +747,13 @@ export default function App() {
               const ambient = getCategoryGlow(tool.category);
 
               const cardContent = (
-                <div
+                <a
                   key={tool.id}
-                  onClick={() => handleSelectTool(tool)}
+                  href={`/tools/${tool.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSelectTool(tool);
+                  }}
                   className={`group p-6 rounded-2xl border cursor-pointer hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden ${
                     isWorking
                       ? 'bg-slate-900 border-indigo-500 text-white shadow-xl ring-2 ring-indigo-500/20'
@@ -752,7 +780,7 @@ export default function App() {
                       </div>
                       <div className="flex items-center gap-1.5">
                         {/* Interactive dynamic pin shortcuts button */}
-                        <button
+                        <span
                           onClick={(e) => togglePinTool(e, tool.id)}
                           className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
                             pinnedToolIds.includes(tool.id)
@@ -762,7 +790,7 @@ export default function App() {
                           title={pinnedToolIds.includes(tool.id) ? "Unpin shortcut" : "Pin shortcut to desk"}
                         >
                           <Icon name="Pin" size={11} className={pinnedToolIds.includes(tool.id) ? "rotate-45" : ""} />
-                        </button>
+                        </span>
                         <span className={`text-[9px] font-mono uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full border ${
                           isWorking
                             ? 'text-indigo-300 border-indigo-700/50 bg-indigo-950/40'
@@ -806,7 +834,7 @@ export default function App() {
                       Launch <Icon name="ChevronRight" size={10} />
                     </span>
                   </div>
-                </div>
+                </a>
               );
 
               if (index === 2) {
@@ -851,8 +879,12 @@ export default function App() {
           <AdsterraBanner id="ad-bottom" bannerKey="29552977" />
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-200/40">
-            <div 
-              onClick={handleResetToHome}
+            <a 
+              href="/"
+              onClick={(e) => {
+                e.preventDefault();
+                handleResetToHome();
+              }}
               className="flex items-center gap-3.5 cursor-pointer hover:opacity-95 select-none transition-opacity group"
               title="Return to home page"
             >
@@ -861,7 +893,7 @@ export default function App() {
                 <p className="text-sm text-slate-800 dark:text-slate-200 font-bold tracking-tight">Career Pouch Suite</p>
                 <p className="text-[10px] text-slate-400 font-mono">Dynamic client-side sandbox container</p>
               </div>
-            </div>
+            </a>
             <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
               <span>All 41 items executed client-side in secure sandbox memory structures.</span>
             </div>
