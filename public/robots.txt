@@ -1,0 +1,7 @@
+# Robots.txt for CareerPouch - https://careerpouch.com
+User-agent: *
+Allow: /
+
+# Sitemap Location
+Sitemap: https://careerpouch.com/sitemap.xml
+Sitemap: https://www.careerpouch.com/sitemap.xml
