@@ -1,0 +1,4 @@
+# CareerPouch ads.txt
+# Paste your Google AdSense, Adsterra, or other ad network lines here.
+# Example:
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0

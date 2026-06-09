@@ -30,35 +30,6 @@ export const AdsterraBanner: React.FC<AdsterraBannerProps> = ({
       el.className = 'w-full h-full min-h-[250px] flex flex-col items-center justify-center overflow-hidden bg-slate-950/25 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl relative p-6';
     }
 
-    try {
-      // Create options configuration context
-      const atOptions = {
-        key: bannerKey,
-        format: 'iframe',
-        height: height,
-        width: width,
-        params: {}
-      };
-
-      // Set global window option parameter exactly as expected
-      (window as any).atOptions = atOptions;
-
-      // Construct remote config script tag
-      const configScript = document.createElement('script');
-      configScript.type = 'text/javascript';
-      configScript.innerHTML = `atOptions = ${JSON.stringify(atOptions)};`;
-      el.appendChild(configScript);
-
-      // Construct executable invoke script source
-      const invokeScript = document.createElement('script');
-      invokeScript.type = 'text/javascript';
-      invokeScript.src = '//www.highperformanceformat.com/d6b9c7286fad672d25090a5b18587763/invoke.js';
-      el.appendChild(invokeScript);
-
-    } catch (e) {
-      console.warn('Adsterra runtime setup is bypassed in local sandboxed environments.');
-    }
-
     // Append fallback beautiful presentation block in case of sandbox blocking or adblock
     const fallbackBlock = document.createElement('div');
     fallbackBlock.className = 'flex flex-col items-center justify-center text-center px-4 py-2 text-slate-500 font-mono text-[10px] uppercase tracking-wider relative z-10 w-full h-full';
@@ -89,6 +60,51 @@ export const AdsterraBanner: React.FC<AdsterraBannerProps> = ({
       `;
     }
     el.appendChild(fallbackBlock);
+
+    let observer: MutationObserver | null = null;
+    try {
+      // Create options configuration context
+      const atOptions = {
+        key: bannerKey,
+        format: 'iframe',
+        height: height,
+        width: width,
+        params: {}
+      };
+
+      // Set global window option parameter exactly as expected
+      (window as any).atOptions = atOptions;
+
+      // Construct remote config script tag
+      const configScript = document.createElement('script');
+      configScript.type = 'text/javascript';
+      configScript.innerHTML = `atOptions = ${JSON.stringify(atOptions)};`;
+      el.appendChild(configScript);
+
+      // Construct executable invoke script source dynamically based on bannerKey
+      const invokeScript = document.createElement('script');
+      invokeScript.type = 'text/javascript';
+      invokeScript.src = `//www.highperformanceformat.com/${bannerKey}/invoke.js`;
+      el.appendChild(invokeScript);
+
+      // Observe if an iframe gets loaded by the script to hide the fallback block
+      observer = new MutationObserver(() => {
+        const hasIframe = Array.from(el.children).some(child => child.tagName === 'IFRAME');
+        if (hasIframe) {
+          fallbackBlock.style.display = 'none';
+        }
+      });
+      observer.observe(el, { childList: true, subtree: true });
+
+    } catch (e) {
+      console.warn('Adsterra runtime setup is bypassed in local sandboxed environments.');
+    }
+
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+    };
 
   }, [id, bannerKey, width, height]);
 
