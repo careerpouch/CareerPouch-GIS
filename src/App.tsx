@@ -435,46 +435,7 @@ export default function App() {
       {/* Primary elevate wrapper */}
       <div className="relative z-10 flex flex-col min-h-screen">
         
-        {/* HEADER SECTION */}
-        <header className={`sticky top-0 z-40 backdrop-blur-md border-b transition-all ${isDarkMode ? 'bg-[#090d16]/80 border-slate-800' : 'bg-white/80 border-slate-200'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
-          <a 
-            href="/"
-            onClick={(e) => {
-              e.preventDefault();
-              handleResetToHome();
-            }}
-            className="flex items-center gap-3.5 animate-fade cursor-pointer hover:opacity-95 transition-all select-none group"
-            title="Return to home page"
-          >
-            <BrandLogo />
-            <div>
-              <div className="flex items-center gap-1.5">
-                <h1 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 bg-clip-text text-transparent group-hover:brightness-110 transition-all font-sans">
-                  Career Pouch
-                </h1>
-              </div>
-              <p className="text-[10px] text-slate-400 font-mono tracking-wider font-bold">41-in-1 DYNAMIC UTILITY BRIEFCASE</p>
-            </div>
-          </a>
-
-          <div className="flex items-center gap-4">
-            {/* Dark & Light System Theme Switcher */}
-            <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className={`p-2.5 rounded-xl border transition-all cursor-pointer ${isDarkMode ? 'bg-slate-850 hover:bg-slate-800 border-slate-800 text-yellow-400' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 shadow-sm'}`}
-              title="Toggle Layout theme state"
-            >
-              <Icon name={isDarkMode ? 'Sun' : 'Moon'} size={16} />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* ADSTERRA TOP NATIVE BANNER BLOCK */}
-      <div className="px-4 mt-2">
-        <AdsterraBanner id="ad-top" bannerKey="29552977" />
-      </div>
+        {/* Sticky header and top banner container removed as requested since they serve no visual purpose on home entry */}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
         
@@ -568,49 +529,73 @@ export default function App() {
             </p>
           </div>
 
-          {/* DYNAMIC COLOURFUL GLOWING OUTLINE SEARCH BAR */}
-          <div className="max-w-2xl mx-auto mt-8 relative select-none p-[2.5px] rounded-full bg-gradient-to-r from-blue-500 via-indigo-600 via-sky-400 to-teal-400 shadow-md group hover:shadow-indigo-500/20 transition-all duration-350">
-            {/* Interactive Glow Backdrop layer */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-650 via-sky-500 to-teal-400 rounded-full blur-[6px] opacity-40 group-hover:opacity-75 transition-opacity duration-300 pointer-events-none" />
-            
-            <div className="relative flex items-center rounded-full bg-transparent overflow-hidden">
-              <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 z-20">
-                <Icon name="Search" size={18} />
+          {/* SEARCH & SYSTEM THEME STATE TOGGLE CONTROLLER WRAPPER */}
+          <div className="max-w-3xl mx-auto mt-8 flex flex-col sm:flex-row items-center gap-4 justify-center">
+            {/* DYNAMIC COLOURFUL GLOWING OUTLINE SEARCH BAR */}
+            <div className="flex-1 w-full relative select-none p-[2.5px] rounded-full bg-gradient-to-r from-blue-500 via-indigo-600 via-sky-400 to-teal-400 shadow-md group hover:shadow-indigo-500/20 transition-all duration-350">
+              {/* Interactive Glow Backdrop layer */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-650 via-sky-500 to-teal-400 rounded-full blur-[6px] opacity-40 group-hover:opacity-75 transition-opacity duration-300 pointer-events-none" />
+              
+              <div className="relative flex items-center rounded-full bg-transparent overflow-hidden">
+                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 z-20">
+                  <Icon name="Search" size={18} />
+                </div>
+                <input
+                  id="searchInput"
+                  type="text"
+                  placeholder="Search through all 41+ professional tools instantly..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={`w-full pl-12 pr-40 py-4 rounded-full border-none text-sm font-sans transition-all focus:outline-none relative z-10 ${
+                    isDarkMode
+                      ? 'bg-slate-950 text-slate-100 placeholder:text-slate-500'
+                      : 'bg-white text-slate-900 placeholder:text-slate-400'
+                  }`}
+                />
+                {/* Surprise me Dice random router */}
+                <button
+                  onClick={handleRandomToolDiscovery}
+                  className={`absolute right-28 top-2 bottom-2 px-3.5 z-20 rounded-full transition-all flex items-center justify-center gap-1 cursor-pointer border hover:scale-105 active:scale-95 ${
+                    isDarkMode 
+                      ? 'bg-slate-900 border-slate-800 text-indigo-400 hover:text-indigo-300 hover:border-slate-750' 
+                      : 'bg-slate-50 border-slate-205 text-indigo-650 hover:bg-indigo-100/80 hover:border-indigo-200'
+                  }`}
+                  title="Surprise Me: Roll Dice for a random useful tool sandbox!"
+                >
+                  <Icon name="Dices" size={15} />
+                  <span className="text-[10px] font-bold font-mono">Roll</span>
+                </button>
+                <button 
+                  onClick={() => {
+                    document.getElementById('toolsSectionHeader')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="absolute right-2 top-1.5 bottom-1.5 px-6 z-20 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-full text-xs shadow-md transition-all duration-200 flex items-center gap-1.5 group cursor-pointer"
+                >
+                  Search
+                </button>
               </div>
-              <input
-                id="searchInput"
-                type="text"
-                placeholder="Search through all 41+ professional tools instantly..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full pl-12 pr-40 py-4 rounded-full border-none text-sm font-sans transition-all focus:outline-none relative z-10 ${
-                  isDarkMode
-                    ? 'bg-slate-950 text-slate-100 placeholder:text-slate-500'
-                    : 'bg-white text-slate-900 placeholder:text-slate-400'
-                }`}
-              />
-              {/* Surprise me Dice random router */}
-              <button
-                onClick={handleRandomToolDiscovery}
-                className={`absolute right-28 top-2 bottom-2 px-3.5 z-20 rounded-full transition-all flex items-center justify-center gap-1 cursor-pointer border hover:scale-105 active:scale-95 ${
-                  isDarkMode 
-                    ? 'bg-slate-900 border-slate-800 text-indigo-400 hover:text-indigo-300 hover:border-slate-750' 
-                    : 'bg-slate-50 border-slate-205 text-indigo-650 hover:bg-indigo-100/80 hover:border-indigo-200'
-                }`}
-                title="Surprise Me: Roll Dice for a random useful tool sandbox!"
-              >
-                <Icon name="Dices" size={15} />
-                <span className="text-[10px] font-bold font-mono">Roll</span>
-              </button>
-              <button 
-                onClick={() => {
-                  document.getElementById('toolsSectionHeader')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="absolute right-2 top-1.5 bottom-1.5 px-6 z-20 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-full text-xs shadow-md transition-all duration-200 flex items-center gap-1.5 group cursor-pointer"
-              >
-                Search
-              </button>
             </div>
+
+            {/* HIGHLIGHTED INTERACTIVE THEME TOGGLE BUTTON */}
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className={`relative p-3.5 rounded-full border-2 transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer shadow-lg flex items-center justify-center gap-2 group/theme-toggle shrink-0 ${
+                isDarkMode 
+                  ? 'bg-gradient-to-r from-slate-900 to-indigo-950 border-indigo-500 text-yellow-400 hover:border-yellow-400 hover:shadow-yellow-400/25' 
+                  : 'bg-gradient-to-r from-white to-blue-50 border-blue-600 text-blue-600 hover:border-blue-500 hover:bg-blue-100/50 hover:shadow-blue-500/20'
+              }`}
+              title="Toggle Layout theme state (Dark / Light Mode)"
+            >
+              {/* Pulsing colored ring glow around the toggle to capture attention */}
+              <div className={`absolute -inset-1 rounded-full blur-[4px] opacity-40 group-hover/theme-toggle:opacity-75 transition-opacity duration-300 animate-pulse ${
+                isDarkMode ? 'bg-yellow-400/30' : 'bg-blue-500/30'
+              }`} />
+              
+              <Icon name={isDarkMode ? 'Sun' : 'Moon'} size={18} className="relative z-10 transition-transform duration-500 group-hover/theme-toggle:rotate-45" />
+              <span className="text-xs font-black tracking-widest font-mono uppercase pr-1.5 relative z-10">
+                {isDarkMode ? 'Light' : 'Dark'}
+              </span>
+            </button>
           </div>
 
           {/* HIGH-FIDELITY ZERO-DATA PRIVACY & LOCAL SECURITY SEAL PANEL */}
@@ -1094,13 +1079,13 @@ export default function App() {
                   <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'ats-cv'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">ATS Resume Writer</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'cover-letter'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Essay Writer</a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'cover-letter'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Cover Letter Maker</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'promotion-letter'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Paragraph Writer</a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'academic-cv'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Academic CV Builder</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'qr-generator'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">AI Image Generator</a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'qr-generator'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">QR WiFi Badge Generator</a>
                 </li>
               </ul>
             </div>
@@ -1109,16 +1094,16 @@ export default function App() {
             <div className="md:col-span-2 space-y-2 md:mt-8 text-sm text-slate-500 dark:text-slate-400">
               <ul className="space-y-2">
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'job-tracker'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Remove Background</a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'job-tracker'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Job Apps Tracker</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'kanban-board'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Merge PDF</a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'kanban-board'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Kanban Task Board</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'invoice-generator'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Edit PDF</a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'invoice-generator'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Invoice PDF Builder</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'unit-converter'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">PDF to JPG</a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'unit-converter'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Unified Unit Converter</a>
                 </li>
               </ul>
             </div>
@@ -1127,13 +1112,13 @@ export default function App() {
             <div className="md:col-span-2 space-y-2 md:mt-8 text-sm text-slate-500 dark:text-slate-400">
               <ul className="space-y-2">
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'json-validator'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Compress PDF</a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'json-validator'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">JSON Schema Validator</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'jwt-decoder'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">JPG to PDF</a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'jwt-inspector'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">JWT Token Inspector</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'glassmorphism'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Upscale Image</a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); const t = TOOLS.find(x => x.id === 'glassmorphism'); if(t) handleSelectTool(t); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Glassmorphism Styles</a>
                 </li>
                 <li>
                   <a href="#" onClick={(e) => { e.preventDefault(); setSelectedCategory('all'); document.getElementById('toolsSectionHeader')?.scrollIntoView({ behavior: 'smooth' }); }} className="text-blue-600 dark:text-sky-400 font-extrabold hover:text-blue-700 dark:hover:text-sky-300 transition-colors">Others →</a>
