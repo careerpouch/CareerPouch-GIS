@@ -9,7 +9,7 @@ interface AdsterraBannerProps {
 
 export const AdsterraBanner: React.FC<AdsterraBannerProps> = ({ 
   id, 
-  bannerKey = 'd6b9c7286fad672d25095b18587763',
+  bannerKey = '29552977',
   width = 728,
   height = 90
 }) => {

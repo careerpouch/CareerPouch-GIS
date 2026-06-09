@@ -323,7 +323,7 @@ export default function App() {
 
       {/* ADSTERRA TOP NATIVE BANNER BLOCK */}
       <div className="px-4 mt-2">
-        <AdsterraBanner id="ad-top" bannerKey="d6b9c7286fad672d25090a5b18587763" />
+        <AdsterraBanner id="ad-top" bannerKey="29552977" />
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
@@ -624,7 +624,7 @@ export default function App() {
 
           {/* ADSTERRA MID NATIVE BANNER BLOCK */}
           <div className="w-full">
-            <AdsterraBanner id="ad-stats-bottom" bannerKey="d6b9c7286fad672d25090a5b18587763" />
+            <AdsterraBanner id="ad-stats-bottom" bannerKey="29552977" />
           </div>
         </section>
 
@@ -749,7 +749,7 @@ export default function App() {
                   <React.Fragment key={tool.id}>
                     {cardContent}
                     <div className="w-full h-full min-h-[250px]" key="sponsor-grid-1">
-                      <AdsterraBanner id="grid-sponsor-middle-1" width={300} height={250} />
+                      <AdsterraBanner id="grid-sponsor-middle-1" bannerKey="29553000" width={300} height={250} />
                     </div>
                   </React.Fragment>
                 );
@@ -760,7 +760,7 @@ export default function App() {
                   <React.Fragment key={tool.id}>
                     {cardContent}
                     <div className="w-full h-full min-h-[250px]" key="sponsor-grid-2">
-                      <AdsterraBanner id="grid-sponsor-middle-2" width={300} height={250} />
+                      <AdsterraBanner id="grid-sponsor-middle-2" bannerKey="29553000" width={300} height={250} />
                     </div>
                   </React.Fragment>
                 );
@@ -783,7 +783,7 @@ export default function App() {
       <footer className={`mt-16 border-t transition-all ${isDarkMode ? 'bg-slate-950 border-slate-950' : 'bg-slate-50 border-slate-200/50'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
           
-          <AdsterraBanner id="ad-bottom" bannerKey="d6b9c7286fad672d25090a5b18587763" />
+          <AdsterraBanner id="ad-bottom" bannerKey="29552977" />
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-200/40">
             <div 
