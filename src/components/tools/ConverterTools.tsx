@@ -1,11 +1,44 @@
 import React, { useState } from 'react';
 import { Icon } from '../Icon';
+import { HighDemandConverters } from './HighDemandConverters';
+
+const NEW_CONVERTERS = [
+  'crypto-gas-converter',
+  'file-header-extractor',
+  'yaml-json',
+  'toml-json',
+  'url-parser',
+  'unicode-lookup',
+  'html-markdown',
+  'csv-ascii',
+  'chmod-translator',
+  'pdf-to-word',
+  'word-to-markdown',
+  'json-to-excel',
+  'hex-rgb-visualizer',
+  'css-to-tailwind',
+  'img-format-inspector',
+  'pdf-text-extractor',
+  'base-multi-encoder',
+  'hex-utf8',
+  'xml-yaml',
+  'cidr-subnet',
+  'gzip-simulator',
+  'morse-nato',
+  'svg-react-transformer',
+  'sql-ddl-to-json',
+  'color-contrast-wcag'
+];
 
 interface ConverterToolsProps {
   toolId: string;
 }
 
 export const ConverterTools: React.FC<ConverterToolsProps> = ({ toolId }) => {
+  if (NEW_CONVERTERS.includes(toolId)) {
+    return <HighDemandConverters toolId={toolId} />;
+  }
+
   // Common error display helper
   const [errorLog, setErrorLog] = useState('');
 

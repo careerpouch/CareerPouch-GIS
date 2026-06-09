@@ -261,6 +261,181 @@ export const TOOLS: Tool[] = [
     category: 'converters',
     icon: 'Braces'
   },
+  {
+    id: 'crypto-gas-converter',
+    name: 'Ethereum Gwei & Token Gas Calculator',
+    description: 'Estimate Web3 and crypto transactional gas price metrics between Gwei, Wei, Ether, and gas limit thresholds instantly.',
+    category: 'converters',
+    icon: 'Coins'
+  },
+  {
+    id: 'file-header-extractor',
+    name: 'File Magic Byte Signature Extractor',
+    description: 'Analyze hex headers and magic byte sequences client-side to dynamically identify file types (JPG, PDF, PNG, etc.).',
+    category: 'converters',
+    icon: 'Binary'
+  },
+  {
+    id: 'yaml-json',
+    name: 'YAML ⇄ JSON Bidirectional Config Parser',
+    description: 'Transform hierarchical YAML settings streams into standard structural JSON and back without syntax loss.',
+    category: 'converters',
+    icon: 'FileCode'
+  },
+  {
+    id: 'toml-json',
+    name: 'TOML ⇄ JSON Cargo & PyProject Converter',
+    description: 'Convert Rust Cargo or Python PyProject TOML configuration arrays seamlessly into standardized JSON.',
+    category: 'converters',
+    icon: 'Settings'
+  },
+  {
+    id: 'url-parser',
+    name: 'Advanced URL Query & UTMs Decoder',
+    description: 'Parse heavy URL query strings into nested visual key-value grids, with full UTM parameter and encoding decode support.',
+    category: 'converters',
+    icon: 'Globe'
+  },
+  {
+    id: 'unicode-lookup',
+    name: 'Hidden Unicode & Invisible Space Finder',
+    description: 'Detect Zero-Width spaces, non-breaking strings, or hidden emojis within letters and print their escape syntax.',
+    category: 'converters',
+    icon: 'Search'
+  },
+  {
+    id: 'html-markdown',
+    name: 'HTML ⇄ Markdown Bidirectional Converter',
+    description: 'Convert direct rich HTML elements into clean readable Markdown strings, or render Markdown into structured HTML.',
+    category: 'converters',
+    icon: 'FileText'
+  },
+  {
+    id: 'csv-ascii',
+    name: 'CSV ⇄ Markdown Table & ASCII Grid',
+    description: 'Convert spreadsheet-styled CSV lines into developer-ready ASCII text grids or Markdown table rows.',
+    category: 'converters',
+    icon: 'Table'
+  },
+  {
+    id: 'chmod-translator',
+    name: 'UNIX Chmod Permission Translator',
+    description: 'Translate chmod octal code integers (755) to symbolic flags (rwxr-xr-x) and back with visual group checkmarks.',
+    category: 'converters',
+    icon: 'Shield'
+  },
+  {
+    id: 'pdf-to-word',
+    name: 'Clientside PDF to Word Creator',
+    description: 'A highly advanced client-side simulator that parses raw document layout segments and saves them into clean editable DOC outlines.',
+    category: 'converters',
+    icon: 'FileCode'
+  },
+  {
+    id: 'word-to-markdown',
+    name: 'Docx Word to Markdown Plain-text Extractor',
+    description: 'Extract direct paragraphs and structure from Word formats and map them to clean Markdown layout headings.',
+    category: 'converters',
+    icon: 'FileCode'
+  },
+  {
+    id: 'json-to-excel',
+    name: 'Nested JSON to CSV/Excel Flattening Grid',
+    description: 'Surgically flatten multi-layered JSON hierarchies into clean spreadsheet tables ready for Excel download.',
+    category: 'converters',
+    icon: 'Grid'
+  },
+  {
+    id: 'hex-rgb-visualizer',
+    name: 'Visual Hex ⇄ Color Space Spectrometer',
+    description: 'Translate complex HEX values directly to HSL/RGBA/CMYK with side-by-side color matching and tone variations.',
+    category: 'converters',
+    icon: 'Palette'
+  },
+  {
+    id: 'css-to-tailwind',
+    name: 'Surgical CSS-to-Tailwind Class Mapper',
+    description: 'Translate standard CSS layout declarations (e.g., flex-direction: column) into their exact Tailwind utility counterpart.',
+    category: 'converters',
+    icon: 'Sparkles'
+  },
+  {
+    id: 'img-format-inspector',
+    name: 'Image Extension & Compression Inspector',
+    description: 'Simulate size-per-format compression ratios (PNG, JPG, WebP, AVIF) at custom quality degradation sliders.',
+    category: 'converters',
+    icon: 'Image'
+  },
+  {
+    id: 'pdf-text-extractor',
+    name: 'Local PDF Plain-Text Harvester',
+    description: 'Paste file structures or process local raw text configurations out of PDFs using local canvas text metrics.',
+    category: 'converters',
+    icon: 'FileText'
+  },
+  {
+    id: 'base-multi-encoder',
+    name: 'Base32 / Base58 / Base85 Multi-Protocol Packer',
+    description: 'Convert data strings into professional cryptographic formats used in IPFS, Bitcoin, and Git environments.',
+    category: 'converters',
+    icon: 'Key'
+  },
+  {
+    id: 'hex-utf8',
+    name: 'Hex Hexadecimal ⇄ UTF-8 Character Decoder',
+    description: 'Translate continuous streams of hexadecimal numbers into clean readable UTF-8 text and detailed byte layouts.',
+    category: 'converters',
+    icon: 'Binary'
+  },
+  {
+    id: 'xml-yaml',
+    name: 'XML ⇄ YAML Cloud Configuration Bridge',
+    description: 'Format heavy enterprise XML payloads directly into tidy, modern DevOps-compliant YAML files instantly.',
+    category: 'converters',
+    icon: 'FileCode'
+  },
+  {
+    id: 'cidr-subnet',
+    name: 'CIDR IPv4 Subnet Mask Splitter',
+    description: 'Deconstruct IP addresses and subnet masks to calculate host ranges, broadcast addresses, and CIDR notation values.',
+    category: 'converters',
+    icon: 'Globe'
+  },
+  {
+    id: 'gzip-simulator',
+    name: 'Gzip / Deflate Compression Calculator',
+    description: 'Paste heavy scripts or payloads to calculate raw compression efficiency ratios and byte savings locally.',
+    category: 'converters',
+    icon: 'TrendingUp'
+  },
+  {
+    id: 'morse-nato',
+    name: 'Morse Code & NATO Phonetic Alphabet Parser',
+    description: 'Bi-directionally translate text strings into soundable Morse code dots or international NATO military spelling lists.',
+    category: 'converters',
+    icon: 'Volume2'
+  },
+  {
+    id: 'svg-react-transformer',
+    name: 'SVG Code ⇄ React JSX component Sanitizer',
+    description: 'Clean messy vector drawings, remove XML parameters, and translate them into ready-to-use reusable React components.',
+    category: 'converters',
+    icon: 'Sparkles'
+  },
+  {
+    id: 'sql-ddl-to-json',
+    name: 'SQL DDL Schema ⇄ JSON schema Translator',
+    description: 'Parse raw database CREATE TABLE statements to output structured JSON models and relational schemas.',
+    category: 'converters',
+    icon: 'Database'
+  },
+  {
+    id: 'color-contrast-wcag',
+    name: 'WCAG AAA Color Contrast & Accessibility Checker',
+    description: 'Calculate the precise visual contrast ratio between any foreground and background color for digital accessibility.',
+    category: 'converters',
+    icon: 'Sliders'
+  },
 
   // TEXT: 5 tools (including word-counter, text-diff, html-entity, markdown-html, svg-optimizer)
   {

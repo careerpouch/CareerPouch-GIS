@@ -35,7 +35,7 @@ const BrandLogo = () => (
 );
 
 // High-fidelity, interactively dynamic Visual Suitcase illustration as requested
-const DynamicVisualSuitcase = () => (
+const DynamicVisualSuitcase = ({ jumpingCount }: { jumpingCount: number }) => (
   <div className="relative mx-auto w-32 h-24 my-6 group cursor-pointer select-none">
     {/* Glow shadow behind suitcase */}
     <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-sky-400 to-teal-400 rounded-2xl blur-lg opacity-40 group-hover:opacity-75 transition-opacity duration-500 animate-pulse" />
@@ -84,7 +84,7 @@ const DynamicVisualSuitcase = () => (
 
     {/* Custom Badge Bubble popping out */}
     <div className="absolute -top-1 -right-4 bg-gradient-to-r from-teal-400 to-indigo-500 text-slate-950 dark:text-white text-[8px] font-black font-mono px-2 py-0.5 rounded-full shadow-lg border border-teal-300/40 animate-bounce">
-      41+ UTILS
+      {jumpingCount}+ UTILS
     </div>
 
     {/* Floating symbols erupting elegantly from the side on hover */}
@@ -234,6 +234,30 @@ export default function App() {
   const [isStickyAdVisible, setIsStickyAdVisible] = useState(true);
   const prevScrollPosRef = useRef<number>(0);
 
+  const [jumpingCount, setJumpingCount] = useState(0);
+
+  // Jump up animation metric count
+  useEffect(() => {
+    let start = 0;
+    const end = TOOLS.length; // Live count 73
+    if (start === end) return;
+    
+    const duration = 1000; // ms
+    const increment = Math.ceil(end / (duration / 30));
+    
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= end) {
+        setJumpingCount(end);
+        clearInterval(timer);
+      } else {
+        setJumpingCount(start);
+      }
+    }, 30);
+    
+    return () => clearInterval(timer);
+  }, []);
+
   // ---- LIGHTWEIGHT NATIVE SEO ROUTING SYNC ----
   useEffect(() => {
     const syncToolFromUrl = () => {
@@ -266,11 +290,11 @@ export default function App() {
           }, 300);
         } else {
           setSelectedTool(null);
-          document.title = 'Career Pouch - 48-in-1 Dynamic Utility Briefcase';
+          document.title = `Career Pouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
         }
       } else {
         setSelectedTool(null);
-        document.title = 'Career Pouch - 48-in-1 Dynamic Utility Briefcase';
+        document.title = `Career Pouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
       }
     };
 
@@ -343,10 +367,10 @@ export default function App() {
     
     // Smoothly update URL to root
     window.history.pushState({}, '', '/');
-    document.title = 'Career Pouch - 48-in-1 Dynamic Utility Briefcase';
+    document.title = `Career Pouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute('content', 'Career Pouch is a 48-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.');
+      metaDesc.setAttribute('content', `Career Pouch is a ${TOOLS.length}-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.`);
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -390,10 +414,10 @@ export default function App() {
     
     // Smoothly remove product subpath on close
     window.history.pushState({}, '', '/');
-    document.title = 'Career Pouch - 48-in-1 Dynamic Utility Briefcase';
+    document.title = `Career Pouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute('content', 'Career Pouch is a 48-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.');
+      metaDesc.setAttribute('content', `Career Pouch is a ${TOOLS.length}-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.`);
     }
 
     // Restore the scroll position they were at before choosing a tool
@@ -519,7 +543,7 @@ export default function App() {
           </div>
 
           {/* Interactive animated physical mini suitcase container */}
-          <DynamicVisualSuitcase />
+          <DynamicVisualSuitcase jumpingCount={jumpingCount} />
 
           <h2 className="text-5xl font-black md:text-6xl tracking-tight leading-none font-sans mt-3">
             <span className={`bg-gradient-to-r ${isDarkMode ? 'from-cyan-400 via-sky-300 to-indigo-300' : 'from-blue-700 via-indigo-955 to-sky-600'} bg-clip-text text-transparent`}>
@@ -555,7 +579,7 @@ export default function App() {
                 <input
                   id="searchInput"
                   type="text"
-                  placeholder="Search through all 41+ professional tools instantly..."
+                  placeholder={`Search through all ${jumpingCount}+ professional tools instantly...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className={`w-full pl-12 pr-40 py-4 rounded-full border-none text-sm font-sans transition-all focus:outline-none relative z-10 ${
@@ -856,7 +880,7 @@ export default function App() {
             </div>
             <div className="w-px h-8 bg-slate-200 hidden lg:block" />
             <div className="flex items-center gap-3.5 min-w-[150px]">
-              <span className="text-4xl font-extrabold text-rose-500 tracking-tight font-sans">41+</span>
+              <span className="text-4xl font-extrabold text-rose-500 tracking-tight font-sans">{jumpingCount}+</span>
               <span className="text-xs font-bold text-slate-400 leading-tight">Sandboxed<br />Modules</span>
             </div>
             <div className="w-px h-8 bg-slate-200 hidden lg:block" />
@@ -1083,7 +1107,7 @@ export default function App() {
                   <a href="#" onClick={(e) => { e.preventDefault(); alert("Developer sandbox log feeds are saved entirely locally."); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Blog</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); alert("Career Pouch: A dynamic toolbox of 41 high-impact developer and career building tools."); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">About</a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); alert(`Career Pouch: A dynamic toolbox of ${TOOLS.length} high-impact developer and career building tools.`); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">About</a>
                 </li>
               </ul>
             </div>
@@ -1147,7 +1171,7 @@ export default function App() {
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-200/40 dark:border-slate-800">
             <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
-              <span>All 41 items executed client-side in secure sandbox memory structures offline.</span>
+              <span>All {TOOLS.length} items executed client-side in secure sandbox memory structures offline.</span>
             </div>
             <p className="text-xs text-slate-400">&copy; {new Date().getFullYear()} CareerPouch. All rights reserved.</p>
           </div>

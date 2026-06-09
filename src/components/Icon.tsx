@@ -62,7 +62,10 @@ import {
   RotateCcw,
   RefreshCw,
   EyeOff,
-  ChevronDown
+  ChevronDown,
+  Table,
+  Sliders,
+  Volume2
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<any>> = {
@@ -128,7 +131,10 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   RotateCcw,
   RefreshCw,
   EyeOff,
-  ChevronDown
+  ChevronDown,
+  Table,
+  Sliders,
+  Volume2
 };
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
