@@ -1,0 +1,6 @@
+{
+  "name": "CareerPouch",
+  "description": "A comprehensive career development pouch featuring 41 professional text utilities, career builders, and mathematical tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
