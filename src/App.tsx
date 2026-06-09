@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { TOOLS } from './data/toolsData';
 import { CATEGORIES, Tool, CategoryType } from './types';
 import { Icon } from './components/Icon';
@@ -231,6 +231,8 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | 'all'>('all');
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false); // Light Mode Default
+  const [isStickyAdVisible, setIsStickyAdVisible] = useState(true);
+  const prevScrollPosRef = useRef<number>(0);
 
   // ---- LIGHTWEIGHT NATIVE SEO ROUTING SYNC ----
   useEffect(() => {
@@ -361,6 +363,9 @@ export default function App() {
   }, [searchQuery, selectedCategory]);
 
   const handleSelectTool = (tool: Tool) => {
+    if (!selectedTool) {
+      prevScrollPosRef.current = window.scrollY;
+    }
     setSelectedTool(tool);
     
     // Update URL with clean paths for Programmatic SEO
@@ -390,6 +395,15 @@ export default function App() {
     if (metaDesc) {
       metaDesc.setAttribute('content', 'Career Pouch is a 48-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.');
     }
+
+    // Restore the scroll position they were at before choosing a tool
+    const targetScroll = prevScrollPosRef.current;
+    setTimeout(() => {
+      window.scrollTo({
+        top: targetScroll,
+        behavior: 'smooth'
+      });
+    }, 80);
   };
 
   // Directly select a featured tool from category block footer click
@@ -434,8 +448,6 @@ export default function App() {
 
       {/* Primary elevate wrapper */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        
-        {/* Sticky header and top banner container removed as requested since they serve no visual purpose on home entry */}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
         
@@ -656,6 +668,11 @@ export default function App() {
             </div>
           </div>
         </section>
+
+        {/* ADSTERRA TOP NATIVE BANNER BLOCK - HIGH-EARNING POSITION DIRECTLY UNDER INTRO DESK */}
+        <div className="w-full">
+          <AdsterraBanner id="ad-top" bannerKey="29552977" />
+        </div>
 
         {/* INTERACTIVE PINNED SHORTCUTS & SECURE MEMORY DESK INDICATORS */}
         <section className={`p-5 rounded-2xl border transition-all ${isDarkMode ? 'bg-slate-900/25 border-slate-800' : 'bg-slate-50/50 border-slate-205 shadow-sm'}`}>
@@ -1136,6 +1153,41 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* STICKY ADSTERRA ANCHORED FOOTER BANNER (TinyWow style) */}
+      {isStickyAdVisible && (
+        <div className={`fixed bottom-0 left-0 right-0 z-50 transition-all border-t shadow-2xl backdrop-blur-md pb-safe ${
+          isDarkMode 
+            ? 'bg-slate-950/95 border-slate-800 text-slate-300 shadow-slate-950/50' 
+            : 'bg-white/95 border-slate-200 text-slate-650 shadow-slate-200/50'
+        }`}>
+          <div className="max-w-7xl mx-auto px-4 relative py-1 flex flex-col items-center justify-center">
+            {/* Sponsored label and close button bar */}
+            <div className="w-full max-w-[728px] flex items-center justify-between text-[9px] font-mono tracking-wider font-semibold text-slate-400 dark:text-slate-500 mb-0.5 px-0.5">
+              <span className="flex items-center gap-1 uppercase">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                Sponsored Ad Block
+              </span>
+              <button 
+                onClick={() => setIsStickyAdVisible(false)}
+                className="flex items-center gap-1 hover:text-rose-600 dark:hover:text-rose-400 transition-colors uppercase cursor-pointer"
+                title="Dismiss ad banner"
+              >
+                <span>Close</span>
+                <Icon name="X" size={10} />
+              </button>
+            </div>
+            
+            {/* Leaderboard banner itself */}
+            <div className="w-full flex items-center justify-center">
+              <AdsterraBanner id="ad-sticky-footer" bannerKey="29552977" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Extra spacing at bottom of entire container when sticky ad is active to prevent blocking content */}
+      {isStickyAdVisible && <div className="h-[120px] shrink-0" />}
       </div>
     </div>
   );
