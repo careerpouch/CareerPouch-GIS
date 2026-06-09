@@ -24,85 +24,155 @@ export const AdsterraBanner: React.FC<AdsterraBannerProps> = ({
 
     // Style the containers to maintain custom height and center them
     if (width === 728) {
-      el.className = 'w-full min-h-[90px] flex items-center justify-center my-6 overflow-hidden bg-slate-950/20 border border-slate-800/60 rounded-xl max-w-[728px] mx-auto';
+      el.className = 'w-full min-h-[96px] flex items-center justify-center my-6 overflow-hidden bg-slate-950/20 border border-slate-805/40 rounded-xl max-w-[728px] mx-auto';
     } else {
       // Grid Card block dimensions format
-      el.className = 'w-full h-full min-h-[250px] flex flex-col items-center justify-center overflow-hidden bg-slate-950/25 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl relative p-6';
+      el.className = 'w-full h-full min-h-[250px] flex flex-col items-center justify-center overflow-hidden bg-slate-950/25 dark:bg-slate-950/40 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl relative p-4';
     }
 
-    // Append fallback beautiful presentation block in case of sandbox blocking or adblock
-    const fallbackBlock = document.createElement('div');
-    fallbackBlock.className = 'flex flex-col items-center justify-center text-center px-4 py-2 text-slate-500 font-mono text-[10px] uppercase tracking-wider relative z-10 w-full h-full';
-    
-    if (width === 728) {
-      fallbackBlock.innerHTML = `
-        <div class="flex items-center gap-1.5 text-xs text-amber-500/80 font-bold mb-1">
-          <span>● Simulated Sponsor Slot</span>
-        </div>
-        <div>Size: ${width} × ${height} Leaderboard • iframe</div>
-        <div class="text-[9px] text-slate-600/70 mt-1">Ready for high-paying Google AdSense / Adsterra live units</div>
-      `;
-    } else {
-      fallbackBlock.innerHTML = `
-        <div class="flex items-center gap-1.5 text-xs text-rose-500/80 font-bold mb-1.5">
-          <svg class="w-4 h-4 text-rose-400 rotate-12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.086 1.086L11.25 11.25z" />
-          </svg>
-          <span class="font-sans font-extrabold tracking-tight">SPONSORED CAMPAIGN</span>
-        </div>
-        <div class="text-[11px] font-sans text-slate-400 normal-case leading-relaxed max-w-[200px] mb-3">
-          Support CareerPouch by keeping our 100% free server-acceleration servers open for everyone.
-        </div>
-        <div class="text-[10px] font-mono text-slate-550 border border-dashed border-slate-700/50 px-2 py-1 rounded bg-slate-900/60">
-          Format: ${width} × ${height} Grid Square
-        </div>
-      `;
-    }
-    el.appendChild(fallbackBlock);
+    // Create the Ad-isolation Sandbox iFrame to contain the atOptions context
+    const iframe = document.createElement('iframe');
+    iframe.style.width = `${width}px`;
+    iframe.style.height = `${height}px`;
+    iframe.style.maxWidth = '100%';
+    iframe.style.border = 'none';
+    iframe.style.overflow = 'hidden';
+    iframe.style.background = 'transparent';
+    iframe.scrolling = 'no';
+    iframe.title = `Adsterra-Sponsor-${id}`;
 
-    let observer: MutationObserver | null = null;
+    el.appendChild(iframe);
+
+    let checkInterval: any = null;
     try {
-      // Create options configuration context
-      const atOptions = {
-        key: bannerKey,
-        format: 'iframe',
-        height: height,
-        width: width,
-        params: {}
-      };
+      const doc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (doc) {
+        doc.open();
+        doc.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="UTF-8">
+              <style>
+                html, body {
+                  margin: 0;
+                  padding: 0;
+                  width: 100%;
+                  height: 100%;
+                  overflow: hidden;
+                  background: transparent;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                }
+                #fallback {
+                  font-family: monospace;
+                  font-size: 10px;
+                  color: #64748b;
+                  text-transform: uppercase;
+                  letter-spacing: 0.1em;
+                  text-align: center;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  width: 100%;
+                  height: 100%;
+                  box-sizing: border-box;
+                  padding: 10px;
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  z-index: 10;
+                  pointer-events: none;
+                }
+              </style>
+            </head>
+            <body>
+              <div id="fallback">
+                ${width === 728 ? `
+                  <div style="color: rgba(245, 158, 11, 0.85); font-weight: bold; font-family: sans-serif; font-size: 12px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; justify-content: center;">
+                    <span style="color: #f59e0b;">●</span> Sponsored Ad Slot
+                  </div>
+                  <div style="font-size: 9px; margin-bottom: 2px;">Format: ${width}x${height} Leaderboard</div>
+                  <div style="color: rgba(148, 163, 184, 0.6); font-size: 9px; text-transform: none;">Active Network Unit Live</div>
+                ` : `
+                  <div style="color: rgba(244, 63, 94, 0.85); font-weight: bold; font-family: sans-serif; font-size: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; justify-content: center;">
+                    <span style="color: #f43f5e;">●</span> Sponsored Block
+                  </div>
+                  <div style="font-family: sans-serif; font-size: 11px; color: #94a3b8; text-transform: none; line-height: 1.4; margin-bottom: 12px; max-w-xs; text-align: center;">
+                    Support CareerPouch. Keep our free professional tools online for everyone.
+                  </div>
+                  <div style="font-size: 9px; padding: 4px 8px; border: 1px dashed rgba(100,116,139,0.3); border-radius: 4px; background: rgba(15,23,42,0.4);">
+                    Square Unit: ${width}x${height}
+                  </div>
+                `}
+              </div>
 
-      // Set global window option parameter exactly as expected
-      (window as any).atOptions = atOptions;
+              <script type="text/javascript">
+                var atOptions = {
+                  'key' : '${bannerKey}',
+                  'format' : 'iframe',
+                  'height' : ${height},
+                  'width' : ${width},
+                  'params' : {}
+                };
+                
+                window.addEventListener('load', function() {
+                  setTimeout(function() {
+                    var hasAd = false;
+                    for (var i = 0; i < document.body.children.length; i++) {
+                      var tag = document.body.children[i].tagName;
+                      if (tag === 'IFRAME' || tag === 'A' || (tag === 'DIV' && document.body.children[i].id !== 'fallback')) {
+                        hasAd = true;
+                        break;
+                      }
+                    }
+                    if (hasAd) {
+                      var fb = document.getElementById('fallback');
+                      if (fb) fb.style.display = 'none';
+                    }
+                  }, 1200);
+                });
+              </script>
+              <script type="text/javascript" src="https://www.highperformanceformat.com/${bannerKey}/invoke.js"></script>
+            </body>
+          </html>
+        `);
+        doc.close();
 
-      // Construct remote config script tag
-      const configScript = document.createElement('script');
-      configScript.type = 'text/javascript';
-      configScript.innerHTML = `atOptions = ${JSON.stringify(atOptions)};`;
-      el.appendChild(configScript);
-
-      // Construct executable invoke script source dynamically based on bannerKey
-      const invokeScript = document.createElement('script');
-      invokeScript.type = 'text/javascript';
-      invokeScript.src = `//www.highperformanceformat.com/${bannerKey}/invoke.js`;
-      el.appendChild(invokeScript);
-
-      // Observe if an iframe gets loaded by the script to hide the fallback block
-      observer = new MutationObserver(() => {
-        const hasIframe = Array.from(el.children).some(child => child.tagName === 'IFRAME');
-        if (hasIframe) {
-          fallbackBlock.style.display = 'none';
-        }
-      });
-      observer.observe(el, { childList: true, subtree: true });
-
+        // Active checker on main thread to hide fallback when ad code is active
+        checkInterval = setInterval(() => {
+          try {
+            const innerDoc = iframe.contentDocument || iframe.contentWindow?.document;
+            if (innerDoc) {
+              const children = Array.from(innerDoc.body?.children || []);
+              const hasAd = children.some(child => 
+                child.tagName === 'IFRAME' || 
+                child.tagName === 'A' || 
+                (child.tagName === 'DIV' && child.id !== 'fallback')
+              );
+              if (hasAd) {
+                const fb = innerDoc.getElementById('fallback');
+                if (fb) {
+                  fb.style.display = 'none';
+                }
+                clearInterval(checkInterval);
+              }
+            }
+          } catch (e) {
+            // Cross domain navigation handles self
+            clearInterval(checkInterval);
+          }
+        }, 1000);
+      }
     } catch (e) {
-      console.warn('Adsterra runtime setup is bypassed in local sandboxed environments.');
+      console.warn('Adsterra sandboxed frame initialization bypassed due to restricted environment.', e);
     }
 
     return () => {
-      if (observer) {
-        observer.disconnect();
+      if (checkInterval) {
+        clearInterval(checkInterval);
       }
     };
 
