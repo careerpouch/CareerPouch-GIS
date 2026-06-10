@@ -1,6 +1,325 @@
 import React, { useState } from 'react';
 import { Icon } from '../Icon';
 
+// ============================================================================
+// helper sub-components for Design Tools (3)
+// ============================================================================
+
+const FontPairerTool: React.FC = () => {
+  const [pairing, setPairing] = useState('Tech Grotesque');
+  const [sizeScale, setSizeScale] = useState(32);
+
+  const pairings: Record<string, { header: string; body: string; fontHeader: string; fontBody: string; desc: string }> = {
+    'Tech Grotesque': {
+      header: 'Space Grotesk',
+      body: 'JetBrains Mono',
+      fontHeader: 'font-sans font-black uppercase tracking-tight',
+      fontBody: 'font-mono text-slate-400 leading-relaxed',
+      desc: 'Perfect for developer portfolios, crypto metrics dashboards, or futuristic visual widgets.'
+    },
+    'Editorial Serif': {
+      header: 'Playfair Display',
+      body: 'Inter',
+      fontHeader: 'font-serif font-extrabold italic text-slate-100',
+      fontBody: 'font-sans text-slate-350 leading-relaxed',
+      desc: 'Suited for magazines, blogs, luxury brand mockups, and typography-rich essays.'
+    },
+    'Swiss Minimalist': {
+      header: 'Inter (Sans-Serif)',
+      body: 'Inter',
+      fontHeader: 'font-sans font-black tracking-tighter text-white',
+      fontBody: 'font-sans text-slate-400 leading-relaxed font-light',
+      desc: 'The gold standard for SaaS interfaces, admin configurations, and minimal productivity suites.'
+    }
+  };
+
+  const active = pairings[pairing] || pairings['Tech Grotesque'];
+
+  return (
+    <div className="space-y-6 font-sans">
+      <div className="border-b border-slate-705 pb-3">
+        <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+          <Icon name="Type" className="text-cyan-400" />
+          Interactive Typography Font Pairer
+        </h2>
+        <p className="text-sm text-slate-400 mt-1">Simulate combinations of headings and body passages side-by-side with responsive size ranges.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-4 bg-slate-800/40 p-5 rounded-2xl border border-slate-750 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-350 font-mono">Pairing Settings</h3>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1.5 font-bold">Preset Combinations</label>
+              <div className="space-y-1">
+                {Object.keys(pairings).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPairing(p)}
+                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                      pairing === p ? 'bg-cyan-900/30 border-cyan-505 text-cyan-400' : 'bg-slate-900 border-slate-800 text-slate-400'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1 w-full">Heading Size (px)</label>
+              <input
+                type="range"
+                min="24"
+                max="64"
+                value={sizeScale}
+                onChange={(e) => setSizeScale(parseInt(e.target.value) || 32)}
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+              />
+              <span className="text-[10px] font-mono text-slate-500 block text-right mt-1 font-bold">{sizeScale}px</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-8 bg-slate-950 p-6 rounded-2xl border border-slate-850 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-cyan-400 font-mono border-b border-slate-900 pb-2">Visual Playground</h3>
+
+          <div className="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-4 max-w-full">
+            <h1 className={`${active.fontHeader}`} style={{ fontSize: `${sizeScale}px` }}>
+              This is a beautiful heading
+            </h1>
+            <p className={`${active.fontBody} text-xs md:text-sm`}>
+              Every user interface should be distinctive, highly polished, and professional. This preview showcases how typography pairing, spacing, and sizing proportions reinforce a cohesive visual framework offline.
+            </p>
+          </div>
+
+          <div className="p-3.5 bg-slate-905 rounded-xl border border-slate-850/60 font-mono text-[10px] text-slate-400 space-y-1">
+            <span className="text-cyan-500 block uppercase font-bold">Tailwind CSS Classes Guide:</span>
+            <code className="text-slate-200 block bg-slate-950 p-2.5 rounded-lg select-all select-text break-words">
+              {`<!-- Heading -->\n<h1 class="${active.fontHeader}">Hello World</h1>\n\n<!-- Body -->\n<p class="${active.fontBody}">Description text</p>`}
+            </code>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AspectRatioTool: React.FC = () => {
+  const [ratioType, setRatioType] = useState('16:9');
+  const [baseWidth, setBaseWidth] = useState('1920');
+
+  const ratios: Record<string, { w: number; h: number; percent: string }> = {
+    '16:9': { w: 16, h: 9, percent: '56.25%' },
+    '4:3': { w: 4, h: 3, percent: '75.00%' },
+    '1:1': { w: 1, h: 1, percent: '100.00%' },
+    '21:9': { w: 21, h: 9, percent: '42.85%' }
+  };
+
+  const active = ratios[ratioType] || ratios['16:9'];
+  const widthVal = parseFloat(baseWidth) || 1280;
+  const heightVal = Math.round((widthVal * active.h) / active.w);
+
+  return (
+    <div className="space-y-6 font-sans">
+      <div className="border-b border-slate-705 pb-3">
+        <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+          <Icon name="Grid" className="text-cyan-404" />
+          Proportional Aspect Ratio Grid visualizer
+        </h2>
+        <p className="text-sm text-slate-404 mt-1">Design scaled layout canvases and calculate dimension height ratios instantly.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-slate-800/40 p-5 rounded-2xl border border-slate-755 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-350 font-mono">Aspect Config</h3>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1.5 font-bold">Standard Presets</label>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.keys(ratios).map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setRatioType(r)}
+                    className={`px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all ${
+                      ratioType === r ? 'bg-cyan-900/30 border-cyan-505 text-cyan-400' : 'bg-slate-900 border-slate-800 text-slate-400'
+                    }`}
+                  >
+                    {r} (Aspect {active.w === ratios[r].w ? 'Selected' : 'Preset'})
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1 font-bold">Base Width (px / units)</label>
+              <input
+                type="number"
+                value={baseWidth}
+                onChange={(e) => setBaseWidth(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white text-center font-mono"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-850 flex flex-col justify-between">
+          <div className="space-y-4">
+            <h4 className="text-[10px] uppercase font-mono tracking-widest font-bold text-cyan-400 border-b border-slate-900 pb-2">Proportional Outputs</h4>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 bg-slate-900 border border-slate-850 rounded-xl space-y-1">
+                <span className="text-[9px] text-slate-500 font-mono">CALCULATED HEIGHT:</span>
+                <div className="text-lg font-bold font-mono text-emerald-400">{heightVal}px</div>
+              </div>
+              <div className="p-3 bg-slate-900 border border-slate-850 rounded-xl space-y-1">
+                <span className="text-[9px] text-slate-500 font-mono">PADDING-BOTTOM %:</span>
+                <div className="text-lg font-bold font-mono text-indigo-400">{active.percent}</div>
+              </div>
+            </div>
+
+            {/* Scale mockup grid */}
+            <div className="pt-3">
+              <span className="text-[9px] text-slate-500 font-mono block uppercase mb-1.5">Scaled visual Grid card:</span>
+              <div className="w-full bg-slate-902 border border-slate-800 rounded-xl overflow-hidden relative flex items-center justify-center text-slate-400 group border-dashed" style={{ aspectRatio: `${active.w}/${active.h}` }}>
+                <span className="text-xs font-mono font-bold text-cyan-500">{active.w}:{active.h} scale box ({widthVal} x {heightVal})</span>
+                <div className="absolute inset-0 bg-cyan-705/5 border border-cyan-505/20 group-hover:bg-cyan-505/10 transition-colors pointer-events-none" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CssShadowTool: React.FC = () => {
+  const [shadow, setShadow] = useState({
+    x: 0,
+    y: 8,
+    blur: 16,
+    spread: 0,
+    opacity: 30
+  });
+
+  const getShadowCss = () => {
+    return `box-shadow: ${shadow.x}px ${shadow.y}px ${shadow.blur}px ${shadow.spread}px rgba(0, 0, 0, ${shadow.opacity / 100});`;
+  };
+
+  return (
+    <div className="space-y-6 font-sans">
+      <div className="border-b border-slate-705 pb-3">
+        <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+          <Icon name="Layers" className="text-cyan-404" />
+          Interactive 3D CSS Shadow Visualizer & Builder
+        </h2>
+        <p className="text-sm text-slate-404 mt-1 font-sans">Slide offsets, blur profiles, and preview styled depth overlays offline.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-slate-800/40 p-5 rounded-2xl border border-slate-755 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-350 font-mono">Settings Sliders</h3>
+
+          <div className="space-y-3.5">
+            <div>
+              <label className="block text-[10px] text-slate-404 uppercase font-mono mb-1">X-Offset: {shadow.x}px</label>
+              <input
+                type="range"
+                min="-30"
+                max="30"
+                value={shadow.x}
+                onChange={(e) => setShadow({...shadow, x: parseInt(e.target.value) || 0})}
+                className="w-full h-1 appearance-none bg-slate-900 rounded accent-cyan-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-slate-404 uppercase font-mono mb-1">Y-Offset: {shadow.y}px</label>
+              <input
+                type="range"
+                min="-30"
+                max="30"
+                value={shadow.y}
+                onChange={(e) => setShadow({...shadow, y: parseInt(e.target.value) || 0})}
+                className="w-full h-1 appearance-none bg-slate-900 rounded accent-cyan-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-slate-404 uppercase font-mono mb-1">Blur Radius: {shadow.blur}px</label>
+              <input
+                type="range"
+                min="0"
+                max="60"
+                value={shadow.blur}
+                onChange={(e) => setShadow({...shadow, blur: parseInt(e.target.value) || 0})}
+                className="w-full h-1 appearance-none bg-slate-900 rounded accent-cyan-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-slate-404 uppercase font-mono mb-1">Spread: {shadow.spread}px</label>
+              <input
+                type="range"
+                min="-15"
+                max="15"
+                value={shadow.spread}
+                onChange={(e) => setShadow({...shadow, spread: parseInt(e.target.value) || 0})}
+                className="w-full h-1 appearance-none bg-slate-900 rounded accent-cyan-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-slate-404 uppercase font-mono mb-1 font-bold">Opacity: {shadow.opacity}%</label>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={shadow.opacity}
+                onChange={(e) => setShadow({...shadow, opacity: parseInt(e.target.value) || 0})}
+                className="w-full h-1 appearance-none bg-slate-900 rounded accent-cyan-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-850 flex flex-col justify-between">
+          <div className="space-y-4">
+            <h4 className="text-[10px] uppercase font-mono tracking-widest font-bold text-cyan-400 border-b border-slate-900 pb-2">CSS Code Generator</h4>
+            <code className="text-slate-200 block text-xs bg-slate-900 p-3.5 rounded-xl select-all select-text break-all border border-slate-850">
+              {getShadowCss()}
+            </code>
+
+            {/* Depth preview board */}
+            <div className="pt-6 pb-4 flex items-center justify-center">
+              <div
+                className="w-24 h-24 bg-cyan-600 rounded-2xl border border-cyan-500 transition-all font-mono font-black text-slate-950 flex items-center justify-center uppercase text-xs"
+                style={{
+                  boxShadow: `${shadow.x}px ${shadow.y}px ${shadow.blur}px ${shadow.spread}px rgba(0, 0, 0, ${shadow.opacity / 100})`
+                }}
+              >
+                Depth Card
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(getShadowCss());
+              alert('Shadow styling copied!');
+            }}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs transition-colors uppercase tracking-widest"
+          >
+            Copy Custom Shadow Style
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 interface DesignToolsProps {
   toolId: string;
 }
@@ -150,6 +469,18 @@ export const DesignTools: React.FC<DesignToolsProps> = ({ toolId }) => {
 
   return (
     <div className="space-y-6">
+      {/* ============================================================================
+          NEW DESIGN TOOLS (3)
+         ============================================================================ */}
+      {/* 2. INTERACTIVE FONT PAIRER */}
+      {toolId === 'font-pairer' && <FontPairerTool />}
+
+      {/* 3. PROPORTIONAL ASPECT RATIO GRID */}
+      {toolId === 'aspect-ratio' && <AspectRatioTool />}
+
+      {/* 4. INTERACTIVE 3D CSS SHADOW VISUALIZER */}
+      {toolId === 'css-shadow' && <CssShadowTool />}
+
       {/* 1. COLOR PALETTE DESIGNER */}
       {toolId === 'color-palette' && (
         <div className="space-y-4">

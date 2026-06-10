@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Icon } from '../Icon';
 import { HighDemandConverters } from './HighDemandConverters';
+import { CustomNewConverters } from './CustomNewConverters';
 
 const NEW_CONVERTERS = [
   'crypto-gas-converter',
@@ -35,6 +36,21 @@ interface ConverterToolsProps {
 }
 
 export const ConverterTools: React.FC<ConverterToolsProps> = ({ toolId }) => {
+  const CUSTOM_NEW_CONVERTERS = [
+    'color-palette-extractor',
+    'protobuf-json',
+    'dns-record-parser',
+    'binary-image-viewer',
+    'nginx-config-explainer',
+    'user-agent-parser',
+    'semver-checker',
+    'sql-formatter'
+  ];
+
+  if (CUSTOM_NEW_CONVERTERS.includes(toolId)) {
+    return <CustomNewConverters toolId={toolId} />;
+  }
+
   if (NEW_CONVERTERS.includes(toolId)) {
     return <HighDemandConverters toolId={toolId} />;
   }

@@ -1,6 +1,466 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Icon } from '../Icon';
 
+// ============================================================================
+// helper sub-components for Productivity Tools (4)
+// ============================================================================
+
+const MeetingAgendaTool: React.FC = () => {
+  const [sessionType, setSessionType] = useState('Weekly Team Sync');
+  const [items, setItems] = useState([
+    { id: '1', duration: 10, topic: 'Kickoff & Icebreaker Metrics', owner: 'Management' },
+    { id: '2', duration: 15, topic: 'Critical Technical Refactors Recap', owner: 'Engineering' },
+    { id: '3', duration: 20, topic: 'Product Priorities & Roadmaps Align', owner: 'Product Admin' },
+    { id: '4', duration: 15, topic: 'Risk Mitigation Blocked Discussion', owner: 'QA Lead' }
+  ]);
+  const [newItem, setNewItem] = useState({ duration: 10, topic: '', owner: '' });
+
+  const totalDuration = items.reduce((sum, item) => sum + item.duration, 0);
+
+  const handleAddItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newItem.topic.trim()) return;
+    setItems([...items, { ...newItem, id: Date.now().toString() }]);
+    setNewItem({ duration: 10, topic: '', owner: '' });
+  };
+
+  const handleCopyAgenda = () => {
+    const txt = `📅 MEETING AGENDA: ${sessionType}\n⏱️ Total Duration: ${totalDuration} minutes\n\n` + 
+      items.map((item, idx) => `[${idx + 1}] (${item.duration}m) ${item.topic} - Owner: ${item.owner || 'All'}`).join('\n');
+    navigator.clipboard.writeText(txt);
+    alert('Agenda copied to clipboard!');
+  };
+
+  return (
+    <div className="space-y-6 font-sans">
+      <div className="border-b border-slate-700/60 pb-3 flex justify-between items-center flex-wrap gap-2">
+        <div>
+          <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+            <Icon name="ListChecks" className="text-indigo-400" />
+            Meeting Agenda Architect
+          </h2>
+          <p className="text-xs text-slate-400 mt-1">Design balanced business sync models with precise allocation structures.</p>
+        </div>
+        <button
+          onClick={handleCopyAgenda}
+          className="bg-indigo-650 hover:bg-indigo-600 text-white font-bold py-1.5 px-3.5 rounded-lg text-xs transition-colors flex items-center gap-1.5"
+        >
+          <Icon name="Copy" size={13} /> Copy Agenda
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-5 bg-slate-800/40 p-5 rounded-2xl border border-slate-750 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-350 font-mono">Create Agenda Segment</h3>
+          
+          <form onSubmit={handleAddItem} className="space-y-3">
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1">Session Headline</label>
+              <input
+                type="text"
+                value={sessionType}
+                onChange={(e) => setSessionType(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1">Topic Details</label>
+              <input
+                type="text"
+                value={newItem.topic}
+                onChange={(e) => setNewItem({...newItem, topic: e.target.value})}
+                placeholder="e.g. Q3 Pipeline Review"
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[9px] text-slate-404 uppercase font-mono mb-1">Duration (Min)</label>
+                <input
+                  type="number"
+                  value={newItem.duration}
+                  onChange={(e) => setNewItem({...newItem, duration: parseInt(e.target.value) || 5})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-[9px] text-slate-404 uppercase font-mono mb-1">Topic Owner</label>
+                <input
+                  type="text"
+                  value={newItem.owner}
+                  onChange={(e) => setNewItem({...newItem, owner: e.target.value})}
+                  placeholder="e.g. Sarah J."
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2 rounded-xl transition-all">
+              Add Segment block
+            </button>
+          </form>
+
+          <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-850/60 flex justify-between text-xs font-mono">
+            <span className="text-slate-400">TOTAL ESTIMATED TIME:</span>
+            <span className="text-emerald-400 font-extrabold">{totalDuration} minutes</span>
+          </div>
+        </div>
+
+        <div className="lg:col-span-7 bg-slate-950 p-6 rounded-2xl border border-slate-850 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-indigo-400 font-mono border-b border-slate-900 pb-2">Timeline Progression</h3>
+          
+          <div className="space-y-3 relative before:absolute before:left-4 before:top-2 before:bottom-2 before:w-0.5 before:bg-indigo-950">
+            {items.map((item, idx) => {
+              const colors = ['border-blue-500 text-blue-400', 'border-indigo-500 text-indigo-400', 'border-teal-500 text-teal-400', 'border-yellow-500 text-yellow-400'];
+              const col = colors[idx % colors.length];
+
+              return (
+                <div key={item.id} className="relative pl-8 flex items-start justify-between group">
+                  <div className={`absolute left-2.5 w-3.5 h-3.5 rounded-full bg-slate-950 border-2 ${col.split(' ')[0]} z-10`} />
+                  <div>
+                    <h4 className="text-xs font-semibold text-slate-200">{item.topic}</h4>
+                    <span className="text-[10px] text-slate-500 font-mono uppercase">
+                      Owner: {item.owner || 'Unassigned'} • Allocate: {item.duration}m
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setItems(items.filter(i => i.id !== item.id))}
+                    className="p-1 rounded text-slate-500 hover:text-red-500 transition-colors"
+                  >
+                    <Icon name="X" size={11} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ProjectTimelineTool: React.FC = () => {
+  const [milestones, setMilestones] = useState([
+    { id: '1', name: 'Scoping & Strategy Specs', start: 1, duration: 2, status: 'Completed' },
+    { id: '2', name: 'Figma Layout Design Wireframes', start: 3, duration: 2, status: 'In Progress' },
+    { id: '3', name: 'Core Engine Coding & Integration', start: 5, duration: 3, status: 'Todo' },
+    { id: '4', name: 'Alpha Audits & Stakeholders Deploy', start: 8, duration: 1, status: 'Todo' }
+  ]);
+  const [newMS, setNewMS] = useState({ name: '', start: 1, duration: 2, status: 'Todo' });
+
+  const handleAddMilestone = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMS.name.trim()) return;
+    setMilestones([...milestones, { ...newMS, id: Date.now().toString() }]);
+    setNewMS({ name: '', start: 1, duration: 2, status: 'Todo' });
+  };
+
+  return (
+    <div className="space-y-6 font-sans">
+      <div className="border-b border-slate-700/60 pb-3">
+        <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+          <Icon name="Activity" className="text-teal-400" />
+          Project Milestone Gantt Chart Visualizer
+        </h2>
+        <p className="text-xs text-slate-400 mt-1 font-sans">Plot project blocks on an instant linear timeline layout securely.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-4 bg-slate-800/40 p-5 rounded-2xl border border-slate-750 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-350 font-mono">Create Milestone</h3>
+          
+          <form onSubmit={handleAddMilestone} className="space-y-3">
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1">Milestone Name</label>
+              <input
+                type="text"
+                value={newMS.name}
+                onChange={(e) => setNewMS({...newMS, name: e.target.value})}
+                placeholder="e.g. Database Migrations"
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[9px] text-slate-404 uppercase font-mono mb-1">Start Week</label>
+                <input
+                  type="number"
+                  value={newMS.start}
+                  onChange={(e) => setNewMS({...newMS, start: parseInt(e.target.value) || 1})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-[9px] text-slate-404 uppercase font-mono mb-1">Duration (Wks)</label>
+                <input
+                  type="number"
+                  value={newMS.duration}
+                  onChange={(e) => setNewMS({...newMS, duration: parseInt(e.target.value) || 1})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1 font-bold">Status State</label>
+              <select
+                value={newMS.status}
+                onChange={(e) => setNewMS({...newMS, status: e.target.value})}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white"
+              >
+                <option value="Todo">Todo</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+
+            <button type="submit" className="w-full bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold py-2 rounded-xl transition-all">
+              Add Block to Chart
+            </button>
+          </form>
+        </div>
+
+        <div className="lg:col-span-8 bg-slate-950 p-6 rounded-2xl border border-slate-850 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-teal-400 font-mono border-b border-slate-900 pb-2">Linear Progress Board (Weeks 1 to 10)</h3>
+          
+          <div className="space-y-4">
+            {milestones.map((ms) => {
+              const statusCol = ms.status === 'Completed' ? 'bg-emerald-500/25 border-emerald-500 text-emerald-400' : ms.status === 'In Progress' ? 'bg-indigo-500/25 border-indigo-500 text-indigo-400' : 'bg-slate-800/50 border-slate-700 text-slate-400';
+              return (
+                <div key={ms.id} className="space-y-1.5">
+                  <div className="flex justify-between items-center text-xs font-bold">
+                    <span className="text-slate-200">{ms.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded text-[9px] uppercase tracking-wider border font-mono ${statusCol}`}>
+                        {ms.status}
+                      </span>
+                      <button
+                        onClick={() => setMilestones(milestones.filter(m => m.id !== ms.id))}
+                        className="text-slate-500 hover:text-red-500"
+                        title="Delete milestone"
+                      >
+                        <Icon name="X" size={10} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="w-full h-5 bg-slate-900 rounded-lg overflow-hidden border border-slate-800 relative flex leading-none">
+                    {/* Grid Week Guide Lines */}
+                    {[...Array(10)].map((_, i) => (
+                      <div key={i} className="flex-1 border-r border-slate-850/60 last:border-0 h-full" />
+                    ))}
+                    {/* Timeline Block Overlay */}
+                    <div
+                      className="absolute top-1 bottom-1 bg-gradient-to-r from-teal-500 to-indigo-505 rounded shadow-sm flex items-center justify-center text-[8px] font-mono font-black text-slate-950 uppercase selection:bg-none pointer-events-none"
+                      style={{
+                        left: `${((ms.start - 1) / 10) * 100}%`,
+                        width: `${(ms.duration / 10) * 100}%`
+                      }}
+                    >
+                      Wk {ms.start}-{ms.start + ms.duration - 1}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DailyStandupTool: React.FC = () => {
+  const [standup, setStandup] = useState({
+    yesterday: 'Completed coding the JWT authentication controllers and finalized route schemas.',
+    today: 'Integrating custom Adsterra native widgets and drafting initial test coverages.',
+    blockers: 'None so far. Awaiting legal API tokens to process actual transaction lists.'
+  });
+
+  const getStandupText = () => {
+    return `📝 DAILY STANDUP UPDATE\n\n🟢 YESTERDAY:\n- ${standup.yesterday}\n\n🔵 TODAY:\n- ${standup.today}\n\n🛑 BLOCKERS:\n- ${standup.blockers}`;
+  };
+
+  const handleCopyStandup = () => {
+    navigator.clipboard.writeText(getStandupText());
+    alert('Standup text copied to Clipboard (Slack & Teams formatted)!');
+  };
+
+  return (
+    <div className="space-y-6 font-sans">
+      <div className="border-b border-slate-700/60 pb-3 flex justify-between items-center flex-wrap gap-2">
+        <div>
+          <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+            <Icon name="CheckSquare" className="text-indigo-400" />
+            Daily Standup Update Composer
+          </h2>
+          <p className="text-sm text-slate-400 mt-1">Pre-compile structured updates for teammates smoothly.</p>
+        </div>
+        <button
+          onClick={handleCopyStandup}
+          className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-3.5 rounded-lg text-xs transition-colors flex items-center gap-1.5 shadow-md"
+        >
+          <Icon name="Copy" size={13} /> Copy Slack Format
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-slate-800/40 p-5 rounded-2xl border border-slate-755 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-350 font-mono">Work Items Inputs</h3>
+          
+          <div className="space-y-3.5">
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1 text-emerald-400">🟢 What I did Yesterday</label>
+              <textarea
+                value={standup.yesterday}
+                onChange={(e) => setStandup({...standup, yesterday: e.target.value})}
+                rows={3}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1 text-blue-400">🔵 What I am doing Today</label>
+              <textarea
+                value={standup.today}
+                onChange={(e) => setStandup({...standup, today: e.target.value})}
+                rows={3}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1 text-rose-450">🛑 Blockers / Obstacles</label>
+              <textarea
+                value={standup.blockers}
+                onChange={(e) => setStandup({...standup, blockers: e.target.value})}
+                rows={2}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-indigo-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-850 flex flex-col justify-between">
+          <div className="space-y-3">
+            <h4 className="text-[10px] uppercase font-mono tracking-widest font-black text-slate-400 border-b border-slate-900 pb-2">Slack-Ready Markdown Output</h4>
+            <pre className="text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed select-text select-all bg-slate-900/30 p-4 rounded-xl border border-slate-902">
+              {getStandupText()}
+            </pre>
+          </div>
+          <span className="text-[9px] font-mono text-slate-505 block mt-3">💡 Tip: Succinct standalone items make Standups 80% faster.</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AiWeeklyReportTool: React.FC = () => {
+  const [bulletsInput, setBulletsInput] = useState(`- completed 3 layout updates
+- refactored the database schema for the user tracker
+- resolved a heavy loading memory leak in index file
+- met with Sarah to align on Q3 launch coordinates`);
+  
+  const [weeklyReport, setWeeklyReport] = useState<{ summary: string; bullets: string[] } | null>(null);
+
+  const simulateAiWeeklyAnalysis = () => {
+    if (!bulletsInput.trim()) {
+      alert('Please key in daily notes beforehand.');
+      return;
+    }
+    
+    const lines = bulletsInput.split('\n').map(l => l.replace(/^-\s*/, '').trim()).filter(Boolean);
+    const summary = `During this operating sprint, we systematically finalized critical layouts milestones, resolved relational data memory blocks, and streamlined client-facing operational schemas. Collaboration structures were proactively consolidated across cross-functional partners to preserve release timelines.`;
+    
+    const bullets = lines.map(line => {
+      // Elevate text to corporate-speak templates
+      if (line.includes('layout')) return `Designed, tested, and shipped high-contrast visual layout improvements following modern responsive guidelines.`;
+      if (line.includes('database') || line.includes('schema')) return `Architected robust transactional relational schema updates to maximize long-term database integrity.`;
+      if (line.includes('leak') || line.includes('loading')) return `Eradicated site memory performance bottlenecks, lowering cumulative client layout delays by 18%.`;
+      if (line.includes('Sarah') || line.includes('meet')) return `Consolidated executive strategic objectives and cross-functional expectations with core team leads.`;
+      return `Executed target task: "${line}" and aligned deliverables to support core timeline integrity.`;
+    });
+
+    setWeeklyReport({ summary, bullets });
+  };
+
+  return (
+    <div className="space-y-6 font-sans">
+      <div className="border-b border-slate-700/60 pb-3 flex justify-between items-center flex-wrap gap-2">
+        <div>
+          <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+            <Icon name="Sparkles" className="text-indigo-400 animate-pulse" />
+            AI Executive Work Log Weekly Summarizer
+          </h2>
+          <p className="text-sm text-slate-400 mt-1">Convert raw daily notes into professional summaries tailored for stakeholders.</p>
+        </div>
+        <button
+          onClick={simulateAiWeeklyAnalysis}
+          className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-1.5 px-3.5 rounded-lg text-xs transition-transform flex items-center gap-1.5 cursor-pointer shadow-md"
+        >
+          <Icon name="RefreshCw" size={13} className="animate-spin" /> Summarize Notes
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-5 bg-slate-800/40 p-5 rounded-2xl border border-slate-755 space-y-3">
+          <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1 font-bold">Raw Daily Notes (One item per line)</label>
+          <textarea
+            value={bulletsInput}
+            onChange={(e) => setBulletsInput(e.target.value)}
+            rows={10}
+            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono leading-relaxed outline-none focus:border-indigo-500"
+            placeholder="- completed database migration..."
+          />
+        </div>
+
+        <div className="lg:col-span-7 bg-slate-950 p-6 rounded-2xl border border-slate-850 flex flex-col justify-between">
+          {weeklyReport ? (
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-[10px] uppercase font-mono tracking-widest font-bold text-indigo-400 mb-1">Executive Summary:</h4>
+                <p className="text-xs text-slate-300 leading-relaxed bg-slate-900 p-3.5 rounded-xl border border-slate-904 select-text">
+                  {weeklyReport.summary}
+                </p>
+              </div>
+
+              <div>
+                <h4 className="text-[10px] uppercase font-mono tracking-widest font-bold text-teal-400 mb-1.5">Actionable Stakeholder Bullets:</h4>
+                <div className="space-y-1.5">
+                  {weeklyReport.bullets.map((bullet, i) => (
+                    <div key={i} className="flex gap-2 text-xs text-slate-350 bg-slate-900/50 p-2.5 rounded-lg border border-slate-902">
+                      <span className="text-emerald-450 font-bold font-mono">▸</span>
+                      <p className="flex-1 select-text">{bullet}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
+              <div className="p-4 bg-slate-905 border border-slate-850 rounded-full text-indigo-400">
+                <Icon name="Activity" size={32} />
+              </div>
+              <div>
+                <h4 className="font-bold text-sm text-slate-350">Awaiting Log Summary</h4>
+                <p className="text-xs text-slate-505 max-w-[240px] mx-auto mt-1 leading-relaxed">
+                  Provide your raw bullet list and press "Summarize Notes" to watch corporate AI optimize your professional report.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="border-t border-slate-900 pt-3 flex items-center justify-between text-[9px] font-mono text-slate-500 select-none mt-4">
+            <span>● Secured metrics evaluation</span>
+            <span>100% clientside safe</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 interface ProductivityToolsProps {
   toolId: string;
 }
@@ -293,6 +753,21 @@ export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId }) 
   // ---- MAIN RENDER SWITCHER ----
   return (
     <div className="space-y-6">
+      {/* ==========================================
+          NEW PRODUCTIVITY TOOLS (4)
+         ========================================== */}
+      {/* 1. MEETING AGENDA ARCHITECT */}
+      {toolId === 'meeting-agenda' && <MeetingAgendaTool />}
+
+      {/* 2. PROJECT MILESTONE GANTT VISUALIZER */}
+      {toolId === 'project-timeline' && <ProjectTimelineTool />}
+
+      {/* 3. DAILY STANDUP COMPOSER */}
+      {toolId === 'daily-standup' && <DailyStandupTool />}
+
+      {/* 4. AI WEEKLY EXECUTIVE REPORT SUMMARIZER */}
+      {toolId === 'ai-weekly-report' && <AiWeeklyReportTool />}
+
       {/* 1. KANBAN TASK BOARD */}
       {toolId === 'kanban-board' && (
         <div className="space-y-4">

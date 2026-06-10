@@ -779,6 +779,84 @@ export default function App() {
           </div>
         </section>
 
+        {/* ✨ AI POWER SPOTLIGHT SUITE */}
+        <section className={`p-6 rounded-3xl border space-y-5 ${
+          isDarkMode 
+            ? 'bg-slate-950/40 border-indigo-500/20' 
+            : 'bg-gradient-to-r from-blue-50/70 via-indigo-50/70 to-teal-50/60 border-slate-200/80 shadow-sm'
+        }`}>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="space-y-1">
+              <span className="text-[10px] uppercase font-mono tracking-widest font-black text-indigo-600 dark:text-cyan-400 flex items-center gap-1.5 leading-none">
+                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping inline-block" />
+                Featured Intelligence Deck
+              </span>
+              <h3 className="text-xl font-bold tracking-tight text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                ⚡ AI & Premium Spotlight Hub
+              </h3>
+            </div>
+            <span className="self-start md:self-auto px-3 py-1 bg-indigo-500/10 text-indigo-650 dark:text-cyan-400 font-mono text-[10px] font-extrabold uppercase tracking-wider rounded-full border border-indigo-500/20">
+              ⚡ Free Local Acceleration
+            </span>
+          </div>
+
+          {/* Grid of high-demand AI tools in focus */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {TOOLS.filter(t => t.id.startsWith('ai-') || t.id.includes('optimizer') || t.id.includes('remover') || t.id.includes('upscaler')).map((tool) => {
+              const isPinned = pinnedToolIds.includes(tool.id);
+              return (
+                <div
+                  key={tool.id}
+                  onClick={() => handleSelectTool(tool)}
+                  className={`group relative p-4.5 rounded-2xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-md cursor-pointer flex flex-col justify-between ${
+                    isDarkMode
+                      ? 'bg-slate-900/60 border-slate-800/80 hover:border-indigo-500/50 hover:bg-slate-900'
+                      : 'bg-white border-slate-200/75 hover:border-indigo-400/80 hover:bg-white'
+                  }`}
+                >
+                  {/* Neon border glow line */}
+                  <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-teal-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-450 flex items-center justify-center">
+                        <Icon name={tool.icon} size={15} />
+                      </div>
+                      <button
+                        onClick={(e) => togglePinTool(e, tool.id)}
+                        className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                          isPinned 
+                            ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' 
+                            : 'bg-slate-100 dark:bg-slate-950 border-slate-200/50 dark:border-slate-800/50 text-slate-400 hover:text-slate-600 dark:hover:text-slate-100'
+                        }`}
+                        title={isPinned ? 'Unpin from Quick Desk' : 'Pin to Quick Desk'}
+                      >
+                        <Icon name="Pin" size={11} className={isPinned ? 'rotate-45 fill-current' : 'rotate-45'} />
+                      </button>
+                    </div>
+
+                    <div>
+                      <h4 className="text-xs font-bold font-sans text-slate-805 dark:text-slate-105 group-hover:text-indigo-600 dark:group-hover:text-cyan-405 transition-colors">
+                        {tool.name}
+                      </h4>
+                      <p className="text-[10px] text-slate-450 dark:text-slate-500 font-sans mt-1 line-clamp-2 leading-relaxed">
+                        {tool.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-[9px] font-mono uppercase text-slate-400 dark:text-slate-500 font-bold">
+                    <span>{tool.category} utility</span>
+                    <span className="text-indigo-505 dark:text-cyan-405 font-extrabold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                      Open <Icon name="ArrowRight" size={9} />
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
         {/* COLOURED CATEGORIES FLOW BOARD (PRECISE RECONSTRUCTION OF THE TINYWOW ATTACHMENT BLOCKS) */}
         <section className="space-y-6">
           <div className="flex items-center justify-between">
@@ -1186,12 +1264,8 @@ export default function App() {
             : 'bg-white/95 border-slate-200 text-slate-650 shadow-slate-200/50'
         }`}>
           <div className="max-w-7xl mx-auto px-4 relative py-1 flex flex-col items-center justify-center">
-            {/* Sponsored label and close button bar */}
-            <div className="w-full max-w-[728px] flex items-center justify-between text-[9px] font-mono tracking-wider font-semibold text-slate-400 dark:text-slate-500 mb-0.5 px-0.5">
-              <span className="flex items-center gap-1 uppercase">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                Sponsored Ad Block
-              </span>
+            {/* Close button bar */}
+            <div className="w-full max-w-[728px] flex justify-end text-[9px] font-mono tracking-wider font-semibold text-slate-400 dark:text-slate-500 mb-0.5 px-0.5">
               <button 
                 onClick={() => setIsStickyAdVisible(false)}
                 className="flex items-center gap-1 hover:text-rose-600 dark:hover:text-rose-400 transition-colors uppercase cursor-pointer"

@@ -523,5 +523,200 @@ export const TOOLS: Tool[] = [
     description: 'Generate customizable dynamic QR Codes for normal URLs, details, or direct safe home WiFi access layouts.',
     category: 'design',
     icon: 'Image'
+  },
+  // NEW CAREER TOOLS (3)
+  {
+    id: 'ai-interview-helper',
+    name: 'AI Interactive Interview Simulator',
+    description: 'Practice virtual interviews with AI-generated role questions and local grading frameworks.',
+    category: 'career',
+    icon: 'MessageSquareCode'
+  },
+  {
+    id: 'salary-estimator',
+    name: 'Salary Negotiation Offer Evaluator',
+    description: 'Calculate real compensation packages and prepare tactical email counter-offers based on industry percentiles.',
+    category: 'career',
+    icon: 'TrendingUp'
+  },
+  {
+    id: 'linkedin-optimizer',
+    name: 'AI LinkedIn Profiles & Headings Optimizer',
+    description: 'Optimize social visibility and SEO metrics for recruiters through high-CTR job headlines.',
+    category: 'career',
+    icon: 'Sparkles'
+  },
+  // NEW PRODUCTIVITY TOOLS (4)
+  {
+    id: 'meeting-agenda',
+    name: 'Meeting Agenda & Objective Architect',
+    description: 'Create high-yield business meeting designs with time boxing, goals, and outline structures.',
+    category: 'productivity',
+    icon: 'ListChecks'
+  },
+  {
+    id: 'project-timeline',
+    name: 'Project Milestone Gantt Visualizer',
+    description: 'Build responsive linear chronological schedules, work items, and visual deliverables.',
+    category: 'productivity',
+    icon: 'Activity'
+  },
+  {
+    id: 'daily-standup',
+    name: 'Daily Standup Update Composer',
+    description: 'Pre-compile concise and professional standup logs (Yesterday, Today, Blockers) for engineering teams.',
+    category: 'productivity',
+    icon: 'CheckSquare'
+  },
+  {
+    id: 'ai-weekly-report',
+    name: 'Executive Work Log Weekly Summarizer',
+    description: 'Transform informal daily notes into polished, stakeholder-ready corporate bullet points.',
+    category: 'productivity',
+    icon: 'Sparkles'
+  },
+  // NEW MATH TOOLS (3)
+  {
+    id: 'finance-compound',
+    name: 'Compound Interest Exponential Planner',
+    description: 'Calculate interest growth profiles, principal additions, and visualize wealth growth charts.',
+    category: 'math',
+    icon: 'LineChart'
+  },
+  {
+    id: 'unit-ratio-mixer',
+    name: 'Proportional Dilution & Scale Mixer',
+    description: 'Compute precise ratio dilutions, compound scales, and proportional measurements side-by-side.',
+    category: 'math',
+    icon: 'Sliders'
+  },
+  {
+    id: 'cryptography-hasher',
+    name: 'MD5 / SHA-256 Checksum Multi-Hasher',
+    description: 'Generate secure hex digests and cryptographic checksums for text passages locally.',
+    category: 'math',
+    icon: 'Hash'
+  },
+  // NEW CONVERTER TOOLS (8)
+  {
+    id: 'color-palette-extractor',
+    name: 'Image Dominant Color Space Extractor',
+    description: 'Upload or drag images to extract beautiful matching color palettes with HEX/RGB tags.',
+    category: 'converters',
+    icon: 'Palette'
+  },
+  {
+    id: 'protobuf-json',
+    name: 'Protocol Buffers (Protobuf) ⇄ JSON Parser',
+    description: 'Translate serialized microservice schema objects bidirectionally to standard JSON trees.',
+    category: 'converters',
+    icon: 'Database'
+  },
+  {
+    id: 'dns-record-parser',
+    name: 'DNS Zone Config & Records Formatter',
+    description: 'Read and format raw nameserver host zone strings into clear responsive charts.',
+    category: 'converters',
+    icon: 'Globe'
+  },
+  {
+    id: 'binary-image-viewer',
+    name: 'Binary Hex ⇄ Graphical Canvas Synth',
+    description: 'Reconstruct visual bitmaps and raw canvas drawings out of structured database array codes.',
+    category: 'converters',
+    icon: 'Image'
+  },
+  {
+    id: 'nginx-config-explainer',
+    name: 'Nginx Config Router Schema Explainer',
+    description: 'Deconstruct webserver proxy rules, location blocks, and server headers into clean diagrams.',
+    category: 'converters',
+    icon: 'FileCode'
+  },
+  {
+    id: 'user-agent-parser',
+    name: 'Browser User-Agent Metadata Analyzer',
+    description: 'Parse raw browser client strings to map secure device hardware, operating system, and engine states.',
+    category: 'converters',
+    icon: 'Laptop'
+  },
+  {
+    id: 'semver-checker',
+    name: 'Semantic Version (SemVer) Range Audits',
+    description: 'Evaluate matching package ranges and dependency updates under Node/Cargo semver constraints.',
+    category: 'converters',
+    icon: 'Settings'
+  },
+  {
+    id: 'sql-formatter',
+    name: 'SQL Database Statement Formatter',
+    description: 'Reformat raw or messy SQL queries into highly readable, syntax-beautified statements.',
+    category: 'converters',
+    icon: 'Database'
+  },
+  // NEW TEXT TOOLS (5)
+  {
+    id: 'ai-cold-email',
+    name: 'AI Smart Sales Cold Outreach Composer',
+    description: 'Design premium business outreach templates tailored to target high-CTR replies.',
+    category: 'text',
+    icon: 'Sparkles'
+  },
+  {
+    id: 'ai-text-hooks',
+    name: 'AI Copywriting Headline & Hook Crafter',
+    description: 'Formulate high-conversion headlines and social hooks for news, blogs, or platforms.',
+    category: 'text',
+    icon: 'Sparkles'
+  },
+  {
+    id: 'text-anonymizer',
+    name: 'PII Personal Sensitive Information Sanitize',
+    description: 'Obfuscate names, email codes, debit figures, and private keys from corporate texts prior to system copy.',
+    category: 'text',
+    icon: 'EyeOff'
+  },
+  {
+    id: 'word-scrambler',
+    name: 'Word Character Permutation Solver',
+    description: 'Analyze anagram letter clusters to identify dictionary outcomes and character possibilities.',
+    category: 'text',
+    icon: 'Type'
+  },
+  {
+    id: 'lorem-ipsum',
+    name: 'Aesthetic Lorem Ipsum Dummy Generator',
+    description: 'Produce pristine structural text paragraphs, words, and codes to populate draft templates.',
+    category: 'text',
+    icon: 'FileText'
+  },
+  // NEW DESIGN TOOLS (4)
+  {
+    id: 'ai-image-upscaler',
+    name: 'AI Intelligent Image Upscaler (Super-Resolution)',
+    description: 'Double details and scale photo resolutions using client-side bicubic rendering and digital sharpening filters.',
+    category: 'design',
+    icon: 'Sparkles'
+  },
+  {
+    id: 'ai-bg-remover',
+    name: 'AI Intelligent Image Background Purger',
+    description: 'Purge background environments using smart chroma keying and color-similarity canvas masking.',
+    category: 'design',
+    icon: 'Sparkles'
+  },
+  {
+    id: 'svg-pattern-generator',
+    name: 'Aesthetic Tileable SVG Pattern Maker',
+    description: 'Create harmonious vector backgrounds with customizable geometric patterns and parameters.',
+    category: 'design',
+    icon: 'Grid'
+  },
+  {
+    id: 'css-shadow-creator',
+    name: 'CSS Box Shadow Ultimate Layover Studio',
+    description: 'Create multi-layered soft natural shadows to export professional modern container classes.',
+    category: 'design',
+    icon: 'Sparkles'
   }
 ];

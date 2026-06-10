@@ -242,7 +242,497 @@ export const CareerTools: React.FC<CareerToolsProps> = ({ toolId }) => {
     'Organization & Efficiency': ['Streamlined', 'Restructured', 'Consolidated', 'Expedited', 'Revamped', 'Standardized']
   };
 
-  // Render AI Resume Bullet Optimizer Tool
+  // ==========================================
+  // NEW CAREER TOOLS IMPLEMENTATIONS
+  // ==========================================
+  const [interviewRole, setInterviewRole] = useState('Senior Software Engineer');
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [interviewAnswer, setInterviewAnswer] = useState('');
+  const [interviewResult, setInterviewResult] = useState<{ score: number; starFeedback: string; alternativeAnswer: string } | null>(null);
+
+  const interviewQuestions: Record<string, string[]> = {
+    'Senior Software Engineer': [
+      'Tell me about a time you had to resolve a complex scalability blocker in a production environment.',
+      'How do you handle disagreement with product management regarding technical debt versus new features?',
+      'Describe your process for conducting an optimized design review for a highly concurrent service.'
+    ],
+    'Product Manager': [
+      'How do you prioritize your product backlog when faced with competing requests from engineering and sales?',
+      'Describe a product launch that failed. What did you learn and how did you adjust?',
+      'How do you define and track success metrics for an abstract user-facing feature?'
+    ],
+    'Data Scientist': [
+      'How do you explain a complex neural network statistical insight to non-technical executive stakeholders?',
+      'Tell me about a time you had to clean a severely degraded or biased dataset before training.',
+      'How do you determine whether a statistical model drift requires active retraining versus baseline tweaking?'
+    ]
+  };
+
+  const gradeInterviewResponse = () => {
+    if (!interviewAnswer.trim()) {
+      alert('Please write an answer before submitting for AI assessment.');
+      return;
+    }
+    const len = interviewAnswer.length;
+    let score = 70;
+    let starFeedback = 'Great start! ';
+
+    // STAR Method checking
+    const hasSituation = /situation|when|was working|at my last|project/i.test(interviewAnswer);
+    const hasTask = /task|goal|problem|objective|responsible/i.test(interviewAnswer);
+    const hasAction = /action|i did|we optimized|i implemented|i chose/i.test(interviewAnswer);
+    const hasResult = /result|consequently|percent|boosted|resulting|improved|metric/i.test(interviewAnswer);
+
+    if (hasSituation) { score += 7; starFeedback += 'Excellent description of the Situation context. '; }
+    else { starFeedback += 'Try outlining the exact Situation earlier in your passage. '; }
+
+    if (hasTask) { score += 7; starFeedback += 'Identified the core Task cleanly. '; }
+    else { starFeedback += 'Define your clear metrics role/Task more precisely. '; }
+
+    if (hasAction) { score += 8; starFeedback += 'Rich description of your direct personal Actions. '; }
+    else { starFeedback += 'State what YOU personally did (use "I did" instead of "we did"). '; }
+
+    if (hasResult) { score += 8; starFeedback += 'Outstanding, metrics-backed Result provided. '; }
+    else { score -= 10; starFeedback += 'Missing concrete numeric Results (numbers, percentages, times). Try adding a metrics-backed outcome to satisfy recruiters. '; }
+
+    if (len > 300) score = Math.min(score + 5, 98);
+    else if (len < 100) score = Math.max(score - 15, 45);
+
+    const idealAnswer = `"[Situation] At my previous role, we faced a 45% spike in database concurrency load, which threatened API response limits during peak traffic.\n\n[Task] My core responsibility was to eliminate the lookup bottleneck and restore our 150ms service level agreement without scaling server costs.\n\n[Action] I profiled the queries, added tactical Redis caches, and optimized relational write indexes to prevent raw table locks.\n\n[Result] This successfully cut latency down to 85ms and saved $4,200 in monthly database expansion overhead."`;
+
+    setInterviewResult({
+      score,
+      starFeedback,
+      alternativeAnswer: idealAnswer
+    });
+  };
+
+  const [salaryConfig, setSalaryConfig] = useState({
+    title: 'Staff Frontend Engineer',
+    baseOffer: '155000',
+    equityOffer: '30000',
+    bonusOffer: '15000',
+    location: 'San Francisco, CA'
+  });
+
+  const getSalaryAnalysis = () => {
+    const base = parseFloat(salaryConfig.baseOffer) || 0;
+    const equity = parseFloat(salaryConfig.equityOffer) || 0;
+    const bonus = parseFloat(salaryConfig.bonusOffer) || 0;
+    const total = base + equity + bonus;
+
+    let percentile = 65;
+    if (total > 250000) percentile = 95;
+    else if (total > 180000) percentile = 82;
+    else if (total > 130000) percentile = 60;
+    else if (total > 90050) percentile = 42;
+    else percentile = 25;
+
+    const negotiationEmail = `Subject: Negotiation Proposal - ${salaryConfig.title} - ${profile.name}
+
+Dear Recruiting Team,
+
+Thank you very much for offering me the role of ${salaryConfig.title} at your organization. I am incredibly excited about the prospect of aligning my technical skills to drive significant value for your projects.
+
+I have spent some time reviewing the compensation package detailed in the agreement. Based on industry benchmark metrics for ${salaryConfig.title} professionals in ${salaryConfig.location}—as well as my 6+ years of specialized background in scale architectures—I was hoping we could explore a base salary adjustment closer to $${Math.ceil(base * 1.08).toLocaleString()} or look into a slight expansion of the yearly equity allocation.
+
+I am confident that my experience leading high-profile sprint initiatives and shrinking load latencies will yield immediate, multi-fold returns for the company. I would be thrilled to sign immediately if we can bridge this alignment gap.
+
+Thank you very much for your outstanding support, and I look forward to your thoughts.
+
+Sincerely,
+${profile.name}
+${profile.phone}`;
+
+    return { total, percentile, negotiationEmail };
+  };
+
+  const [linkedinConfig, setLinkedinConfig] = useState({
+    targetRole: 'Staff Full-Stack Engineer',
+    topSkill: 'React, Node, & Distributed Clouds',
+    majorAchievement: 'refactored legacy portals to save 42% latency response speeds'
+  });
+
+  const getLinkedinOutcomes = () => {
+    const title = linkedinConfig.targetRole;
+    const skill = linkedinConfig.topSkill;
+    const achievement = linkedinConfig.majorAchievement;
+
+    const headlines = [
+      `🚀 ${title} | Specializing in ${skill} | Driven to scale architecture limits`,
+      `💻 ${title} | Veteran Contributor | I help teams ${achievement} utilizing robust engineering pipelines`,
+      `✨ ${title} @ Scale | Expert in ${skill.split(',')[0] || 'Technical Systems'} | Metric-Driven Star Bullet builder`
+    ];
+
+    const aboutMe = `I am a performance-driven, growth-oriented ${title} specializing in ${skill}.\n\nThroughout my career development, I have maintained a track record of implementing high-fidelity solutions that align user goals with backend structures. Most recently, I ${achievement}, demonstrating my ability to streamline processes and yield measurable business outcomes.\n\nCore Competencies:\n⚡ Systems Architecture & Engineering\n⚡ Technical Mentorship & Sprint Oversight\n⚡ Agile Scrum & Continuous Integration\n\nLet's connect to chat about scaling your next-generation solutions!`;
+
+    return { headlines, aboutMe };
+  };
+
+  if (toolId === 'ai-interview-helper') {
+    const questions = interviewQuestions[interviewRole] || interviewQuestions['Senior Software Engineer'];
+    const activeQuestion = questions[currentQuestionIndex] || questions[0];
+
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/60 pb-4 gap-4">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+              <Icon name="MessageSquareCode" className="text-emerald-400 animate-pulse" />
+              AI Playback Interview Simulator
+            </h2>
+            <p className="text-sm text-slate-400 mt-1">Select your career domain and conduct localized grading evaluations on the STAR standard.</p>
+          </div>
+          <div className="flex gap-2">
+            <select
+              value={interviewRole}
+              onChange={(e) => {
+                setInterviewRole(e.target.value);
+                setCurrentQuestionIndex(0);
+                setInterviewAnswer('');
+                setInterviewResult(null);
+              }}
+              className="bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white"
+            >
+              <option value="Senior Software Engineer">Senior Software Engineer</option>
+              <option value="Product Manager">Product Manager</option>
+              <option value="Data Scientist">Data Scientist</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-7 bg-slate-800/40 p-6 rounded-2xl border border-slate-750 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full font-bold">
+                QUESTION {currentQuestionIndex + 1} OF 3
+              </span>
+              <div className="flex gap-1">
+                <button
+                  disabled={currentQuestionIndex === 0}
+                  onClick={() => {
+                    setCurrentQuestionIndex(prev => prev - 1);
+                    setInterviewAnswer('');
+                    setInterviewResult(null);
+                  }}
+                  className="p-1 px-2.5 bg-slate-900 border border-slate-700 hover:border-slate-650 rounded text-xs disabled:opacity-30"
+                >
+                  Prev
+                </button>
+                <button
+                  disabled={currentQuestionIndex === 2}
+                  onClick={() => {
+                    setCurrentQuestionIndex(prev => prev + 1);
+                    setInterviewAnswer('');
+                    setInterviewResult(null);
+                  }}
+                  className="p-1 px-2.5 bg-slate-900 border border-slate-700 hover:border-slate-650 rounded text-xs disabled:opacity-30"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-900 border border-emerald-500/20 rounded-xl relative overflow-hidden">
+              <p className="text-sm font-semibold text-slate-200 leading-relaxed font-sans">
+                &ldquo;{activeQuestion}&rdquo;
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs text-slate-400 uppercase font-mono tracking-wider font-bold">Your Response (STAR Method Guided)</label>
+              <textarea
+                value={interviewAnswer}
+                onChange={(e) => setInterviewAnswer(e.target.value)}
+                placeholder="Write your response, specifying: Situation (S), Task (T), Action (A) and quantitative Result (R)..."
+                rows={7}
+                className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-4 py-3 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 font-sans"
+              />
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-[10.5px] text-slate-450 italic">💡 Include a number (e.g. 42%, $12k) to score higher!</span>
+              <button
+                onClick={gradeInterviewResponse}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-5 rounded-xl text-xs transition-colors flex items-center gap-1.5 shadow-md shadow-emerald-950/20"
+              >
+                <Icon name="Sparkles" size={13} /> Submit & Evaluate
+              </button>
+            </div>
+          </div>
+
+          <div className="lg:col-span-5 bg-slate-950 p-6 rounded-2xl border border-slate-850 flex flex-col justify-between">
+            {interviewResult ? (
+              <div className="space-y-5 font-sans">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h4 className="font-bold text-sm text-slate-200">Local Algorithmic Score</h4>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-2xl font-black font-mono leading-none ${
+                      interviewResult.score >= 85 ? 'text-emerald-400' : 'text-yellow-400'
+                    }`}>
+                      {interviewResult.score}%
+                    </span>
+                    <span className="text-[10px] text-slate-500">STAR Rating</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h5 className="text-[10px] uppercase tracking-wider font-mono font-bold text-slate-400">Structural feedback:</h5>
+                  <p className="text-xs text-slate-300 leading-relaxed bg-slate-900 border border-slate-800/80 p-3.5 rounded-xl">
+                    {interviewResult.starFeedback}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <h5 className="text-[10px] uppercase tracking-wider font-mono font-bold text-emerald-400">STAR Model Solution:</h5>
+                  <pre className="text-[11px] text-slate-400 whitespace-pre-wrap leading-relaxed select-all bg-slate-900/40 p-3 rounded-lg border border-slate-850 font-mono">
+                    {interviewResult.alternativeAnswer}
+                  </pre>
+                </div>
+              </div>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
+                <div className="p-4 bg-slate-905 border border-slate-850 rounded-full text-indigo-400">
+                  <Icon name="MessageSquare" size={32} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm text-slate-300">Awaiting Response Grade</h4>
+                  <p className="text-xs text-slate-500 max-w-[240px] mx-auto mt-1 leading-relaxed">
+                    Write your STAR model interview answer in the box and submit to get rated locally.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="border-t border-slate-900 pt-3.5 text-[9px] font-mono text-slate-505 flex items-center justify-between select-none">
+              <span>● Isolated grading runtime</span>
+              <span>100% offline private</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (toolId === 'salary-estimator') {
+    const { total, percentile, negotiationEmail } = getSalaryAnalysis();
+
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/60 pb-4 gap-4">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+              <Icon name="TrendingUp" className="text-emerald-400" />
+              Salary negotiation & Offer Evaluator
+            </h2>
+            <p className="text-sm text-slate-400 mt-1">Audit compensation numbers, plot percentiles, and write tactful negotiations.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-5 bg-slate-800/40 p-5 rounded-2xl border border-slate-750 font-sans space-y-4">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-300 font-mono">Customize Agreement</h3>
+            
+            <div className="space-y-3.5">
+              <div>
+                <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1">Target Professional Title</label>
+                <input
+                  type="text"
+                  value={salaryConfig.title}
+                  onChange={(e) => setSalaryConfig({...salaryConfig, title: e.target.value})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white"
+                  placeholder="e.g. Lead Frontend Engineer"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1">Location Market</label>
+                <input
+                  type="text"
+                  value={salaryConfig.location}
+                  onChange={(e) => setSalaryConfig({...salaryConfig, location: e.target.value})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white"
+                  placeholder="e.g. Austin, TX"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="block text-[9px] text-slate-400 uppercase font-mono mb-1">Base ($)</label>
+                  <input
+                    type="number"
+                    value={salaryConfig.baseOffer}
+                    onChange={(e) => setSalaryConfig({...salaryConfig, baseOffer: e.target.value})}
+                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[9px] text-slate-400 uppercase font-mono mb-1">Stock ($/yr)</label>
+                  <input
+                    type="number"
+                    value={salaryConfig.equityOffer}
+                    onChange={(e) => setSalaryConfig({...salaryConfig, equityOffer: e.target.value})}
+                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[9px] text-slate-405 uppercase font-mono mb-1">Bonus ($/yr)</label>
+                  <input
+                    type="number"
+                    value={salaryConfig.bonusOffer}
+                    onChange={(e) => setSalaryConfig({...salaryConfig, bonusOffer: e.target.value})}
+                    className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs text-white"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 space-y-2">
+              <span className="text-[10px] text-slate-500 font-mono tracking-widest block uppercase">ESTIMATED COMP PACKAGE:</span>
+              <div className="text-2xl font-black text-emerald-400 font-mono">${total.toLocaleString()}</div>
+              
+              <div className="space-y-1.5 pt-2">
+                <div className="flex justify-between text-[10px] font-mono text-slate-400">
+                  <span>MARKET PERCENTILE:</span>
+                  <span className="font-extrabold text-blue-400">{percentile}th Percentile</span>
+                </div>
+                <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-emerald-500 to-indigo-505 rounded-full transition-all" style={{ width: `${percentile}%` }} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-7 bg-slate-950 p-6 rounded-2xl border border-slate-850 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center border-b border-slate-900 pb-2.5">
+                <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                  <Icon name="MailOpen" size={13} className="text-indigo-400" /> Tactical Counter-Offer Template
+                </span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(negotiationEmail);
+                    alert('Negotiation proposal copied!');
+                  }}
+                  className="px-2.5 py-1 bg-slate-900 border border-slate-850 rounded hover:border-slate-750 text-[10px] font-bold text-teal-400 flex items-center gap-1 cursor-pointer"
+                >
+                  <Icon name="Copy" size={10} /> Copy Email
+                </button>
+              </div>
+
+              <pre className="text-xs text-slate-350 bg-slate-900/50 p-4 rounded-xl border border-slate-900 overflow-y-auto max-h-[290px] font-sans whitespace-pre-wrap leading-relaxed select-text">
+                {negotiationEmail}
+              </pre>
+            </div>
+
+            <p className="text-[9px] font-mono text-slate-500 italic mt-3 leading-none">
+              💡 Tip: Negotiating standard agreements yields 8% to 15% salary expansion on benchmarks.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (toolId === 'linkedin-optimizer') {
+    const { headlines, aboutMe } = getLinkedinOutcomes();
+
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/60 pb-4 gap-4">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-105 flex items-center gap-2">
+              <Icon name="Sparkles" className="text-teal-400" />
+              LinkedIn Profile & Headlines Optimizer
+            </h2>
+            <p className="text-sm text-slate-400 mt-1">Refine headlines, skills, and about pages locally to raise recruiter indexing.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-5 bg-slate-800/40 p-5 rounded-2xl border border-slate-750 space-y-4">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-300 font-mono">Profile Details</h3>
+            
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1">Target Professional Title</label>
+                <input
+                  type="text"
+                  value={linkedinConfig.targetRole}
+                  onChange={(e) => setLinkedinConfig({...linkedinConfig, targetRole: e.target.value})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white"
+                  placeholder="e.g. Senior Product Manager"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1">Primary Skill Accent</label>
+                <input
+                  type="text"
+                  value={linkedinConfig.topSkill}
+                  onChange={(e) => setLinkedinConfig({...linkedinConfig, topSkill: e.target.value})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white"
+                  placeholder="e.g. Agile BACKLOG & Agile SCRUM"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1">Core Metric Achievement</label>
+                <textarea
+                  value={linkedinConfig.majorAchievement}
+                  onChange={(e) => setLinkedinConfig({...linkedinConfig, majorAchievement: e.target.value})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white outline-none focus:border-emerald-500"
+                  rows={2}
+                  placeholder="e.g. scaled release rates by 40% with zero core bug blocks"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-7 bg-slate-950 p-6 rounded-2xl border border-slate-850 space-y-5">
+            <div className="space-y-2.5">
+              <h4 className="text-[10px] font-mono uppercase tracking-widest font-black text-indigo-400">High-CTR Refined Headlines:</h4>
+              <div className="space-y-2">
+                {headlines.map((headline, index) => (
+                  <div key={index} className="group p-3 bg-slate-900 hover:bg-slate-900/80 border border-slate-850 rounded-xl flex items-center justify-between gap-3 transition-all">
+                    <p className="text-xs text-slate-200 font-sans tracking-tight">{headline}</p>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(headline);
+                        alert('Headline copied!');
+                      }}
+                      className="p-1 px-2.5 bg-slate-950 border border-slate-800 hover:border-slate-700 rounded text-[10px] text-teal-400 font-bold tracking-wider shrink-0 uppercase cursor-pointer"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h4 className="text-[10px] font-mono uppercase tracking-widest font-black text-teal-400">High-Impact Bio (Summary):</h4>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(aboutMe);
+                    alert('Bio summary copied!');
+                  }}
+                  className="px-2 py-1 bg-slate-900 border border-slate-800 rounded hover:border-slate-700 text-[10px] font-bold text-teal-400 flex items-center gap-1 cursor-pointer"
+                >
+                  <Icon name="Copy" size={11} /> Copy About Section
+                </button>
+              </div>
+              <pre className="text-xs text-slate-300 bg-slate-900/30 p-4 rounded-xl border border-slate-900 overflow-y-auto max-h-[180px] font-sans whitespace-pre-wrap leading-relaxed select-text select-all">
+                {aboutMe}
+              </pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (toolId === 'ai-bullet-optimizer') {
     return (
       <div className="space-y-6">

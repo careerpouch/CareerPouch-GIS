@@ -1,11 +1,24 @@
 import React, { useState } from 'react';
 import { Icon } from '../Icon';
+import { CustomTextTools } from './CustomTextTools';
 
 interface TextToolsProps {
   toolId: string;
 }
 
 export const TextTools: React.FC<TextToolsProps> = ({ toolId }) => {
+  const CUSTOM_TEXT_TOOLS = [
+    'text-summarizer',
+    'translation-helper',
+    'ai-rephrase',
+    'grammar-checker',
+    'case-converter'
+  ];
+
+  if (CUSTOM_TEXT_TOOLS.includes(toolId)) {
+    return <CustomTextTools toolId={toolId} />;
+  }
+
   // ---- 1. ADVANCE WORD COUNTER STATE ----
   const [wordCountInput, setWordCountInput] = useState('CareerPouch delivers clean, pristine static layouts optimized for global recruitment pipelines. Write text and view structural indexes.');
 

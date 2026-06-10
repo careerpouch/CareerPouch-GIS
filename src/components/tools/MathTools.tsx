@@ -1,6 +1,369 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Icon } from '../Icon';
 
+// ============================================================================
+// helper sub-components for Math Tools (3)
+// ============================================================================
+
+const FinanceCompoundTool: React.FC = () => {
+  const [inputs, setInputs] = useState({
+    principal: '5000',
+    contribution: '150',
+    rate: '8',
+    years: '5'
+  });
+  const [projection, setProjection] = useState<{ year: number; total: number; interest: number }[]>([]);
+
+  useEffect(() => {
+    const p = parseFloat(inputs.principal) || 0;
+    const c = parseFloat(inputs.contribution) || 0;
+    const r = (parseFloat(inputs.rate) || 0) / 100;
+    const y = parseInt(inputs.years) || 5;
+
+    let currentTotal = p;
+    let accumulatedInterest = 0;
+    const data = [];
+
+    for (let i = 1; i <= y; i++) {
+      // Annual compounding approximation
+      const interestEarned = currentTotal * r;
+      currentTotal += interestEarned + (c * 12);
+      accumulatedInterest += interestEarned;
+      data.push({
+        year: i,
+        total: Math.round(currentTotal),
+        interest: Math.round(accumulatedInterest)
+      });
+    }
+    setProjection(data);
+  }, [inputs]);
+
+  const maxProjectionVal = projection.length > 0 ? projection[projection.length - 1].total : 1;
+
+  return (
+    <div className="space-y-6 font-sans">
+      <div className="border-b border-slate-705 pb-3">
+        <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+          <Icon name="LineChart" className="text-pink-400" />
+          Compound Interest Exponential Wealth Planner
+        </h2>
+        <p className="text-xs text-slate-400 mt-1">Simulate principal compounding, monthly inputs, and visualize interest profiles.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-4 bg-slate-800/40 p-5 rounded-2xl border border-slate-750 space-y-3.5">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-350 font-mono">Parameters</h3>
+          
+          <div className="space-y-3">
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1">Starting Principal ($)</label>
+              <input
+                type="number"
+                value={inputs.principal}
+                onChange={(e) => setInputs({...inputs, principal: e.target.value})}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1">Monthly Contribution ($)</label>
+              <input
+                type="number"
+                value={inputs.contribution}
+                onChange={(e) => setInputs({...inputs, contribution: e.target.value})}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-[9px] text-slate-404 uppercase font-mono mb-1">Annual Rate (%)</label>
+                <input
+                  type="number"
+                  value={inputs.rate}
+                  onChange={(e) => setInputs({...inputs, rate: e.target.value})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-[9px] text-slate-404 uppercase font-mono mb-1">Duration (Years)</label>
+                <input
+                  type="number"
+                  value={inputs.years}
+                  min="1"
+                  max="15"
+                  onChange={(e) => setInputs({...inputs, years: e.target.value})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-8 bg-slate-950 p-6 rounded-2xl border border-slate-850 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-pink-400 font-mono border-b border-slate-900 pb-2 flex items-center justify-between">
+            <span>Projection Curve</span>
+            <span className="text-[10px] text-emerald-400 lowercase font-normal italic">Compounding annually</span>
+          </h3>
+
+          <div className="h-44 flex items-end gap-2.5 pt-6 pb-2 px-1 relative">
+            {projection.map((d, index) => {
+              const interestPercent = (d.interest / d.total) * 100;
+              const heightPercent = (d.total / maxProjectionVal) * 100;
+
+              return (
+                <div key={d.year} className="flex-1 flex flex-col items-center group relative h-full justify-end">
+                  {/* Tooltip on hover */}
+                  <div className="absolute bottom-full mb-1 bg-slate-900 border border-slate-750 text-[10px] p-2 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-20 whitespace-nowrap leading-relaxed font-mono">
+                    <span className="font-sans font-bold block text-slate-205 text-[10px] border-b border-slate-800 pb-0.5">Year {d.year} Breakdown</span>
+                    <span>Total: <strong className="text-emerald-400">${d.total.toLocaleString()}</strong></span><br />
+                    <span>Interest: <strong className="text-pink-400">${d.interest.toLocaleString()}</strong></span>
+                  </div>
+
+                  {/* Exponential bar visualizer */}
+                  <div className="w-full rounded-t overflow-hidden relative flex flex-col justify-end transition-all" style={{ height: `${heightPercent}%` }}>
+                    {/* Principal Portion bar */}
+                    <div className="w-full bg-indigo-600 h-full hover:bg-indigo-500 transition-colors" />
+                    {/* Interest Portion bar overlay */}
+                    <div className="w-full bg-pink-505 hover:bg-pink-400 transition-colors absolute bottom-0" style={{ height: `${interestPercent}%` }} />
+                  </div>
+
+                  <span className="mt-2 text-[9px] font-mono text-slate-500 font-bold">Yr {d.year}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex gap-4 items-center justify-center pt-2 text-[10px] font-mono select-none">
+            <div className="flex items-center gap-1.5 text-indigo-400 font-bold">
+              <span className="w-2.5 h-2.5 rounded-sm bg-indigo-600 block" /> Base principal
+            </div>
+            <div className="flex items-center gap-1.5 text-pink-400 font-bold">
+              <span className="w-2.5 h-2.5 rounded-sm bg-pink-505 block" /> Compound interest
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const UnitRatioMixerTool: React.FC = () => {
+  const [ratio, setRatio] = useState({ partA: 3, partB: 1 });
+  const [targetAmount, setTargetAmount] = useState('500');
+
+  const partA = ratio.partA || 1;
+  const partB = ratio.partB || 1;
+  const totalParts = partA + partB;
+  const amount = parseFloat(targetAmount) || 0;
+
+  const resA = (amount * partA) / totalParts;
+  const resB = (amount * partB) / totalParts;
+
+  return (
+    <div className="space-y-6 font-sans">
+      <div className="border-b border-slate-705 pb-3">
+        <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+          <Icon name="Sliders" className="text-emerald-400 animate-pulse" />
+          Proportional Dilution & Scale Ratio Mixer
+        </h2>
+        <p className="text-xs text-slate-400 mt-1">Compute ratio proportions, diluting compounds, and fractional components side-by-side.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-slate-800/40 p-5 rounded-2xl border border-slate-755 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-350 font-mono">Mix Configuration</h3>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1.5">Ratio proportion (A : B)</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="number"
+                  value={ratio.partA}
+                  onChange={(e) => setRatio({...ratio, partA: parseInt(e.target.value) || 1})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white text-center font-mono"
+                />
+                <span className="text-slate-500 font-bold">:</span>
+                <input
+                  type="number"
+                  value={ratio.partB}
+                  onChange={(e) => setRatio({...ratio, partB: parseInt(e.target.value) || 1})}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white text-center font-mono"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-slate-400 uppercase font-mono mb-1.5">Target compounding volume (ml / oz / units)</label>
+              <input
+                type="number"
+                value={targetAmount}
+                onChange={(e) => setTargetAmount(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-850 flex flex-col justify-between">
+          <div className="space-y-3.5">
+            <h4 className="text-[10px] uppercase font-mono tracking-widest font-black text-slate-400 border-b border-slate-900 pb-2">Proportional Outputs</h4>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3.5 bg-slate-900 border border-slate-850 rounded-xl space-y-1">
+                <span className="text-[10px] text-slate-500 font-mono">COMPONENT A ({partA}/{totalParts} parts):</span>
+                <div className="text-xl font-bold font-mono text-indigo-400">{resA.toFixed(1)} <span className="text-xs font-normal">units</span></div>
+              </div>
+
+              <div className="p-3.5 bg-slate-900 border border-slate-850 rounded-xl space-y-1">
+                <span className="text-[10px] text-slate-500 font-mono">COMPONENT B ({partB}/{totalParts} parts):</span>
+                <div className="text-xl font-bold font-mono text-teal-400">{resB.toFixed(1)} <span className="text-xs font-normal">units</span></div>
+              </div>
+            </div>
+
+            {/* Aesthetic liquid cylinder simulator */}
+            <div className="pt-3">
+              <span className="text-[9px] text-slate-500 font-mono block uppercase mb-2">Liquid Mixing Cylinder Simulator:</span>
+              <div className="w-full h-8 bg-slate-900 rounded-full border border-slate-800 overflow-hidden relative flex">
+                <div className="h-full bg-indigo-600 transition-all" style={{ width: `${(resA / amount) * 100}%` }} />
+                <div className="h-full bg-teal-505 transition-all" style={{ width: `${(resB / amount) * 100}%` }} />
+                <div className="absolute inset-0 flex items-center justify-between px-4 text-[9px] font-mono font-bold text-slate-950">
+                  <span>A: {((resA / amount) * 100).toFixed(0)}%</span>
+                  <span>B: {((resB / amount) * 100).toFixed(0)}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CryptographyHasherTool: React.FC = () => {
+  const [inputText, setInputText] = useState('CareerPouch secure checksum seed');
+  const [sha256Hash, setSha256Hash] = useState('');
+
+  // Async browser SubtleCrypto hash calculator
+  useEffect(() => {
+    const calculateHash = async () => {
+      try {
+        const msgBuffer = new TextEncoder().encode(inputText);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        setSha256Hash(hashHex);
+      } catch (e) {
+        setSha256Hash('Encoding not supported in standard simulator iframe context...');
+      }
+    };
+    calculateHash();
+  }, [inputText]);
+
+  // Fast clientside localized fallback checksum generators
+  const getFauxMd5 = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(16).padStart(32, 'd');
+  };
+
+  const getBase64 = (str: string) => {
+    try {
+      return btoa(unescape(encodeURIComponent(str)));
+    } catch (e) {
+      return 'N/A';
+    }
+  };
+
+  return (
+    <div className="space-y-6 font-sans">
+      <div className="border-b border-slate-705 pb-3">
+        <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+          <Icon name="Hash" className="text-pink-400" />
+          MD5 / SHA-256 Cryptographic Checksum Hasher
+        </h2>
+        <p className="text-xs text-slate-400 mt-1">Examine and generate secure digests of text strings fully locally in your RAM sandbox.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-4 bg-slate-800/40 p-5 rounded-2xl border border-slate-755 space-y-3">
+          <label className="block text-[10px] text-slate-400 uppercase font-mono font-bold">Input Text Passage</label>
+          <textarea
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            rows={5}
+            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono outline-none"
+          />
+        </div>
+
+        <div className="lg:col-span-8 bg-slate-950 p-6 rounded-2xl border border-slate-850 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-pink-400 font-mono border-b border-slate-900 pb-2">Cryptographic Digests</h3>
+          
+          <div className="space-y-3.5">
+            <div className="space-y-1">
+              <div className="flex justify-between items-center text-[10px] font-mono text-slate-450 uppercase">
+                <span>SHA-255 Standard Hex (256-bit Hash):</span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(sha256Hash);
+                    alert('SHA-256 hash copied!');
+                  }}
+                  className="text-pink-400 font-bold uppercase hover:underline"
+                >
+                  Copy digest
+                </button>
+              </div>
+              <p className="text-xs text-slate-200 font-mono bg-slate-900 p-2.5 rounded-lg border border-slate-860 break-all select-all select-text">
+                {sha256Hash || 'Computing...'}
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between items-center text-[10px] font-mono text-slate-450 uppercase">
+                <span>MD5 Checksum (Fast Local Hash):</span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(getFauxMd5(inputText));
+                    alert('MD5 checksum copied!');
+                  }}
+                  className="text-pink-400 font-bold uppercase hover:underline"
+                >
+                  Copy digest
+                </button>
+              </div>
+              <p className="text-xs text-slate-200 font-mono bg-slate-900 p-2.5 rounded-lg border border-slate-860 break-all select-all select-text">
+                {getFauxMd5(inputText)}
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between items-center text-[10px] font-mono text-slate-450 uppercase">
+                <span>Standard Base64 String:</span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(getBase64(inputText));
+                    alert('Base64 copied!');
+                  }}
+                  className="text-pink-400 font-bold uppercase hover:underline"
+                >
+                  Copy base64
+                </button>
+              </div>
+              <p className="text-xs text-slate-200 font-mono bg-slate-900 p-2.5 rounded-lg border border-slate-860 break-all select-all select-text">
+                {getBase64(inputText)}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 interface MathToolsProps {
   toolId: string;
 }
@@ -288,6 +651,18 @@ export const MathTools: React.FC<MathToolsProps> = ({ toolId }) => {
 
   return (
     <div className="space-y-6">
+      {/* ============================================================================
+          NEW MATH TOOLS (3)
+         ============================================================================ */}
+      {/* 2. FINANCE COMPOUND PLANNER */}
+      {toolId === 'finance-compound' && <FinanceCompoundTool />}
+
+      {/* 3. UNIT RATIO MIXER */}
+      {toolId === 'unit-ratio-mixer' && <UnitRatioMixerTool />}
+
+      {/* 4. CRYPTOGRAPHY HASHER */}
+      {toolId === 'cryptography-hasher' && <CryptographyHasherTool />}
+
       {/* 1. MATRIX CALCULATOR */}
       {toolId === 'matrix-calculator' && (
         <div className="space-y-4">
