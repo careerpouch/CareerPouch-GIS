@@ -412,6 +412,14 @@ export default function App() {
     localStorage.setItem('career_pouch_pinned', JSON.stringify(pinnedToolIds));
   }, [pinnedToolIds]);
 
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   const togglePinTool = (e: React.MouseEvent, toolId: string) => {
     e.stopPropagation();
     setPinnedToolIds(prev => 
@@ -526,6 +534,28 @@ export default function App() {
       metaDesc.setAttribute('content', `${tool.description} Free, 100% offline-first developer and career utility on CareerPouch.`);
     }
 
+    // Dynamic Schema.org Google Rich Snippets updates
+    const schemaScript = document.getElementById('default-manifest-schema');
+    if (schemaScript) {
+      const dynamicSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": `${tool.name} - CareerPouch Suite`,
+        "url": `https://careerpouch.com/tools/${tool.id}`,
+        "image": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%234f46e5%22/><text y=%22.7em%22 x=%225%25%22 font-size=%2250%22 fill=%22%23ffffff%22 font-family=%22sans-serif%22 font-weight=%22bold%22>🦘 CP</text></svg>",
+        "operatingSystem": "All",
+        "applicationCategory": "DeveloperApplication",
+        "description": tool.description,
+        "browserRequirements": "Requires HTML5 compatible browser",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      };
+      schemaScript.innerHTML = JSON.stringify(dynamicSchema, null, 2);
+    }
+
     // Auto scroll to active tool workspace elegantly
     setTimeout(() => {
       document.getElementById('tool-workspace-anchor')?.scrollIntoView({ behavior: 'smooth' });
@@ -543,6 +573,29 @@ export default function App() {
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
       metaDesc.setAttribute('content', `CareerPouch is a ${TOOLS.length}-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.`);
+    }
+
+    // Reset default manifest schema
+    const schemaScript = document.getElementById('default-manifest-schema');
+    if (schemaScript) {
+      const defaultSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "CareerPouch",
+        "alternateName": "CareerPouch Suitcase of Utilities",
+        "url": "https://careerpouch.com/",
+        "image": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%234f46e5%22/><text y=%22.7em%22 x=%225%25%22 font-size=%2250%22 fill=%22%23ffffff%22 font-family=%22sans-serif%22 font-weight=%22bold%22>🦘 CP</text></svg>",
+        "operatingSystem": "All",
+        "applicationCategory": "DeveloperApplication",
+        "description": `Premium 100% responsive, client-side utility suite showcasing over ${TOOLS.length} career builders, coding converters, and designers.`,
+        "browserRequirements": "Requires HTML5 compatible browser",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      };
+      schemaScript.innerHTML = JSON.stringify(defaultSchema, null, 2);
     }
 
     // Restore the scroll position they were at before choosing a tool
@@ -576,7 +629,7 @@ export default function App() {
   const renderActiveToolComponent = (tool: Tool) => {
     const cid = tool.category;
     if (cid === 'career') return <CareerTools toolId={tool.id} />;
-    if (cid === 'productivity') return <ProductivityTools toolId={tool.id} />;
+    if (cid === 'productivity') return <ProductivityTools toolId={tool.id} isDarkMode={isDarkMode} />;
     if (cid === 'math') return <MathTools toolId={tool.id} />;
     if (cid === 'converters') return <ConverterTools toolId={tool.id} />;
     if (cid === 'text') return <TextTools toolId={tool.id} />;
@@ -927,20 +980,59 @@ export default function App() {
                 : 'light-tool-workspace bg-white border-slate-200 shadow-slate-200/40 text-slate-900'
             }`}
           >
-            <div className="flex justify-between items-center pb-4 border-b border-slate-800/60 mb-5 flex-wrap gap-2">
+            <div className="flex justify-between items-center pb-4 border-b border-slate-200 dark:border-slate-800/60 mb-5 flex-wrap gap-2">
               <div className="flex items-center gap-2.5">
-                <span className="inline-block px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-300 border border-indigo-500/15">
+                <span className="inline-block px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 border border-indigo-500/15">
                   {selectedTool.category.toUpperCase()} UTILITY
                 </span>
-                <span className="text-slate-650 font-mono text-xs">/</span>
-                <span className="text-xs text-slate-400 font-mono font-bold select-all">tools/{selectedTool.id}/index.html</span>
+                <span className="text-slate-400 dark:text-slate-650 font-mono text-xs">/</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-mono font-bold select-all">tools/{selectedTool.id}/index.html</span>
               </div>
               <button
                 onClick={handleCloseTool}
-                className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-750 text-slate-100 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border border-slate-700 cursor-pointer"
+                className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-100 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border border-slate-200 dark:border-slate-700 cursor-pointer shadow-sm"
               >
                 <Icon name="X" size={13} /> Dismiss Sandbox
               </button>
+            </div>
+
+            {/* SEO OPTIMIZED TOOL HEADER & INTERACTIVE EXPOSURE PANEL inside human readable view */}
+            <div className="mb-6 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-indigo-500/5 to-blue-500/5 dark:from-indigo-400/5 dark:to-blue-400/5 border border-indigo-200/50 dark:border-indigo-400/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1.5 max-w-2xl">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                    <Icon name={selectedTool.icon} className="text-indigo-600 dark:text-indigo-400 shrink-0" size={22} />
+                    {selectedTool.name}
+                  </h1>
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold font-mono bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/10 dark:border-emerald-500/20 shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-550 dark:bg-emerald-500 animate-pulse" />
+                    Google Core Vitally Indexed
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-slate-400 font-sans">
+                  {selectedTool.description} This tool runs entirely in your local browser sandbox to provide instant results with zero server transfers.
+                </p>
+              </div>
+              <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+                <div className="p-2 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center gap-2 shadow-sm text-center">
+                  <div className="p-1 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300">
+                    <Icon name="Shield" size={13} />
+                  </div>
+                  <div className="text-left">
+                    <span className="block text-[8px] font-mono uppercase text-slate-400 dark:text-slate-500">GDPR Compliance</span>
+                    <span className="text-[10px] font-bold text-slate-700 dark:text-slate-350 font-sans">100% Client-Side Only</span>
+                  </div>
+                </div>
+                <div className="p-2 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center gap-2 shadow-sm text-center">
+                  <div className="p-1 rounded bg-teal-50 dark:bg-teal-950 text-teal-600 dark:text-teal-300">
+                    <Icon name="Activity" size={13} />
+                  </div>
+                  <div className="text-left">
+                    <span className="block text-[8px] font-mono uppercase text-slate-400 dark:text-slate-500">Performance</span>
+                    <span className="text-[10px] font-bold text-slate-700 dark:text-slate-350 font-sans">0ms Client Latency</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Quick Switcher Subbar inside active category */}

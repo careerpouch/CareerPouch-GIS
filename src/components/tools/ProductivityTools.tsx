@@ -463,9 +463,10 @@ const AiWeeklyReportTool: React.FC = () => {
 
 interface ProductivityToolsProps {
   toolId: string;
+  isDarkMode?: boolean;
 }
 
-export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId }) => {
+export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId, isDarkMode = false }) => {
   // ---- 1. KANBAN BOARD STATE ----
   const [kanbanTasks, setKanbanTasks] = useState([
     { id: 't1', title: 'Refactor core layout wrappers', status: 'todo', desc: 'Prepare main viewport variables.' },
@@ -1112,18 +1113,18 @@ export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId }) 
       {/* 4. TIMEZONE COORDINATOR */}
       {toolId === 'timezone-coordinator' && (
         <div className="space-y-6">
-          <div className="border-b border-slate-700 pb-3">
-            <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
-              <Icon name="Clock" className="text-indigo-400" /> Timezone Coordinator Index
+          <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <Icon name="Clock" className="text-indigo-600 dark:text-indigo-400" /> Timezone Coordinator Index
             </h2>
-            <p className="text-xs text-slate-400 mt-1">Adjust the slider to coordinate meeting zones across team hubs worldwide.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Adjust the slider to coordinate meeting zones across team hubs worldwide.</p>
           </div>
 
-          <div className="bg-slate-800/20 p-5 rounded-2xl border border-slate-700/40 space-y-4">
+          <div className="bg-slate-50 dark:bg-slate-800/20 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/40 space-y-4">
             <div>
-              <label className="flex justify-between text-xs text-slate-300 mb-2 font-mono">
+              <label className="flex justify-between text-xs text-slate-700 dark:text-slate-350 mb-2 font-mono">
                 <span>LOCAL EST BASE TIME ADJUSTER</span>
-                <span className="text-emerald-400 font-bold">{formatHourString(baseHour)} (Eastern Time)</span>
+                <span className="text-indigo-600 dark:text-emerald-400 font-bold">{formatHourString(baseHour)} (Eastern Time)</span>
               </label>
               <input
                 type="range"
@@ -1131,7 +1132,7 @@ export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId }) 
                 max="23"
                 value={baseHour}
                 onChange={(e) => setBaseHour(Number(e.target.value))}
-                className="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                className="w-full h-2 bg-slate-200 dark:bg-slate-950 rounded-lg appearance-none cursor-pointer accent-indigo-500"
               />
             </div>
 
@@ -1142,16 +1143,26 @@ export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId }) 
                 return (
                   <div key={i} className={`p-4 rounded-xl border transition-all ${
                     isWorkingHour
-                      ? 'bg-emerald-500/5 border-emerald-500/20 shadow-emerald-950/20'
-                      : 'bg-slate-900 border-slate-800'
+                      ? 'bg-emerald-500/10 dark:bg-emerald-500/5 border-emerald-500/30 dark:border-emerald-500/20 shadow-sm'
+                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
                   }`}>
-                    <h4 className="text-xs font-bold text-slate-200 truncate">{tz.name}</h4>
+                    <h4 className={`text-xs font-bold truncate ${
+                      isWorkingHour
+                        ? 'text-emerald-800 dark:text-emerald-300'
+                        : 'text-slate-900 dark:text-slate-200'
+                    }`}>{tz.name}</h4>
                     <p className="text-[10px] text-slate-500 mt-0.5">{tz.label}</p>
-                    <div className="text-xl font-mono font-bold text-white mt-3">
+                    <div className={`text-xl font-mono font-bold mt-3 ${
+                      isWorkingHour
+                        ? 'text-emerald-700 dark:text-emerald-400'
+                        : 'text-slate-850 dark:text-white'
+                    }`}>
                       {formatHourString(baseHour + tz.offset)}
                     </div>
                     <span className={`inline-block text-[9px] font-bold rounded px-1.5 py-0.5 mt-2 font-mono ${
-                      isWorkingHour ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-800 text-slate-400'
+                      isWorkingHour 
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                     }`}>
                       {isWorkingHour ? '💻 Working Zone' : '💤 Night/Rest Off'}
                     </span>
