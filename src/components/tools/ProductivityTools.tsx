@@ -1524,6 +1524,261 @@ export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId }) 
           </div>
         </div>
       )}
+
+      {toolId === 'weekly-status' && <WeeklyCorporateStatusTool />}
+    </div>
+  );
+};
+
+// ==========================================
+// 5. WEEKLY CORPORATE STATUS REPORTER COMPONENT
+// ==========================================
+const WeeklyCorporateStatusTool: React.FC = () => {
+  const [profileName, setProfileName] = useState('John Doe');
+  const [jobTitle, setJobTitle] = useState('Senior Frontend Architect');
+  const [teamName, setTeamName] = useState('Core Product Experience');
+  const [period, setPeriod] = useState(`Week Ending ${new Date().toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}`);
+  const [formatType, setFormatType] = useState<'corporate' | 'friendly' | 'executive'>('corporate');
+
+  const [accomplishments, setAccomplishments] = useState([
+    'Refactored 12+ legacy UI viewport modals to 100% offline-first responsive sandboxes.',
+    'Optimized script loading weights, leading to a 28% drop in active bundle execution payload.',
+    'Formulated security isolation rules, eliminating client-to-remote telemetry risks.'
+  ]);
+  const [inProgress, setInProgress] = useState([
+    'Assembling GitHub Profile layout generator for developer branding tools.',
+    'Testing local memory state caching sequences to ensure data persistence during browser reloads.'
+  ]);
+  const [blockers, setBlockers] = useState([
+    'None currently. Awaiting cross-team design review feedback for mobile viewport alignments.'
+  ]);
+
+  const [newAcc, setNewAcc] = useState('');
+  const [newProg, setNewProg] = useState('');
+  const [newBlock, setNewBlock] = useState('');
+
+  const handleAddAccomplishment = () => {
+    if (!newAcc.trim()) return;
+    setAccomplishments(prev => [...prev, newAcc.trim()]);
+    setNewAcc('');
+  };
+
+  const handleAddInProgress = () => {
+    if (!newProg.trim()) return;
+    setInProgress(prev => [...prev, newProg.trim()]);
+    setNewProg('');
+  };
+
+  const handleAddBlocker = () => {
+    if (!newBlock.trim()) return;
+    setBlockers(prev => [...prev, newBlock.trim()]);
+    setNewBlock('');
+  };
+
+  const removeAcc = (idx: number) => setAccomplishments(prev => prev.filter((_, i) => i !== idx));
+  const removeProg = (idx: number) => setInProgress(prev => prev.filter((_, i) => i !== idx));
+  const removeBlock = (idx: number) => setBlockers(prev => prev.filter((_, i) => i !== idx));
+
+  const generateReportText = () => {
+    const greeting = formatType === 'friendly' 
+      ? `Hi Team! 👋 Here is my weekly progress status update for the ${period}:`
+      : formatType === 'executive'
+      ? `EXECUTIVE REPORT Summary - ${profileName} (${jobTitle}) - ${period}`
+      : `WEEKLY STATUS PROGRESS UPDATE\n=================================\nReporter:  ${profileName}\nTitle:     ${jobTitle}\nTeam:      ${teamName}\nPeriod:    ${period}\n=================================`;
+
+    const section1Header = formatType === 'friendly' ? '✅ Accomplishments & Progress Done' : '1. KEY ACCOMPLISHMENTS / PROGRESS REPORT';
+    const section2Header = formatType === 'friendly' ? '🚀 Active In-Progress Elements' : '2. ACTIVE WORK-IN-PROGRESS & FOCUS OBJECTIVES';
+    const section3Header = formatType === 'friendly' ? '⚠️ Blockers / Support Required' : '3. IDENTIFIED BLOCKERS / RISK ATTENUATION';
+
+    const renderList = (items: string[]) => {
+      if (items.length === 0) return ' - None reported.';
+      return items.map(item => `   • ${item}`).join('\n');
+    };
+
+    if (formatType === 'executive') {
+      return `[${teamName}] ${profileName} - ${period}\n\n*SUMMARY*\n${accomplishments.slice(0, 2).map((a, i) => `• [Done] ${a}`).join('\n')}\n${inProgress.slice(0, 1).map((p, i) => `• [Next] ${p}`).join('\n')}\n${blockers.map(b => `• [Risk] ${b}`).join('\n')}`;
+    }
+
+    return `${greeting}\n\n${section1Header}\n---------------------------------\n${renderList(accomplishments)}\n\n${section2Header}\n---------------------------------\n${renderList(inProgress)}\n\n${section3Header}\n---------------------------------\n${renderList(blockers)}\n\nThank you!\n- ${profileName}`;
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="border-b border-slate-700/60 pb-3">
+        <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+          <Icon name="Briefcase" className="text-emerald-400" /> Weekly Corporate Status Reporter
+        </h2>
+        <p className="text-xs text-slate-400 mt-1">Design copy-ready executive updates, corporate summaries, or casual progress emails in seconds.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-slate-900/40 p-5 rounded-2xl border border-slate-800 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-300 font-mono">Report metadata</h3>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-3 border-b border-slate-800">
+            <div>
+              <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">Full Name</label>
+              <input
+                type="text"
+                value={profileName}
+                onChange={(e) => setProfileName(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">Professional Title</label>
+              <input
+                type="text"
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">Team / Unit</label>
+              <input
+                type="text"
+                value={teamName}
+                onChange={(e) => setTeamName(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">Reporting Cycle</label>
+              <input
+                type="text"
+                value={period}
+                onChange={(e) => setPeriod(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-505"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {/* ACCOMPLISHMENTS SECTION */}
+            <div className="space-y-2">
+              <label className="block text-[10px] text-teal-400 font-mono font-bold uppercase">Accomplishments & Completed Sprints</label>
+              <div className="space-y-2 max-h-36 overflow-y-auto">
+                {accomplishments.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center bg-slate-950/60 p-2 rounded-lg border border-slate-805 gap-2">
+                    <span className="text-xs text-slate-205 select-all leading-tight">✓ {item}</span>
+                    <button onClick={() => removeAcc(idx)} className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-slate-900 cursor-pointer text-xs font-bold">×</button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Describe metric, project, or task completed..."
+                  value={newAcc}
+                  onChange={(e) => setNewAcc(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddAccomplishment()}
+                  className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-100 focus:outline-none"
+                />
+                <button onClick={handleAddAccomplishment} className="bg-slate-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-teal-400 font-bold hover:bg-slate-750 font-mono">+</button>
+              </div>
+            </div>
+
+            {/* IN PROGRESS PROGRESS */}
+            <div className="space-y-2">
+              <label className="block text-[10px] text-blue-400 font-mono font-bold uppercase">Active In-Progress Objectives</label>
+              <div className="space-y-2 max-h-36 overflow-y-auto">
+                {inProgress.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center bg-slate-950/60 p-2 rounded-lg border border-slate-805 gap-2">
+                    <span className="text-xs text-slate-205 select-all leading-tight">⏱ {item}</span>
+                    <button onClick={() => removeProg(idx)} className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-slate-900 cursor-pointer text-xs font-bold">×</button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Describe current active milestone or target..."
+                  value={newProg}
+                  onChange={(e) => setNewProg(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddInProgress()}
+                  className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-100 focus:outline-none"
+                />
+                <button onClick={handleAddInProgress} className="bg-slate-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-blue-400 font-bold hover:bg-slate-755 font-mono">+</button>
+              </div>
+            </div>
+
+            {/* BLOCKERS */}
+            <div className="space-y-2">
+              <label className="block text-[10px] text-pink-400 font-mono font-bold uppercase">Critical Blockers / Risk Factors</label>
+              <div className="space-y-2 max-h-36 overflow-y-auto">
+                {blockers.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center bg-slate-950/60 p-2 rounded-lg border border-slate-805 gap-2">
+                    <span className="text-xs text-slate-205 select-all leading-tight">⚠ {item}</span>
+                    <button onClick={() => removeBlock(idx)} className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-slate-900 cursor-pointer text-xs font-bold">×</button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Describe blockers, dependencies, or none..."
+                  value={newBlock}
+                  onChange={(e) => setNewBlock(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddBlocker()}
+                  className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-100 focus:outline-none animate-none"
+                />
+                <button onClick={handleAddBlocker} className="bg-slate-800 border border-slate-700 text-xs px-2.5 py-1 rounded-lg text-pink-400 font-bold hover:bg-slate-755 font-mono">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="bg-slate-905 p-4 rounded-xl border border-slate-800 flex items-center justify-between gap-2.5">
+            <span className="text-[10px] font-mono text-slate-400 uppercase font-black">Tone output template:</span>
+            <div className="flex p-0.5 bg-slate-950 rounded-xl border border-slate-800 shrink-0">
+              <button
+                onClick={() => setFormatType('corporate')}
+                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${formatType === 'corporate' ? 'bg-indigo-600 text-white font-black' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                Corporate
+              </button>
+              <button
+                onClick={() => setFormatType('friendly')}
+                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${formatType === 'friendly' ? 'bg-indigo-650 text-white font-black' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                Casual
+              </button>
+              <button
+                onClick={() => setFormatType('executive')}
+                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${formatType === 'executive' ? 'bg-indigo-650 text-white font-black' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                Executive
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col justify-between font-mono min-h-[400px]">
+            <div>
+              <span className="text-[9px] text-slate-500 uppercase tracking-widest block mb-2">Live computed reporter format</span>
+              <pre className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap select-text selection:bg-indigo-505 overflow-y-auto max-h-[350px]">
+                {generateReportText()}
+              </pre>
+            </div>
+            
+            <div className="border-t border-slate-800/80 pt-4 mt-4 flex justify-between items-center">
+              <span className="text-[10px] text-slate-500 flex items-center gap-1">
+                <Icon name="Shield" size={12} className="text-emerald-500 animate-pulse" /> 100% PRIVATE CLIENT SECURE
+              </span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(generateReportText());
+                  alert('Status Report copied to local browser clipboard!');
+                }}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl text-xs transition-colors flex items-center gap-1.5 shadow-md"
+              >
+                <Icon name="Copy" size={13} /> Copy Report
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

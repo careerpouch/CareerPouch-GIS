@@ -12,7 +12,8 @@ export const TextTools: React.FC<TextToolsProps> = ({ toolId }) => {
     'translation-helper',
     'ai-rephrase',
     'grammar-checker',
-    'case-converter'
+    'case-converter',
+    'ai-hashtag-generator'
   ];
 
   if (CUSTOM_TEXT_TOOLS.includes(toolId)) {

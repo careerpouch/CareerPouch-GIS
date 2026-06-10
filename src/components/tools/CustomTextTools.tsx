@@ -105,6 +105,80 @@ export const CustomTextTools: React.FC<CustomTextToolsProps> = ({ toolId }) => {
     return caseText;
   };
 
+  // 6. AI HASHTAG GENERATOR & SOCIAL PLANNER STATE
+  const [hashtagText, setHashtagText] = useState(`Excited to open-source Career Pouch! A robust, 100% local-first toolbox featuring developer converters, math plotters, and resume builders. Privacy is guaranteed as no details are ever sent to remote servers!`);
+  const [niche, setNiche] = useState('Tech');
+  const [platform, setPlatform] = useState('LinkedIn');
+  const [reachLevel, setReachLevel] = useState('Balanced');
+  const [customTags, setCustomTags] = useState<string[]>([]);
+  const [newTagInput, setNewTagInput] = useState('');
+
+  const generateHashtags = () => {
+    const textLower = hashtagText.toLowerCase();
+    const tagsSet = new Set<string>();
+
+    // Scan text for tech keywords to add tags
+    if (textLower.includes('react') || textLower.includes('frontend') || textLower.includes('code') || textLower.includes('web') || textLower.includes('script')) {
+      tagsSet.add('reactjs');
+      tagsSet.add('webdevelopment');
+      tagsSet.add('programming');
+    }
+    if (textLower.includes('privacy') || textLower.includes('local') || textLower.includes('secure') || textLower.includes('safe') || textLower.includes('server')) {
+      tagsSet.add('dataprivacy');
+      tagsSet.add('security');
+      tagsSet.add('offlinefirst');
+    }
+    if (textLower.includes('career') || textLower.includes('resume') || textLower.includes('cv') || textLower.includes('job') || textLower.includes('linkedin') || textLower.includes('recru')) {
+      tagsSet.add('careerdevelopment');
+      tagsSet.add('resumehelp');
+      tagsSet.add('jobsearch');
+      tagsSet.add('personalgrowth');
+    }
+    if (textLower.includes('open-source') || textLower.includes('github') || textLower.includes('free') || textLower.includes('shared')) {
+      tagsSet.add('opensource');
+      tagsSet.add('github');
+      tagsSet.add('freecode');
+    }
+    if (textLower.includes('saas') || textLower.includes('built') || textLower.includes('product') || textLower.includes('launch') || textLower.includes('tool')) {
+      tagsSet.add('saas');
+      tagsSet.add('buildinpublic');
+      tagsSet.add('indiehackers');
+    }
+
+    // Standard curated tags from chosen niche
+    const nicheTags: Record<string, string[]> = {
+      'Tech': ['programming', 'developer', 'softwareengineering', 'techcommunity', 'javascript', 'typescript', 'vitejs'],
+      'Career': ['professionaltips', 'interviewprep', 'careeradvice', 'growthmindset', 'hiring', 'cvtips', 'jobs'],
+      'SaaS': ['indiehackers', 'founder', 'businessgrowth', 'solopreneur', 'marketing', 'startup', 'productdesign'],
+      'Design': ['uidesign', 'uxresearch', 'framer', 'webdesign', 'creativebranding', 'aesthetic', 'tailwindcss']
+    };
+
+    const pool = nicheTags[niche] || nicheTags['Tech'];
+    pool.forEach(t => tagsSet.add(t));
+
+    // Append custom tags added by user
+    customTags.forEach(ct => {
+      const cleaned = ct.replace(/^#/, '').trim();
+      if (cleaned) tagsSet.add(cleaned);
+    });
+
+    let finalTagsArray = Array.from(tagsSet);
+
+    // Filter length based on reach level parameter
+    if (reachLevel === 'Minimal') {
+      finalTagsArray = finalTagsArray.slice(0, 4);
+    } else if (reachLevel === 'Balanced') {
+      finalTagsArray = finalTagsArray.slice(0, 9);
+    } else {
+      // Full Reach
+      finalTagsArray = finalTagsArray.slice(0, 20);
+    }
+
+    return finalTagsArray;
+  };
+
+  const activeGeneratedTags = generateHashtags();
+
   return (
     <div className="space-y-6 font-sans">
       {/* 1. TEXT SUMMARIZER */}
@@ -370,6 +444,233 @@ export const CustomTextTools: React.FC<CustomTextToolsProps> = ({ toolId }) => {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. AI HASHTAG GENERATOR & SOCIAL PLANNER */}
+      {toolId === 'ai-hashtag-generator' && (
+        <div className="space-y-6">
+          <div className="border-b border-slate-700/60 pb-3">
+            <h2 className="text-xl font-semibold text-slate-105 flex items-center gap-2">
+              <Icon name="Sparkles" className="text-amber-400 animate-pulse" />
+              AI Social Hashtag Generator & Planner
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              Extract keywords, identify trends, select social platforms, and generate high-engagement hashtags offline instantly.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Input Console */}
+            <div className="space-y-4 bg-slate-900/60 border border-slate-755/50 p-5 rounded-2xl">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold">🎯 Select Template Preset:</span>
+                <span className="text-[10px] font-mono text-teal-400 font-bold uppercase">Sandbox Profiles</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  {
+                    name: 'LinkedIn Milestones',
+                    textValue: 'Thrilled to share that I have just finalized the deep containerization framework and local database migration for our client portfolio. Scalability boosted by 45% with 0 server latency!'
+                  },
+                  {
+                    name: 'GitHub Open Source',
+                    textValue: 'Just officially open-sourced Career Pouch! A professional 100% offline-first toolbox featuring ATS resume builders, PDF parsers, and custom mathematical function graphers.'
+                  },
+                  {
+                    name: 'SaaS Launch Update',
+                    textValue: 'We are finally live! Say goodbye to insecure online document converters that store copy records in remote cloud storage. Enjoy direct browser isolation.'
+                  }
+                ].map((preset, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setHashtagText(preset.textValue)}
+                    className="py-1 px-2 rounded bg-slate-800 hover:bg-slate-750 text-[10px] font-sans text-slate-200 border border-slate-700 transition-all text-left truncate cursor-pointer font-semibold"
+                    title={preset.textValue}
+                  >
+                    🚀 {preset.name}
+                  </button>
+                ))}
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[10px] font-mono text-slate-400 uppercase tracking-wider font-bold">Draft Post Text:</label>
+                <textarea
+                  value={hashtagText}
+                  onChange={(e) => setHashtagText(e.target.value)}
+                  rows={6}
+                  maxLength={1500}
+                  className="w-full bg-slate-950 border border-slate-800 text-xs text-white p-3.5 rounded-xl leading-relaxed outline-none focus:border-amber-500/50"
+                  placeholder="Type your newsletter draft or post description..."
+                />
+              </div>
+
+              {/* Strategy Parameters */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div>
+                  <label className="block text-[9px] font-mono text-slate-400 uppercase tracking-wider mb-1 font-bold">Niche focus:</label>
+                  <select
+                    value={niche}
+                    onChange={(e) => setNiche(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 roundedpx-2.5 py-1.5 px-2 text-xs text-slate-100 rounded-lg outline-none"
+                  >
+                    <option value="Tech">Programming & Tech</option>
+                    <option value="Career">Career & Jobs</option>
+                    <option value="SaaS">SaaS & Startups</option>
+                    <option value="Design">UI/UX & Design</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-mono text-slate-400 uppercase tracking-wider mb-1 font-bold">Target Platform:</label>
+                  <select
+                    value={platform}
+                    onChange={(e) => setPlatform(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 roundedpx-2.5 py-1.5 px-2 text-xs text-slate-100 rounded-lg outline-none"
+                  >
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Twitter">Twitter / X</option>
+                    <option value="Instagram">Instagram/Threads</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-mono text-slate-400 uppercase tracking-wider mb-1 font-bold">Density reach:</label>
+                  <select
+                    value={reachLevel}
+                    onChange={(e) => setReachLevel(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 roundedpx-2.5 py-1.5 px-2 text-xs text-slate-100 rounded-lg outline-none"
+                  >
+                    <option value="Minimal">Minimal (3-5 tags)</option>
+                    <option value="Balanced">Balanced (8-10 tags)</option>
+                    <option value="Full Reach">Full Reach (15+ tags)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Generated Real-time Analytics Preview */}
+            <div className="space-y-4 bg-slate-950 p-5 rounded-2xl border border-slate-850 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center border-b border-slate-900 pb-2">
+                  <span className="text-[10px] font-mono text-amber-400 uppercase tracking-widest font-black flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping inline-block" />
+                    AI Trend-Matching Engine
+                  </span>
+                  <span className="text-[9px] font-mono text-slate-500 font-bold uppercase">Local algorithm ready</span>
+                </div>
+
+                {/* Hashtag Bucket */}
+                <div className="space-y-2">
+                  <span className="block text-[10px] font-mono text-slate-400 uppercase font-bold">Trending Hashtags (Click to copy individual):</span>
+                  <div className="flex flex-wrap gap-1.5 bg-slate-900/60 p-3 rounded-xl border border-slate-900 min-h-[90px] items-start content-start">
+                    {activeGeneratedTags.map((tag) => (
+                      <button
+                        key={tag}
+                        onClick={() => {
+                          navigator.clipboard.writeText(`#${tag}`);
+                          alert(`Copied: #${tag}`);
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-mono font-bold uppercase rounded-lg bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 border border-teal-500/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                        title="Click to copy this hashtag"
+                      >
+                        #{tag}
+                        <Icon name="Copy" size={9} className="opacity-65" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Slot to inject dynamic custom tag */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter custom tag (e.g., #remotework)..."
+                    value={newTagInput}
+                    onChange={(e) => setNewTagInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newTagInput) {
+                        setCustomTags(prev => [...prev, newTagInput]);
+                        setNewTagInput('');
+                      }
+                    }}
+                    className="flex-1 bg-slate-900 border border-slate-800 text-xs px-3 py-1.5 rounded-lg text-slate-350 outline-none"
+                  />
+                  <button
+                    onClick={() => {
+                      if (newTagInput) {
+                        setCustomTags(prev => [...prev, newTagInput]);
+                        setNewTagInput('');
+                      }
+                    }}
+                    className="bg-slate-800 hover:bg-slate-700 text-slate-101 border border-slate-700 rounded-lg text-xs font-bold px-3 py-1.5 cursor-pointer"
+                  >
+                    + Add
+                  </button>
+                  {customTags.length > 0 && (
+                    <button
+                      onClick={() => setCustomTags([])}
+                      className="text-rose-500 hover:underline text-xs font-semibold px-1"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+
+                {/* Platform Limit Auditor */}
+                <div className="bg-slate-900/40 p-3 rounded-xl border border-slate-900 space-y-2">
+                  <div className="flex justify-between text-[10px] font-mono">
+                    <span className="text-slate-400 uppercase font-bold">{platform} Post Length Limit Audit:</span>
+                    <span className="font-extrabold text-slate-300">
+                      {(hashtagText.length + activeGeneratedTags.map(t => `#${t}`).join(' ').length + 2)} / {
+                        platform === 'Twitter' ? 280 : platform === 'Instagram' ? 2200 : 3000
+                      } characters
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-300 ${
+                        (hashtagText.length + activeGeneratedTags.map(t => `#${t}`).join(' ').length) > (platform === 'Twitter' ? 280 : platform === 'Instagram' ? 2200 : 3000)
+                          ? 'bg-rose-500 animate-pulse'
+                          : 'bg-gradient-to-r from-teal-400 to-indigo-500'
+                      }`}
+                      style={{
+                        width: `${Math.min(100, ((hashtagText.length + activeGeneratedTags.map(t => `#${t}`).join(' ').length) / (platform === 'Twitter' ? 280 : platform === 'Instagram' ? 2200 : 3000)) * 100)}%`
+                      }}
+                    />
+                  </div>
+                  {(hashtagText.length + activeGeneratedTags.map(t => `#${t}`).join(' ').length) > (platform === 'Twitter' ? 280 : platform === 'Instagram' ? 2200 : 3000) && (
+                    <span className="block text-[9.5px] font-serif font-black text-rose-400">⚠️ Character limit exceeded! Standard social networks will truncate this snippet.</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Suite */}
+              <div className="grid grid-cols-2 gap-3 pt-3">
+                <button
+                  onClick={() => {
+                    const compiledTags = activeGeneratedTags.map(t => `#${t}`).join(' ');
+                    navigator.clipboard.writeText(compiledTags);
+                    alert('Hashtags-only block copied to clipboard!');
+                  }}
+                  className="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 hover:border-slate-700 font-bold py-2.5 rounded-xl text-xs uppercase cursor-pointer"
+                >
+                  Copy Tags Only
+                </button>
+                <button
+                  onClick={() => {
+                    const compiledTags = activeGeneratedTags.map(t => `#${t}`).join(' ');
+                    const fullPost = `${hashtagText}\n\n${compiledTags}`;
+                    navigator.clipboard.writeText(fullPost);
+                    alert('Structured social post + hashtags copied success!');
+                  }}
+                  className="bg-amber-500 hover:bg-amber-600 font-black py-2.5 rounded-xl text-xs text-slate-950 uppercase shadow-lg shadow-amber-500/10 cursor-pointer"
+                >
+                  Copy Full Post Data
+                </button>
               </div>
             </div>
           </div>

@@ -6,6 +6,13 @@ interface CareerToolsProps {
 }
 
 export const CareerTools: React.FC<CareerToolsProps> = ({ toolId }) => {
+  if (toolId === 'github-readme-designer') {
+    return <GithubReadmeDesignerTool />;
+  }
+  if (toolId === 'elevator-pitch') {
+    return <ElevatorPitchTool />;
+  }
+
   // Common states for resumes
   const [profile, setProfile] = useState({
     name: 'Jane Doe',
@@ -113,6 +120,14 @@ export const CareerTools: React.FC<CareerToolsProps> = ({ toolId }) => {
     diagnostics: { type: 'success' | 'warning' | 'info'; message: string }[];
     bulletsSuggestions: string[];
   } | null>(null);
+
+  // ---- AI JOB KEYWORD & SKILL MATCH DETECTOR (100% OFFLINE) STATE ----
+  const [jobDescription, setJobDescription] = useState(`We are seeking a Senior Fullstack Engineer proficient in React.js, TypeScript, and Node.js. 
+You will be responsible for building scalable web applications with Tailwind CSS and optimising PostgreSQL relational database performance. 
+Strong systems architecture, Agile design, CI/CD, and AWS experience are required, alongside excellent leadership and mentorship skills.`);
+  const [userResumeText, setUserResumeText] = useState(`Experienced Software Engineer specializing in frontend systems. 
+Skilled in JavaScript, React.js, Tailwind CSS, and SQL. 
+Proven background building responsive user interfaces, collaborating in Agile settings, and managing microservices development.`);
 
   const analyzeAndOptimizeBullet = () => {
     if (!rawBullet.trim()) {
@@ -727,6 +742,270 @@ ${profile.phone}`;
                 {aboutMe}
               </pre>
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (toolId === 'ai-keyword-detector') {
+    // Standard dictionaries of potential hard/soft skills
+    const possibleHardSkills = [
+      { key: 'react', name: 'React.js', level: 'Critical', bullet: 'Architected enterprise React.js interfaces, streamlining state routines and trimming client payload latency by 35%.' },
+      { key: 'typescript', name: 'TypeScript', level: 'Critical', bullet: 'Spearheaded gradual team migration of legacy JavaScript to TypeScript, securing 100% build-time compile safety.' },
+      { key: 'node', name: 'Node.js', level: 'High', bullet: 'Engineered high-concurrency Node.js microservices to process distributed API requests under 80ms average latency.' },
+      { key: 'tailwind', name: 'Tailwind CSS', level: 'High', bullet: 'Designed pixel-perfect responsive frontend components using Tailwind CSS layout utilities, establishing cross-view uniformity.' },
+      { key: 'sql', name: 'SQL Database', level: 'Good to have', bullet: 'Analyzed complex mathematical data arrays and indexed SQL schemas, pruning database querying latency by 45%.' },
+      { key: 'postgres', name: 'PostgreSQL', level: 'Good to have', bullet: 'Configured robust PostgreSQL transaction pools to handle heavy read/write records safely with zero cache lag.' },
+      { key: 'aws', name: 'AWS Cloud', level: 'Good to have', bullet: 'Provisioned containerized services on AWS Cloud, implementing load balancers to ensure 99.99% system availability.' },
+      { key: 'ci/cd', name: 'CI/CD & DevOps', level: 'Good to have', bullet: 'Designed automated testing workflows on corporate CI/CD pipelines, shaving over 8+ engineering hours per sprint.' },
+      { key: 'architecture', name: 'Systems Architecture', level: 'High', bullet: 'Formulated robust systems architecture diagrams, integrating microservices to isolate business domain components.' }
+    ];
+
+    const possibleSoftSkills = [
+      { key: 'leadership', name: 'Leadership & Strategy', bullet: 'Directed cross-functional team sprints, boosting quarterly sprint delivery rate matches by 28%.' },
+      { key: 'mentor', name: 'Mentorship', bullet: 'Mentored 4 junior developers on clean architectural patterns, speeding up initial team onboarding time by 30%.' },
+      { key: 'agile', name: 'Agile Methodology', bullet: 'Facilitated Agile SCRUM standups and sprint planning boards to improve client velocity release rates.' },
+      { key: 'collaborat', name: 'Cross-functional Collaboration', bullet: 'Collaborated with design and product teams to translate high-fidelity assets into active software modules.' },
+      { key: 'communication', name: 'Clear Communication', bullet: 'Delivered technical roadmap presentations to executive stakeholders to secure budget permissions.' }
+    ];
+
+    // Case-insensitive matching logic
+    const scannedJobDesc = jobDescription.toLowerCase();
+    const scannedCV = userResumeText.toLowerCase();
+
+    const requiredHard = possibleHardSkills.filter(skill => scannedJobDesc.includes(skill.key));
+    const requiredSoft = possibleSoftSkills.filter(skill => scannedJobDesc.includes(skill.key));
+
+    // Handle standard fallbacks if user inputs arbitrary values
+    const finalRequiredHard = requiredHard.length > 0 ? requiredHard : [
+      possibleHardSkills[0], possibleHardSkills[1], possibleHardSkills[2]
+    ];
+    const finalRequiredSoft = requiredSoft.length > 0 ? requiredSoft : [
+      possibleSoftSkills[1], possibleSoftSkills[2]
+    ];
+
+    // Determine matched keywords
+    const analyzedHard = finalRequiredHard.map(skill => {
+      const isMatched = scannedCV.includes(skill.key) || profile.skills.some(ps => ps.toLowerCase().includes(skill.key));
+      return { ...skill, matched: isMatched };
+    });
+
+    const analyzedSoft = finalRequiredSoft.map(skill => {
+      const isMatched = scannedCV.includes(skill.key) || profile.skills.some(ps => ps.toLowerCase().includes(skill.key));
+      return { ...skill, matched: isMatched };
+    });
+
+    const totalRequiredCount = analyzedHard.length + analyzedSoft.length;
+    const totalMatchedCount = analyzedHard.filter(h => h.matched).length + analyzedSoft.filter(s => s.matched).length;
+    const matchScore = Math.round((totalMatchedCount / totalRequiredCount) * 105);
+    const finalMatchScore = Math.max(0, Math.min(100, matchScore));
+
+    const missingHard = analyzedHard.filter(h => !h.matched);
+    const missingSoft = analyzedSoft.filter(s => !s.matched);
+
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/60 pb-4 gap-4 animate-fade-in">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+              <Icon name="Sparkles" className="text-pink-400 rotate-12" />
+              AI Job Post Keyword & Skill Match Detector (100% Offline)
+            </h2>
+            <p className="text-xs text-slate-400 mt-1 font-sans">
+              Extract required CV tags and skills from any job opening text instantly, score your resume, and generate missing ATS-friendly bullet points in real-time.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setJobDescription(`We are seeking a Senior React Developer proficient in Tailwind CSS and TypeScript. 
+Experience with clean systems architecture, CI/CD routines, and AWS Cloud deployments is critical.`);
+                setUserResumeText(`Experienced Engineer specializing in responsive web. Skilled in Tailwind CSS and React.js.
+Familiar with basic Agile team methods but looking to grow.`);
+              }}
+              className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-750 text-cyan-400 border border-slate-700/60 rounded-xl text-xs font-semibold cursor-pointer"
+            >
+              Preload Demo Sample
+            </button>
+          </div>
+        </div>
+
+        {/* Audit Report Highlights */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* Left panel: Score ring indicator */}
+          <div className="bg-gradient-to-br from-slate-900 to-indigo-950/70 p-5 rounded-2xl border border-pink-500/10 flex flex-col items-center justify-center text-center space-y-4 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/5 rounded-full filter blur-xl" />
+            
+            <h3 className="text-xs font-black font-mono text-pink-400 uppercase tracking-widest leading-none">CV Keyword Match Score</h3>
+            
+            {/* Visual radial chart */}
+            <div className="relative w-32 h-32 flex items-center justify-center select-none">
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" stroke="rgba(30,41,59,0.5)" strokeWidth="8" fill="transparent" />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  stroke={finalMatchScore < 45 ? '#f43f5e' : finalMatchScore < 75 ? '#fbbf24' : '#10b981'}
+                  strokeWidth="8"
+                  fill="transparent"
+                  strokeDasharray={251.2}
+                  strokeDashoffset={251.2 - (251.2 * finalMatchScore) / 100}
+                  strokeLinecap="round"
+                  className="transition-all duration-1000"
+                />
+              </svg>
+              <div className="absolute flex flex-col items-center">
+                <span className="text-3xl font-black text-white">{finalMatchScore}%</span>
+                <span className="text-[9px] font-mono text-slate-400 uppercase">Match Status</span>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <span className={`px-2.5 py-0.5 rounded text-[10px] font-black uppercase font-mono border ${
+                finalMatchScore < 45 
+                  ? 'bg-rose-500/10 border-rose-500/15 text-rose-400' 
+                  : finalMatchScore < 75 
+                    ? 'bg-amber-500/10 border-amber-500/15 text-amber-400' 
+                    : 'bg-emerald-500/10 border-emerald-500/15 text-emerald-400'
+              }`}>
+                {finalMatchScore < 45 ? '⚠️ High ATS Screen Risk' : finalMatchScore < 75 ? '⚡ Needs Keyword Tuning' : '💎 Optimized Match'}
+              </span>
+              <p className="text-[10px] text-slate-400 max-w-xs pt-1.5 leading-relaxed">
+                Matched <strong className="text-white font-mono">{totalMatchedCount} / {totalRequiredCount}</strong> critical industry keywords identified from this posting.
+              </p>
+            </div>
+          </div>
+
+          {/* Right Panels: Skills extracted dashboards */}
+          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            {/* Hard Skills Panel */}
+            <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800/80 space-y-3">
+              <div className="flex justify-between items-center bg-slate-950 p-2 rounded-lg border border-slate-900">
+                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">🛠️ Required Hard Skills ({analyzedHard.length})</span>
+                <span className="text-[9px] font-mono text-indigo-400 uppercase font-black">ATS Keywords</span>
+              </div>
+              <div className="space-y-2 max-h-[180px] overflow-y-auto pr-1">
+                {analyzedHard.map((skill) => (
+                  <div key={skill.key} className="flex justify-between items-center p-2 rounded-xl bg-slate-950/40 border border-slate-850 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${skill.matched ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                      <span className="text-slate-200 font-semibold">{skill.name}</span>
+                      <span className="text-[8px] font-mono px-1.5 py-0.2 bg-slate-800 text-slate-400 rounded-sm">{skill.level}</span>
+                    </div>
+                    <span className={`px-2 py-0.5 text-[9px] font-mono uppercase rounded font-bold ${
+                      skill.matched ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'
+                    }`}>
+                      {skill.matched ? '✓ Matched' : '✗ Missing'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Soft Skills Panel */}
+            <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800/80 space-y-3">
+              <div className="flex justify-between items-center bg-slate-950 p-2 rounded-lg border border-slate-900">
+                <span className="text-[10px] font-mono font-bold text-slate-400 uppercase font-bold">📜 Soft Skills & Methodology ({analyzedSoft.length})</span>
+                <span className="text-[9px] font-mono text-cyan-400 uppercase font-black">Methods</span>
+              </div>
+              <div className="space-y-2 max-h-[180px] overflow-y-auto pr-1">
+                {analyzedSoft.map((skill) => (
+                  <div key={skill.key} className="flex justify-between items-center p-2 rounded-xl bg-slate-950/40 border border-slate-850 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${skill.matched ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                      <span className="text-slate-200 font-semibold">{skill.name}</span>
+                    </div>
+                    <span className={`px-2 py-0.5 text-[9px] font-mono uppercase rounded font-bold ${
+                      skill.matched ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'
+                    }`}>
+                      {skill.matched ? '✓ Matched' : '✗ Missing'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Input Text areas Console */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+          
+          <div className="space-y-1.5 col-span-1">
+            <span className="block text-[10px] font-mono text-slate-400 uppercase tracking-wider font-bold">Paste Target Job Description (JD):</span>
+            <textarea
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              rows={6}
+              className="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-3.5 rounded-xl leading-relaxed outline-none focus:border-pink-500/40"
+              placeholder="Paste the recruiter's specifications or email requirements block..."
+            />
+          </div>
+
+          <div className="space-y-1.5 col-span-1">
+            <span className="block text-[10px] font-mono text-slate-400 uppercase tracking-wider font-bold">Paste Your Resume Details / Competencies:</span>
+            <textarea
+              value={userResumeText}
+              onChange={(e) => setUserResumeText(e.target.value)}
+              rows={6}
+              className="w-full bg-slate-900 border border-slate-800 text-xs text-slate-200 p-3.5 rounded-xl leading-relaxed outline-none focus:border-pink-500/40"
+              placeholder="Paste the text outline of your profile, summary, or work history..."
+            />
+          </div>
+
+        </div>
+
+        {/* Actionable recommendations and suggested resume bullets matches */}
+        <div className="bg-slate-950 p-5 rounded-2xl border border-slate-850 space-y-4">
+          <div className="border-b border-slate-900 pb-2.5 flex items-center justify-between">
+            <span className="text-[10px] font-mono text-slate-400 uppercase font-black flex items-center gap-2">
+              <Icon name="Lightbulb" size={13} className="text-amber-400 shrink-0 animate-pulse" />
+              Impactful Action Recommendations: Beat the Recruiter ATS Screen
+            </span>
+            <span className="text-[9px] font-mono text-emerald-400 uppercase font-extrabold">Instant local synthesis</span>
+          </div>
+
+          <div className="space-y-3">
+            {missingHard.length === 0 && missingSoft.length === 0 ? (
+              <div className="p-4 rounded-xl text-center bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 text-xs font-semibold">
+                🎉 Perfect Match! Your profile matches all identified required skills from this job description. Your resume is optimized to score extremely high in initial ATS stages!
+              </div>
+            ) : (
+              <div className="space-y-3.5">
+                <p className="text-xs text-slate-300 font-sans">
+                  Recruiters run filters looking for evidence of these exact missing terms. Integrate the following high-impact <strong className="text-pink-400 font-mono">STAR model</strong> resume milestones directly into your CV:
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {[...missingHard, ...missingSoft].slice(0, 4).map((skill, idx) => (
+                    <div key={idx} className="p-3 bg-slate-900/60 rounded-xl border border-slate-850 space-y-2">
+                      <div className="flex justify-between items-center text-[10.5px] font-mono font-bold">
+                        <span className="text-rose-450 uppercase">Missing: {skill.name}</span>
+                        <span className="text-slate-400">STAR Bullet Idea</span>
+                      </div>
+                      <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/70 p-3 rounded-lg border border-slate-900 selection:bg-pink-550 italic font-medium">
+                        "{skill.bullet}"
+                      </p>
+                      <div className="flex justify-end pt-1">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(skill.bullet);
+                            alert('Custom optimized resume bullet copied!');
+                          }}
+                          className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-755 border border-slate-700 text-[10px] font-sans text-cyan-400 font-bold cursor-pointer"
+                        >
+                          Copy This Bullet
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -1655,6 +1934,362 @@ ${profile.phone}`;
             <span className="text-[10px] text-slate-500 flex items-center gap-1">
               <Icon name="Shield" size={12} className="text-emerald-500" /> SECURE STATICAL MODE
             </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==========================================
+// A. GITHUB PROFILE README BUILDER COMPONENT
+// ==========================================
+const GithubReadmeDesignerTool: React.FC = () => {
+  const [name, setName] = useState('Jane Developer');
+  const [headline, setHeadline] = useState('Senior Software Architect crafting pixel-perfect, secure scaling applications.');
+  const [username, setUsername] = useState('janedev');
+  const [linkedin, setLinkedin] = useState('janedoe');
+  const [twitter, setTwitter] = useState('janedev_tweets');
+  const [currentFocus, setCurrentFocus] = useState('Optimizing offline client data structures for rapid utility delivery');
+  
+  // Tech Stack toggles
+  const [skills, setSkills] = useState({
+    react: true,
+    typescript: true,
+    nodejs: true,
+    tailwind: true,
+    graphql: false,
+    docker: false,
+    postgres: true,
+    aws: false,
+  });
+
+  const [includeStats, setIncludeStats] = useState(true);
+  const [includeSocialBadges, setIncludeSocialBadges] = useState(true);
+
+  const toggleSkill = (key: keyof typeof skills) => {
+    setSkills(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const generateMarkdown = () => {
+    let md = `# Hi there, I'm ${name} 👋\n\n`;
+    md += `> ${headline}\n\n`;
+    
+    // Social Badges
+    if (includeSocialBadges) {
+      md += `[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/${linkedin}) \n`;
+      if (twitter) {
+        md += `[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/${twitter}) \n`;
+      }
+      md += `\n`;
+    }
+
+    md += `## 🛠️ My Hard Skills & Tech Stack\n\n`;
+    md += `<p align="left">\n`;
+    if (skills.typescript) md += `  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />\n`;
+    if (skills.react) md += `  <img src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React" />\n`;
+    if (skills.nodejs) md += `  <img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js" />\n`;
+    if (skills.tailwind) md += `  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />\n`;
+    if (skills.postgres) md += `  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL" />\n`;
+    if (skills.graphql) md += `  <img src="https://img.shields.io/badge/GraphQL-E10098?style=flat-square&logo=graphql&logoColor=white" alt="GraphQL" />\n`;
+    if (skills.docker) md += `  <img src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker" />\n`;
+    if (skills.aws) md += `  <img src="https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazon-aws&logoColor=yellow" alt="AWS" />\n`;
+    md += `</p>\n\n`;
+
+    md += `## 🚀 Active Pursuits\n\n`;
+    md += `- 🔭 I’m currently focused on: **${currentFocus}**\n`;
+    md += `- ⚡ Fun fact: All my data sandboxes operate 100% locally with offline private memories!\n\n`;
+
+    // GitHub stats cards
+    if (includeStats && username) {
+      md += `## 📊 GitHub Analytics\n\n`;
+      md += `![${username}'s GitHub stats](https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true&theme=dark) \n`;
+      md += `![${username}'s Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=${username}&layout=compact&theme=dark) \n`;
+    }
+
+    return md;
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="border-b border-slate-700/60 pb-3">
+        <h2 className="text-xl font-semibold text-slate-105 flex items-center gap-2">
+          <Icon name="Github" className="text-teal-400" /> GitHub Profile README Builder
+        </h2>
+        <p className="text-xs text-slate-400 mt-1">Design a highly engaging, fully responsive profile readme file for your portfolio with live copyable code.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-slate-900/40 p-5 rounded-2xl border border-slate-800 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-300 font-mono">Profile Attributes</h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-3 border-b border-slate-800">
+            <div>
+              <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">Full Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">GitHub Username</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">LinkedIn Alias</label>
+              <input
+                type="text"
+                value={linkedin}
+                onChange={(e) => setLinkedin(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">Twitter Handles (Optional)</label>
+              <input
+                type="text"
+                value={twitter}
+                onChange={(e) => setTwitter(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">Headline Statement</label>
+            <input
+              type="text"
+              value={headline}
+              onChange={(e) => setHeadline(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">Active Focus Subject</label>
+            <input
+              type="text"
+              value={currentFocus}
+              onChange={(e) => setCurrentFocus(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none"
+            />
+          </div>
+
+          {/* Tech Stack Picker Grid */}
+          <div className="space-y-2">
+            <label className="block text-[10px] text-teal-400 font-mono font-bold uppercase">Include Tech Badges</label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {Object.keys(skills).map((skillKey) => {
+                const isSelected = skills[skillKey as keyof typeof skills];
+                return (
+                  <button
+                    key={skillKey}
+                    onClick={() => toggleSkill(skillKey as keyof typeof skills)}
+                    className={`px-3 py-1.5 rounded-lg border text-[11px] font-mono font-bold flex items-center justify-between transition-all cursor-pointer ${
+                      isSelected 
+                        ? 'bg-teal-500/10 border-teal-550 text-teal-400' 
+                        : 'bg-slate-950 border-slate-800 text-slate-450 hover:border-slate-700'
+                    }`}
+                  >
+                    <span className="capitalize">{skillKey}</span>
+                    <span className="text-[9px]">{isSelected ? '✓' : '+'}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Markdown Toggle switches */}
+          <div className="grid grid-cols-2 gap-4 pt-2">
+            <label className="flex items-center gap-2 cursor-pointer p-2 bg-slate-950 border border-slate-800 rounded-xl">
+              <input
+                type="checkbox"
+                checked={includeStats}
+                onChange={(e) => setIncludeStats(e.target.checked)}
+                className="rounded border-slate-805 text-teal-500 focus:ring-teal-400"
+              />
+              <span className="text-[10px] font-mono text-slate-300 uppercase">Include Stats Card</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer p-2 bg-slate-950 border border-slate-800 rounded-xl">
+              <input
+                type="checkbox"
+                checked={includeSocialBadges}
+                onChange={(e) => setIncludeSocialBadges(e.target.checked)}
+                className="rounded border-slate-805 text-teal-500 focus:ring-teal-400"
+              />
+              <span className="text-[10px] font-mono text-slate-300 uppercase">Include Social Badges</span>
+            </label>
+          </div>
+        </div>
+
+        {/* Copy paste output column */}
+        <div className="bg-slate-955 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between font-mono min-h-[400px]">
+          <div>
+            <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800/80">
+              <span className="text-[10px] text-slate-500 uppercase tracking-widest block">Live Generated README.md Markdown</span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(generateMarkdown());
+                  alert('README Markdown copied to clipboard!');
+                }}
+                className="bg-teal-600 hover:bg-teal-500 text-slate-950 font-black py-1 px-3 rounded-lg text-xs transition-colors flex items-center gap-1.5 shadow-md shrink-0 cursor-pointer"
+              >
+                <Icon name="Copy" size={12} /> Copy Markdown
+              </button>
+            </div>
+            <pre className="text-xs text-slate-305 leading-relaxed whitespace-pre-wrap select-text selection:bg-teal-600 overflow-y-auto max-h-[350px]">
+              {generateMarkdown()}
+            </pre>
+          </div>
+          <div className="pt-3 border-t border-slate-800/80 flex items-center gap-1.5 text-[9px] text-slate-500 uppercase">
+            <Icon name="ShieldAlert" size={11} className="text-teal-400 shrink-0" /> Local rendering ready to slap into Github profile configuration!
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+// ==========================================
+// B. ELEVATOR PITCH & INTRO WRITER COMPONENT
+// ==========================================
+const ElevatorPitchTool: React.FC = () => {
+  const [role, setRole] = useState('Senior Full Stack Engineer');
+  const [experience, setExperience] = useState('6+');
+  const [expertTech, setExpertTech] = useState('React, TypeScript, and Server Cloud Nodes');
+  const [accentStyle, setAccentStyle] = useState<'analytical' | 'creator' | 'leader'>('analytical');
+  const [actionGoal, setActionGoal] = useState('join an agile, mission-driven startup team as an immediate high-impact code contributor');
+
+  const generatePitchText = () => {
+    if (accentStyle === 'creator') {
+      return `Hi, I'm a highly passionate ${role} with ${experience} years of expertise focusing heavily on ${expertTech}.\n\nI love turning complex product requirements into beautiful, pixel-perfect, and ultra-responsive responsive user flows. I thrive at the intersection of visual details and robust execution, and I am currently looking to ${actionGoal}.\n\nLet's connect to create outstanding frontend assets together!`;
+    }
+
+    if (accentStyle === 'leader') {
+      return `Hello, I'm a ${role} bringing ${experience} years of robust workspace engineering knowledge, with particular specialization in ${expertTech}.\n\nThroughout my career, I've championing clean code reviews, lead cross-functional development sprints, and optimized team lifecycles, and I'm looking to ${actionGoal} where I can drive immediate technical quality and mentor rising peers.\n\nLet's discuss how my collaborative philosophy fits your upcoming milestones!`;
+    }
+
+    // Default analytical
+    return `Hi, I am a metrics-driven ${role} with ${experience} years of verified history engineering systems using ${expertTech}.\n\nI specialize in analytical system optimization—such as minimizing client load weights, enhancing security isolation metrics, and structuring reliable local storage state caching. I am currently seeking to ${actionGoal} where I can solve critical scaling bottlenecks.\n\nLet's align to audit your system execution rates!`;
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="border-b border-slate-700/60 pb-3">
+        <h2 className="text-xl font-semibold text-slate-105 flex items-center gap-2">
+          <Icon name="UserCheck" className="text-indigo-400" /> Elevator Pitch & Intro Writer
+        </h2>
+        <p className="text-xs text-slate-400 mt-1">Compose highly impactful, target-oriented introductory templates to instantly land interviews with recruiter pitches.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-slate-900/40 p-5 rounded-2xl border border-slate-800 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-300 font-mono">My Attributes & Pitch Parameters</h3>
+
+          <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="col-span-2">
+                <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">My Professional Role</label>
+                <input
+                  type="text"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">Yrs Experience</label>
+                <input
+                  type="text"
+                  value={experience}
+                  onChange={(e) => setExperience(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">Key Technologies & Expertise Accent</label>
+              <input
+                type="text"
+                value={expertTech}
+                onChange={(e) => setExpertTech(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-slate-400 mb-1 font-mono uppercase">Call-to-Action / Pitch Goal</label>
+              <input
+                type="text"
+                value={actionGoal}
+                onChange={(e) => setActionGoal(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-105 focus:outline-none"
+              />
+            </div>
+
+            {/* Pitch Accent Switcher list */}
+            <div className="space-y-1.5">
+              <label className="block text-[10px] text-slate-400 font-mono uppercase">Introductory Personality Accent</label>
+              <div className="grid grid-cols-3 p-0.5 bg-slate-950 rounded-xl border border-slate-800">
+                <button
+                  onClick={() => setAccentStyle('analytical')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                    accentStyle === 'analytical' ? 'bg-indigo-650 text-white font-black shadow-md' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Analytical
+                </button>
+                <button
+                  onClick={() => setAccentStyle('creator')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                    accentStyle === 'creator' ? 'bg-indigo-650 text-white font-black shadow-md' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Creative
+                </button>
+                <button
+                  onClick={() => setAccentStyle('leader')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                    accentStyle === 'leader' ? 'bg-indigo-650 text-white font-black shadow-md' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Leader
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Prepared Copy Column */}
+        <div className="bg-slate-955 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between font-mono min-h-[400px]">
+          <div>
+            <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-800/80">
+              <span className="text-[10px] text-slate-500 uppercase tracking-widest block font-mono">My Elevator Pitch Format</span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(generatePitchText());
+                  alert('Elevator Pitch intro copied to clipboard!');
+                }}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-1 px-3 rounded-lg text-xs transition-colors flex items-center gap-1.5 shadow-md shrink-0 cursor-pointer"
+              >
+                <Icon name="Copy" size={12} /> Copy Pitch
+              </button>
+            </div>
+            <pre className="text-xs text-slate-305 leading-relaxed whitespace-pre-wrap select-text selection:bg-indigo-650 overflow-y-auto max-h-[350px]">
+              {generatePitchText()}
+            </pre>
+          </div>
+          <div className="pt-3 border-t border-slate-800/80 flex items-center gap-1.5 text-[9px] text-slate-500 uppercase">
+            <Icon name="Shield" size={12} className="text-teal-400 shrink-0" /> Ready to send on LinkedIn or email recruiter outreaches!
           </div>
         </div>
       </div>

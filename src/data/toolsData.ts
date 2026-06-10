@@ -546,6 +546,13 @@ export const TOOLS: Tool[] = [
     category: 'career',
     icon: 'Sparkles'
   },
+  {
+    id: 'ai-keyword-detector',
+    name: 'AI Job Post Keyword & Skill Match Detector',
+    description: 'Scan job descriptions to extract critical skills and audit your CV keywords to beat Applicant Tracking Systems (ATS).',
+    category: 'career',
+    icon: 'Sparkles'
+  },
   // NEW PRODUCTIVITY TOOLS (4)
   {
     id: 'meeting-agenda',
@@ -690,6 +697,13 @@ export const TOOLS: Tool[] = [
     category: 'text',
     icon: 'FileText'
   },
+  {
+    id: 'ai-hashtag-generator',
+    name: 'AI Social Hashtag Generator & Planner',
+    description: 'Create hyper-targeted, high-engagement trending hashtags and optimized social snippets instantly from raw drafts or documents.',
+    category: 'text',
+    icon: 'Sparkles'
+  },
   // NEW DESIGN TOOLS (4)
   {
     id: 'ai-image-upscaler',
@@ -718,5 +732,26 @@ export const TOOLS: Tool[] = [
     description: 'Create multi-layered soft natural shadows to export professional modern container classes.',
     category: 'design',
     icon: 'Sparkles'
+  },
+  {
+    id: 'github-readme-designer',
+    name: 'GitHub Profile README Builder',
+    description: 'Design a highly optimized, fully responsive markdown portfolio file for your developer GitHub profile.',
+    category: 'career',
+    icon: 'Github'
+  },
+  {
+    id: 'elevator-pitch',
+    name: 'Elevator Pitch & Intro Writer',
+    description: 'Compose a compact and highly persuasive 30-second introduction targeting recruiters and hiring managers.',
+    category: 'career',
+    icon: 'UserCheck'
+  },
+  {
+    id: 'weekly-status',
+    name: 'Weekly Corporate Status Reporter',
+    description: 'Convert raw highlights and daily notes into a professional, well-structured corporate status email.',
+    category: 'productivity',
+    icon: 'Clock'
   }
 ];

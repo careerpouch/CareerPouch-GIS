@@ -473,7 +473,7 @@ export default function App() {
       {/* Primary elevate wrapper */}
       <div className="relative z-10 flex flex-col min-h-screen">
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-6 space-y-10">
         
         {/* ACTIVE WORKSPACE AREA AT ANCHOR - STRICT DARK THEME APPLIED TO AVOID TEXT WASHOUT/INVISIBILITY */}
         {selectedTool && (
@@ -545,11 +545,14 @@ export default function App() {
           {/* Interactive animated physical mini suitcase container */}
           <DynamicVisualSuitcase jumpingCount={jumpingCount} />
 
-          <h2 className="text-5xl font-black md:text-6xl tracking-tight leading-none font-sans mt-3">
-            <span className={`bg-gradient-to-r ${isDarkMode ? 'from-cyan-400 via-sky-300 to-indigo-300' : 'from-blue-700 via-indigo-955 to-sky-600'} bg-clip-text text-transparent`}>
+          <h2 className="text-5xl font-black md:text-6xl tracking-tight leading-none font-sans mt-3 flex flex-col items-center justify-center gap-1 select-none">
+            <span className={`bg-gradient-to-r ${isDarkMode ? 'from-cyan-400 via-sky-300 to-indigo-300' : 'from-blue-700 via-indigo-955 to-sky-600'} bg-clip-text text-transparent inline-flex items-center gap-2 flex-wrap justify-center`}>
               Career Pouch
+              <span className="text-xs md:text-sm font-black tracking-widest font-mono uppercase px-2.5 py-1 rounded-xl bg-gradient-to-r from-fuchsia-500 via-purple-650 to-pink-500 text-white shadow-lg shadow-pink-500/20 animate-pulse cursor-default">
+                AI POWERED
+              </span>
             </span>
-            <span className={`block text-xl md:text-2xl font-extrabold mt-3.5 tracking-[0.25em] uppercase font-mono ${isDarkMode ? 'text-teal-400' : 'text-slate-700'}`}>
+            <span className={`block text-xl md:text-2xl font-extrabold mt-2 tracking-[0.25em] uppercase font-mono ${isDarkMode ? 'text-teal-400' : 'text-slate-700'}`}>
               Dynamic Suitcase
             </span>
           </h2>
@@ -569,6 +572,12 @@ export default function App() {
           <div className="max-w-3xl mx-auto mt-8 flex flex-col sm:flex-row items-center gap-4 justify-center">
             {/* DYNAMIC COLOURFUL GLOWING OUTLINE SEARCH BAR */}
             <div className="flex-1 w-full relative select-none p-[2.5px] rounded-full bg-gradient-to-r from-blue-500 via-indigo-600 via-sky-400 to-teal-400 shadow-md group hover:shadow-indigo-500/20 transition-all duration-350">
+              {/* Smirky Companion "You will need me!" */}
+              <div className="absolute -top-7 left-6 flex items-center gap-1.5 px-2.5 py-1 bg-slate-900/90 dark:bg-slate-950/90 text-[10px] font-mono font-bold rounded-lg border border-slate-700/50 hover:border-teal-500/50 text-teal-404 shadow-lg cursor-default select-none animate-bounce z-25 group-hover:scale-105 transition-all">
+                <span>😏</span>
+                <span className="text-teal-400">You'll need me!</span>
+              </div>
+
               {/* Interactive Glow Backdrop layer */}
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-650 via-sky-500 to-teal-400 rounded-full blur-[6px] opacity-40 group-hover:opacity-75 transition-opacity duration-300 pointer-events-none" />
               
