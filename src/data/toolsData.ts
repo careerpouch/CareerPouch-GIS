@@ -753,5 +753,34 @@ export const TOOLS: Tool[] = [
     description: 'Convert raw highlights and daily notes into a professional, well-structured corporate status email.',
     category: 'productivity',
     icon: 'Clock'
+  },
+  // ACCOUNTING: 4 tools
+  {
+    id: 'ledger-simulator',
+    name: 'Double-Entry Ledger Simulator',
+    description: 'Structure debit and credit pairs to record double-entry transactions and dynamically update the general ledger.',
+    category: 'accounting',
+    icon: 'Receipt'
+  },
+  {
+    id: 'breakeven-calc',
+    name: 'Break-Even & Profit Margin Calculator',
+    description: 'Calculate unit contribution margins, margins ratios, and volume profit sensitivities.',
+    category: 'accounting',
+    icon: 'LineChart'
+  },
+  {
+    id: 'depreciation-planner',
+    name: 'Creative Asset Depreciation Scheduler',
+    description: 'Map out Straight Line, Double Declining Balance, and Sum-of-the-Years\'-Digits schedules.',
+    category: 'accounting',
+    icon: 'Table'
+  },
+  {
+    id: 'tax-estimator',
+    name: 'Freelance Net Income & Quarterly Tax Advisor',
+    description: 'Input freelance revenues, calculate deductions, self-employment tax, and estimated quarterly IRS vouchers.',
+    category: 'accounting',
+    icon: 'Coins'
   }
 ];

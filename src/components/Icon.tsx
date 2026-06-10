@@ -65,7 +65,12 @@ import {
   ChevronDown,
   Table,
   Sliders,
-  Volume2
+  Volume2,
+  Lightbulb,
+  Pin,
+  UserCheck,
+  Activity,
+  Compass
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<any>> = {
@@ -134,7 +139,12 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   ChevronDown,
   Table,
   Sliders,
-  Volume2
+  Volume2,
+  Lightbulb,
+  Pin,
+  UserCheck,
+  Activity,
+  Compass
 };
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {

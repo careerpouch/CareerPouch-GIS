@@ -1,4 +1,4 @@
-export type CategoryType = 'career' | 'productivity' | 'math' | 'converters' | 'text' | 'design';
+export type CategoryType = 'career' | 'productivity' | 'math' | 'converters' | 'text' | 'design' | 'accounting';
 
 export interface Tool {
   id: string;
@@ -21,5 +21,6 @@ export const CATEGORIES: CategorySpec[] = [
   { id: 'math', name: 'Math & Estimations', description: 'Formula evaluators, graphers, and factor math', color: 'from-pink-500 to-rose-600' },
   { id: 'converters', name: 'Format & Data Converters', description: 'Convert bases, epoch, CSV, JSON, and XML', color: 'from-amber-500 to-orange-600' },
   { id: 'text', name: 'Text & Content Utilities', description: 'Diff viewers, encoders, and word counters', color: 'from-violet-500 to-fuchsia-600' },
-  { id: 'design', name: 'Design & Styling Sandboxes', description: 'Color pickers, Flexbox, glass, and SVG minifiers', color: 'from-cyan-500 to-blue-600' }
+  { id: 'design', name: 'Design & Styling Sandboxes', description: 'Color pickers, Flexbox, glass, and SVG minifiers', color: 'from-cyan-500 to-blue-600' },
+  { id: 'accounting', name: 'Accounting & Finance', description: 'Double-entry ledgers, break-even graphs, and tax estimates', color: 'from-slate-705 to-sky-750' }
 ];

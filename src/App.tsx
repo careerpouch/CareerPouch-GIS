@@ -11,6 +11,7 @@ import { MathTools } from './components/tools/MathTools';
 import { ConverterTools } from './components/tools/ConverterTools';
 import { TextTools } from './components/tools/TextTools';
 import { DesignTools } from './components/tools/DesignTools';
+import { AccountingTools } from './components/tools/AccountingTools';
 
 // Memorable Premium Briefcase Brand Logo with an prominent interactive gear mechanism
 const BrandLogo = () => (
@@ -44,7 +45,7 @@ const DynamicVisualSuitcase = ({ jumpingCount }: { jumpingCount: number }) => (
     <div className="absolute top-1 left-1/2 -translate-x-1/2 w-12 h-6 rounded-t-xl border-[4.5px] border-slate-700 dark:border-slate-350 transition-all duration-300 group-hover:h-7 group-hover:border-blue-500 z-10" />
     
     {/* Body of the Suitcase */}
-    <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-b from-blue-600 via-indigo-650 to-indigo-700 dark:from-slate-800 dark:via-slate-800 dark:to-slate-900 border-2 border-slate-800 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden transition-all duration-500 group-hover:scale-105 group-hover:-translate-y-1">
+    <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-b from-blue-600 via-indigo-600 to-indigo-700 dark:from-slate-800 dark:via-slate-800 dark:to-slate-900 border-2 border-slate-800 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden transition-all duration-500 group-hover:scale-105 group-hover:-translate-y-1">
       
       {/* Glossy shine reflection overlay */}
       <div className="absolute top-0 inset-x-0 h-1/2 bg-white/10 skew-y-6 transform origin-top-left pointer-events-none" />
@@ -182,6 +183,19 @@ const DASHBOARD_BLOCKS = [
     icon: 'Image',
     btnColorTheme: 'text-teal-600 bg-teal-50 hover:bg-teal-100 border-teal-100',
     circleAccent: 'bg-white/15 text-white'
+  },
+  {
+    id: 'accounting' as CategoryType,
+    name: 'Accounting & Finance',
+    subtitle: 'Solve Your Ledger Entries & Asset Lives Schedules',
+    qty: '4+ tools',
+    colorClasses: 'from-slate-700 to-sky-850 text-white',
+    ringColor: 'focus:ring-slate-400',
+    featuredId: 'ledger-simulator',
+    featuredName: 'Double-Entry Ledger Sim',
+    icon: 'Receipt',
+    btnColorTheme: 'text-slate-700 bg-slate-50 hover:bg-slate-100 border-slate-100',
+    circleAccent: 'bg-white/15 text-white'
   }
 ];
 
@@ -217,6 +231,11 @@ const getCategoryGlow = (category: string) => {
       shadow: 'hover:shadow-[0_20px_50px_rgba(13,148,136,0.14)] dark:hover:shadow-[0_20px_50px_rgba(13,148,136,0.18)]',
       border: 'hover:border-teal-400 dark:hover:border-teal-505',
       glow: 'bg-teal-500/5 group-hover:bg-teal-500/10'
+    },
+    accounting: {
+      shadow: 'hover:shadow-[0_20px_50px_rgba(70,80,95,0.14)] dark:hover:shadow-[0_20px_50px_rgba(70,80,95,0.18)]',
+      border: 'hover:border-slate-400 dark:hover:border-slate-505',
+      glow: 'bg-slate-500/5 group-hover:bg-slate-500/10'
     }
   };
   return mapping[category] || {
@@ -233,6 +252,46 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false); // Light Mode Default
   const [isStickyAdVisible, setIsStickyAdVisible] = useState(true);
   const prevScrollPosRef = useRef<number>(0);
+
+  // States for Tool request engine
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [userRequests, setUserRequests] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem('careerpouch_tool_requests');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  const [reqName, setReqName] = useState('');
+  const [reqCat, setReqCat] = useState('productivity');
+  const [reqDesc, setReqDesc] = useState('');
+  const [reqPriority, setReqPriority] = useState('Standard');
+
+  useEffect(() => {
+    localStorage.setItem('careerpouch_tool_requests', JSON.stringify(userRequests));
+  }, [userRequests]);
+
+  const handleCreateRequest = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reqName.trim()) return;
+
+    const newReq = {
+      id: Date.now().toString(),
+      name: reqName,
+      category: reqCat,
+      description: reqDesc,
+      priority: reqPriority,
+      date: new Date().toISOString().split('T')[0],
+      status: '🟡 Pending verification'
+    };
+
+    setUserRequests(prev => [newReq, ...prev]);
+    setReqName('');
+    setReqDesc('');
+    setReqPriority('Standard');
+    alert(`💡 Success! "${reqName}" has been logged in your local request dashboard. We are auditing it for release!`);
+  };
 
   const [jumpingCount, setJumpingCount] = useState(0);
 
@@ -456,6 +515,7 @@ export default function App() {
     if (cid === 'converters') return <ConverterTools toolId={tool.id} />;
     if (cid === 'text') return <TextTools toolId={tool.id} />;
     if (cid === 'design') return <DesignTools toolId={tool.id} />;
+    if (cid === 'accounting') return <AccountingTools toolId={tool.id} />;
     return <div className="text-center py-4 font-mono text-xs text-slate-500">Unrecognized tool layout schema.</div>;
   };
 
@@ -464,7 +524,7 @@ export default function App() {
       
       {/* Interactive, dynamic ambient light sources in absolute position */}
       <div className="absolute top-[5%] left-[-15%] w-[65vw] h-[65vw] max-w-[650px] max-h-[650px] rounded-full filter blur-[110px] pointer-events-none opacity-[0.22] dark:opacity-[0.14] bg-gradient-to-tr from-blue-400 to-indigo-600 mix-blend-initial animate-pulse duration-[8000ms]" />
-      <div className="absolute top-[35%] right-[-15%] w-[55vw] h-[55vw] max-w-[550px] max-h-[550px] rounded-full filter blur-[130px] pointer-events-none opacity-[0.18] dark:opacity-[0.11] bg-gradient-to-tr from-sky-400 to-indigo-650 mix-blend-initial animate-pulse duration-[10000ms] delay-[1500ms]" />
+      <div className="absolute top-[35%] right-[-15%] w-[55vw] h-[55vw] max-w-[550px] max-h-[550px] rounded-full filter blur-[130px] pointer-events-none opacity-[0.18] dark:opacity-[0.11] bg-gradient-to-tr from-sky-400 to-indigo-600 mix-blend-initial animate-pulse duration-[10000ms] delay-[1500ms]" />
       <div className="absolute bottom-[10%] left-[5%] w-[45vw] h-[45vw] max-w-[500px] max-h-[500px] rounded-full filter blur-[120px] pointer-events-none opacity-[0.15] dark:opacity-[0.09] bg-gradient-to-br from-teal-400 to-emerald-500 mix-blend-initial animate-pulse duration-[7000ms] delay-[3000ms]" />
       
       {/* Ambient background Grid Overlay */}
@@ -473,7 +533,7 @@ export default function App() {
       {/* Primary elevate wrapper */}
       <div className="relative z-10 flex flex-col min-h-screen">
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-6 space-y-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6 space-y-10">
         
         {/* ACTIVE WORKSPACE AREA AT ANCHOR - THEME ADAPTIVE */}
         {selectedTool && (
@@ -540,7 +600,7 @@ export default function App() {
         {/* HERO INTRO AND SEARCH WRAPPER - CLEAN GLASS DESIGN DIRECT FROM THE ATTACHMENT */}
         <section className={`py-14 px-6 rounded-3xl text-center border overflow-hidden relative transition-all duration-500 ${isDarkMode ? 'bg-slate-900/40 backdrop-blur-xl border-slate-800 shadow-2xl shadow-indigo-950/10' : 'bg-white backdrop-blur-xl border-indigo-100/80 shadow-xl shadow-indigo-100/30'}`}>
           {/* Animated colorful gradient line on top - High quality blue-sky-teal spectrum */}
-          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 via-sky-500 via-indigo-650 to-teal-400" />
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 via-sky-500 via-indigo-600 to-teal-400" />
           
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 dark:from-indigo-400/5 dark:to-blue-400/5 border border-indigo-500/20 dark:border-indigo-400/10 rounded-full mb-3 select-none">
             <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
@@ -586,7 +646,7 @@ export default function App() {
               </div>
 
               {/* Interactive Glow Backdrop layer */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-650 via-sky-500 to-teal-400 rounded-full blur-[6px] opacity-40 group-hover:opacity-75 transition-opacity duration-300 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-600 via-sky-500 to-teal-400 rounded-full blur-[6px] opacity-40 group-hover:opacity-75 transition-opacity duration-300 pointer-events-none" />
               
               <div className="relative flex items-center rounded-full bg-transparent overflow-hidden">
                 <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-slate-400 z-20">
@@ -610,7 +670,7 @@ export default function App() {
                   className={`absolute right-28 top-2 bottom-2 px-3.5 z-20 rounded-full transition-all flex items-center justify-center gap-1 cursor-pointer border hover:scale-105 active:scale-95 ${
                     isDarkMode 
                       ? 'bg-slate-900 border-slate-800 text-indigo-400 hover:text-indigo-300 hover:border-slate-750' 
-                      : 'bg-slate-50 border-slate-205 text-indigo-650 hover:bg-indigo-100/80 hover:border-indigo-200'
+                      : 'bg-slate-50 border-slate-205 text-indigo-600 hover:bg-indigo-100/80 hover:border-indigo-200'
                   }`}
                   title="Surprise Me: Roll Dice for a random useful tool sandbox!"
                 >
@@ -647,6 +707,29 @@ export default function App() {
               <span className="text-xs font-black tracking-widest font-mono uppercase pr-1.5 relative z-10">
                 {isDarkMode ? 'Light' : 'Dark'}
               </span>
+            </button>
+          </div>
+
+          {/* DYNAMIC REQUEST A TOOL BUTTON DIRECTLY BELOW THE SEARCH BAR SECTION */}
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={() => setIsRequestModalOpen(true)}
+              className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 cursor-pointer relative overflow-hidden group/req-btn border ${
+                isDarkMode 
+                  ? 'bg-slate-900 border-slate-800 hover:bg-indigo-950 hover:border-indigo-500/40 text-indigo-300 hover:text-white shadow-indigo-950/20' 
+                  : 'bg-indigo-50 border-indigo-200 hover:bg-indigo-100 hover:border-indigo-300 text-indigo-700 hover:text-indigo-900 shadow-indigo-100/10'
+              }`}
+              title="Request a customized offline tool from our coding team"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <Icon name="Lightbulb" size={13} className="text-amber-500" />
+              <span>Can't find a tool? Request a customized offline tool</span>
+              {userRequests.length > 0 && (
+                <span className="flex h-2 w-2 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+              )}
             </button>
           </div>
 
@@ -811,7 +894,7 @@ export default function App() {
                 ⚡ AI & Premium Spotlight Hub
               </h3>
             </div>
-            <span className="self-start md:self-auto px-3 py-1 bg-indigo-500/10 text-indigo-650 dark:text-cyan-400 font-mono text-[10px] font-extrabold uppercase tracking-wider rounded-full border border-indigo-500/20">
+            <span className="self-start md:self-auto px-3 py-1 bg-indigo-500/10 text-indigo-600 dark:text-cyan-400 font-mono text-[10px] font-extrabold uppercase tracking-wider rounded-full border border-indigo-500/20">
               ⚡ Free Local Acceleration
             </span>
           </div>
@@ -1309,6 +1392,173 @@ export default function App() {
       {/* Extra spacing at bottom of entire container when sticky ad is active to prevent blocking content */}
       {isStickyAdVisible && <div className="h-[68px] shrink-0" />}
       </div>
+
+      {/* REQUEST A TOOL MODAL DISPLAY OVERLAY */}
+      {isRequestModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md animate-fade">
+          <div className={`relative w-full max-w-xl rounded-2xl border shadow-2xl overflow-hidden transition-all duration-300 max-h-[90vh] flex flex-col ${
+            isDarkMode 
+              ? 'bg-slate-900 border-slate-800 text-slate-100 shadow-indigo-950/20' 
+              : 'bg-white border-slate-200 text-slate-800 shadow-slate-200/50'
+          }`}>
+            {/* Modal header */}
+            <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/60 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-550 dark:text-cyan-400 flex items-center justify-center">
+                  <Icon name="Lightbulb" size={18} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black tracking-tight font-sans">Request a Personal Offline Tool</h3>
+                  <p className="text-[10px] text-slate-400">Describe what equations or workflows you need mapped.</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsRequestModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-405 hover:text-slate-200 transition-colors cursor-pointer"
+              >
+                <Icon name="X" size={14} />
+              </button>
+            </div>
+
+            {/* Scrollable form and feedback queues columns */}
+            <div className="p-5 overflow-y-auto space-y-5">
+              {/* Form block */}
+              <form onSubmit={handleCreateRequest} className="space-y-3.5">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Requested Tool Name</label>
+                  <input 
+                    type="text"
+                    required
+                    value={reqName}
+                    onChange={(e) => setReqName(e.target.value)}
+                    placeholder="e.g. Mortgage Amortization, Weekly Fitness Logger"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-205 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 font-medium text-xs focus:ring-2 focus:ring-indigo-500/30 focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Primary Category</label>
+                    <select
+                      value={reqCat}
+                      onChange={(e) => setReqCat(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-205 dark:border-slate-850 bg-white dark:bg-slate-950 text-xs font-semibold focus:ring-2 focus:ring-indigo-500/30 focus:outline-none"
+                    >
+                      <option value="career">Career Builder</option>
+                      <option value="productivity">Productivity Suite</option>
+                      <option value="math">Math & Estimates</option>
+                      <option value="converters">Format Converters</option>
+                      <option value="text">Text Utilities</option>
+                      <option value="design">Design Sandbox</option>
+                      <option value="accounting">Accounting & Finance</option>
+                      <option value="other">Other Unique Idea</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Urgency Level</label>
+                    <div className="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-205 dark:border-slate-800">
+                      {['Standard', 'Urgent'].map(p => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => setReqPriority(p)}
+                          className={`flex-1 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                            reqPriority === p 
+                              ? 'bg-indigo-600 text-white shadow' 
+                              : 'text-slate-500 hover:text-slate-300'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Goal & Custom Functions Details</label>
+                  <textarea
+                    rows={3}
+                    value={reqDesc}
+                    required
+                    onChange={(e) => setReqDesc(e.target.value)}
+                    placeholder="Describe relevant arithmetic equations, inputs you want to calculate, or what formatting needs solving."
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-205 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 font-medium text-xs focus:ring-2 focus:ring-indigo-500/30 focus:outline-none resize-none leading-relaxed"
+                  />
+                </div>
+
+                <button 
+                  type="submit"
+                  className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-indigo-500/20"
+                >
+                  <Icon name="Check" size={13} /> Submit Design Proposal
+                </button>
+              </form>
+
+              {/* Your Submission queue lists */}
+              <div className="pt-4 border-t border-slate-205 dark:border-slate-800/60 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <Icon name="Activity" size={10} className="text-indigo-400" />
+                    Your Suggestion history status ({userRequests.length})
+                  </h4>
+                  {userRequests.length > 0 && (
+                    <button 
+                      onClick={() => {
+                        if(confirm('Clear suggestion history logs?')) {
+                          setUserRequests([]);
+                        }
+                      }}
+                      className="text-[9px] font-mono font-black text-rose-500 hover:underline"
+                    >
+                      Clear All
+                    </button>
+                  )}
+                </div>
+
+                {userRequests.length === 0 ? (
+                  <div className="text-center py-5 border border-dashed border-slate-205 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30 rounded-2xl">
+                    <p className="text-[10px] text-slate-400 font-mono">You haven't requested any custom tools in this session.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-[160px] overflow-y-auto pr-0.5">
+                    {userRequests.map((req) => (
+                      <div 
+                        key={req.id} 
+                        className={`p-3 rounded-2xl border text-left flex flex-col justify-between gap-1.5 ${
+                          isDarkMode ? 'bg-slate-950/50 border-slate-850 hover:border-slate-800' : 'bg-slate-50 border-slate-205 hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <span className="font-bold text-xs block leading-tight">{req.name}</span>
+                            <span className="text-[9px] font-mono text-slate-400">{req.category.toUpperCase()} • {req.date}</span>
+                          </div>
+                          <span className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase shrink-0 leading-none ${
+                            req.priority === 'Urgent' ? 'bg-rose-500/10 text-rose-450 border border-rose-500/15' : 'bg-slate-500/10 text-slate-400 border border-slate-500/10'
+                          }`}>
+                            {req.priority}
+                          </span>
+                        </div>
+                        {req.description && (
+                          <p className={`text-[11px] ml-0.5 font-sans leading-relaxed line-clamp-2 ${isDarkMode ? 'text-slate-405' : 'text-slate-600'}`}>
+                            {req.description}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-150 dark:border-slate-850 text-[9px] uppercase font-mono tracking-wider font-extrabold text-[#d97706] dark:text-[#fbbf24]">
+                          <span className="w-1.5 h-1.5 rounded-full bg-yellow-450 animate-pulse" />
+                          <span>Status: Auditing client compiler structures</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
