@@ -338,10 +338,10 @@ export default function App() {
         const foundTool = TOOLS.find(t => t.id === toolId);
         if (foundTool) {
           setSelectedTool(foundTool);
-          document.title = `${foundTool.name} - Free Offline Builder | Career Pouch`;
+          document.title = `${foundTool.name} - Free Offline Builder | CareerPouch`;
           const metaDesc = document.querySelector('meta[name="description"]');
           if (metaDesc) {
-            metaDesc.setAttribute('content', `${foundTool.description} Free offline-first developer and business utility tool inside Career Pouch.`);
+            metaDesc.setAttribute('content', `${foundTool.description} Free offline-first developer and business utility tool inside CareerPouch.`);
           }
           // Scroll into view elegantly on direct load
           setTimeout(() => {
@@ -349,11 +349,11 @@ export default function App() {
           }, 300);
         } else {
           setSelectedTool(null);
-          document.title = `Career Pouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
+          document.title = `CareerPouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
         }
       } else {
         setSelectedTool(null);
-        document.title = `Career Pouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
+        document.title = `CareerPouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
       }
     };
 
@@ -426,10 +426,10 @@ export default function App() {
     
     // Smoothly update URL to root
     window.history.pushState({}, '', '/');
-    document.title = `Career Pouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
+    document.title = `CareerPouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute('content', `Career Pouch is a ${TOOLS.length}-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.`);
+      metaDesc.setAttribute('content', `CareerPouch is a ${TOOLS.length}-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.`);
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -456,10 +456,10 @@ export default function App() {
     window.history.pushState({ toolId: tool.id }, '', newUrl);
     
     // Swap SEO titles & description metadata
-    document.title = `${tool.name} - Free Offline Builder | Career Pouch`;
+    document.title = `${tool.name} - Free Offline Builder | CareerPouch`;
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute('content', `${tool.description} Free, 100% offline-first developer and career utility on Career Pouch.`);
+      metaDesc.setAttribute('content', `${tool.description} Free, 100% offline-first developer and career utility on CareerPouch.`);
     }
 
     // Auto scroll to active tool workspace elegantly
@@ -472,11 +472,13 @@ export default function App() {
     setSelectedTool(null);
     
     // Smoothly remove product subpath on close
-    window.history.pushState({}, '', '/');
-    document.title = `Career Pouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
+    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
+      window.history.pushState({}, '', '/');
+    }
+    document.title = `CareerPouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute('content', `Career Pouch is a ${TOOLS.length}-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.`);
+      metaDesc.setAttribute('content', `CareerPouch is a ${TOOLS.length}-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.`);
     }
 
     // Restore the scroll position they were at before choosing a tool
@@ -614,7 +616,7 @@ export default function App() {
 
           <h2 className="text-5xl font-black md:text-6xl tracking-tight leading-none font-sans mt-3 flex flex-col items-center justify-center gap-1 select-none">
             <span className={`bg-gradient-to-r ${isDarkMode ? 'from-cyan-400 via-sky-300 to-indigo-300' : 'from-blue-700 via-indigo-955 to-sky-600'} bg-clip-text text-transparent inline-flex items-center gap-2 flex-wrap justify-center`}>
-              Career Pouch
+              CareerPouch
               <span className="text-xs md:text-sm font-black tracking-widest font-mono uppercase px-2.5 py-1 rounded-xl bg-gradient-to-r from-fuchsia-500 via-purple-650 to-pink-500 text-white shadow-lg shadow-pink-500/20 animate-pulse cursor-default">
                 AI POWERED
               </span>
@@ -1284,7 +1286,7 @@ export default function App() {
                   <a href="#" onClick={(e) => { e.preventDefault(); alert("Developer sandbox log feeds are saved entirely locally."); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Blog</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); alert(`Career Pouch: A dynamic toolbox of ${TOOLS.length} high-impact developer and career building tools.`); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">About</a>
+                  <a href="#" onClick={(e) => { e.preventDefault(); alert(`CareerPouch: A dynamic toolbox of ${TOOLS.length} high-impact developer and career building tools.`); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">About</a>
                 </li>
               </ul>
             </div>
