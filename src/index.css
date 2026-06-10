@@ -5,3 +5,238 @@
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
+
+/* --- PREMIUM LIGHT THEME OVERRIDES FOR WORKING SANDBOX LAYER WHEN !isDarkMode --- */
+.light-tool-workspace {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.05) !important;
+}
+
+/* Master gradient / dark layer override */
+.light-tool-workspace .bg-gradient-to-br,
+.light-tool-workspace .bg-gradient-to-r,
+.light-tool-workspace .bg-gradient-to-tr,
+.light-tool-workspace .bg-gradient-to-b {
+  background-image: none !important;
+  background-color: #ffffff !important;
+}
+
+/* Score ring custom backdrop indicator override */
+.light-tool-workspace div[className*="from-slate-900"],
+.light-tool-workspace .from-slate-900,
+.light-tool-workspace .to-indigo-950\/70 {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Dynamically convert all slate background variants to modern bright light panels */
+.light-tool-workspace [class*="bg-slate-"],
+.light-tool-workspace [class*="bg-zinc-"],
+.light-tool-workspace [class*="bg-gray-"],
+.light-tool-workspace [class*="bg-neutral-"],
+.light-tool-workspace [class*="bg-indigo-950"],
+.light-tool-workspace [class*="bg-slate-950"],
+.light-tool-workspace [class*="bg-slate-900"],
+.light-tool-workspace [class*="bg-slate-850"],
+.light-tool-workspace [class*="bg-slate-805"],
+.light-tool-workspace [class*="bg-slate-800"],
+.light-tool-workspace [class*="bg-slate-900/"],
+.light-tool-workspace [class*="bg-slate-800/"],
+.light-tool-workspace [class*="bg-slate-900\/"],
+.light-tool-workspace [class*="bg-slate-800\/"] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Exceptions: Outer background regions like the Quick Switcher wrapper can be ultra light Slate 50 */
+.light-tool-workspace .bg-slate-900\/65,
+.light-tool-workspace [class*="bg-slate-900/65"],
+.light-tool-workspace [class*="bg-slate-900\/65"] {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Force high-contrast text for previously white/light-gray elements, EXCEPT when inside colored elements */
+.light-tool-workspace span:not([class*="bg-indigo"]):not([class*="bg-blue"]):not([class*="bg-teal"]):not([class*="bg-emerald"]):not([class*="bg-rose"]):not([class*="bg-pink"]):not([class*="bg-purple"]):not([class*="bg-violet"]),
+.light-tool-workspace h1,
+.light-tool-workspace h2,
+.light-tool-workspace h3,
+.light-tool-workspace h4,
+.light-tool-workspace h5,
+.light-tool-workspace h6,
+.light-tool-workspace p,
+.light-tool-workspace label,
+.light-tool-workspace [class*="text-slate-100"],
+.light-tool-workspace [class*="text-slate-105"],
+.light-tool-workspace [class*="text-slate-200"],
+.light-tool-workspace [class*="text-slate-205"],
+.light-tool-workspace [class*="text-slate-300"],
+.light-tool-workspace [class*="text-slate-305"] {
+  color: #0f172a !important;
+}
+
+/* Make secondary subtexts dark enough to be thoroughly legible with strong accessibility contrast */
+.light-tool-workspace [class*="text-slate-400"],
+.light-tool-workspace [class*="text-slate-450"],
+.light-tool-workspace [class*="text-slate-500"] {
+  color: #334155 !important; /* Slate 700 */
+}
+
+/* Ensure borders are sharp and clear in light mode */
+.light-tool-workspace [class*="border-slate-"],
+.light-tool-workspace [class*="border-zinc-"],
+.light-tool-workspace [class*="border-gray-"],
+.light-tool-workspace .border-pink-500\/10 {
+  border-color: #cbd5e1 !important; /* Slate 300 */
+}
+
+/* Form inputs, select boxes, and textareas styling */
+.light-tool-workspace input,
+.light-tool-workspace textarea,
+.light-tool-workspace select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-tool-workspace input::placeholder,
+.light-tool-workspace textarea::placeholder {
+  color: #64748b !important; /* Slate 505 */
+}
+
+.light-tool-workspace input:focus,
+.light-tool-workspace textarea:focus,
+.light-tool-workspace select:focus {
+  border-color: #6366f1 !important; /* indigo */
+  outline: none !important;
+}
+
+/* pre tags */
+.light-tool-workspace pre,
+.light-tool-workspace code {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Interactive custom styled neutral buttons */
+.light-tool-workspace button {
+  transition: background-color 0.2s;
+}
+
+.light-tool-workspace button.bg-slate-800,
+.light-tool-workspace [class*="bg-slate-800"] {
+  background-color: #f1f5f9 !important;
+  color: #1e293b !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-tool-workspace button.bg-slate-800:hover,
+.light-tool-workspace [class*="bg-slate-800"]:hover,
+.light-tool-workspace [class*="hover:bg-slate-750"]:hover {
+  background-color: #e2e8f0 !important;
+}
+
+/* Keep interactive success matching tags vibrant with clean dark-on-light color pairings */
+.light-tool-workspace [class*="bg-emerald-500/10"],
+.light-tool-workspace [class*="bg-emerald-500\/10"] {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+  border-color: #10b981 !important;
+}
+
+.light-tool-workspace [class*="bg-rose-500/10"],
+.light-tool-workspace [class*="bg-rose-500\/10"] {
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+  border-color: #f43f5e !important;
+}
+
+.light-tool-workspace [class*="bg-amber-500/10"],
+.light-tool-workspace [class*="bg-amber-500\/10"] {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  border-color: #fbbf24 !important;
+}
+
+/* Match status badge ring overlays */
+.light-tool-workspace span.text-slate-400 {
+  color: #475569 !important;
+}
+
+/* CRITICAL STATE PRESERVATION: Keep colored elements (like purple/indigo action buttons & active navigation tabs) beautifully vibrant with crisp, high-visibility WHITE text and robust backgrounds */
+.light-tool-workspace .bg-indigo-600,
+.light-tool-workspace [class*="bg-indigo-600"],
+.light-tool-workspace [class*="bg-indigo-700"],
+.light-tool-workspace [class*="bg-indigo-650"] {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+.light-tool-workspace .bg-indigo-500,
+.light-tool-workspace [class*="bg-indigo-500"] {
+  background-color: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+.light-tool-workspace .bg-violet-600,
+.light-tool-workspace [class*="bg-violet-600"],
+.light-tool-workspace [class*="bg-violet-700"] {
+  background-color: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+.light-tool-workspace .bg-violet-500,
+.light-tool-workspace [class*="bg-violet-500"] {
+  background-color: #8b5cf6 !important;
+  color: #ffffff !important;
+}
+
+.light-tool-workspace .bg-emerald-600,
+.light-tool-workspace [class*="bg-emerald-600"],
+.light-tool-workspace [class*="bg-emerald-650"] {
+  background-color: #059669 !important;
+  color: #ffffff !important;
+}
+
+.light-tool-workspace .bg-rose-600,
+.light-tool-workspace [class*="bg-rose-600"] {
+  background-color: #e11d48 !important;
+  color: #ffffff !important;
+}
+
+.light-tool-workspace .bg-blue-600,
+.light-tool-workspace [class*="bg-blue-600"] {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.light-tool-workspace .bg-sky-500,
+.light-tool-workspace [class*="bg-sky-500"] {
+  background-color: #0ea5e9 !important;
+  color: #ffffff !important;
+}
+
+.light-tool-workspace .bg-teal-600,
+.light-tool-workspace [class*="bg-teal-600"] {
+  background-color: #0d9488 !important;
+  color: #ffffff !important;
+}
+
+/* Nested elements inside dynamic vibrant buttons receive white text and matching structures */
+.light-tool-workspace .bg-indigo-600 *,
+.light-tool-workspace .bg-violet-600 *,
+.light-tool-workspace .bg-emerald-600 *,
+.light-tool-workspace [class*="bg-indigo-600"] *,
+.light-tool-workspace [class*="bg-indigo-650"] *,
+.light-tool-workspace [class*="bg-indigo-700"] *,
+.light-tool-workspace [class*="bg-violet-600"] *,
+.light-tool-workspace [class*="bg-emerald-600"] *,
+.light-tool-workspace [class*="bg-rose-600"] *,
+.light-tool-workspace [class*="bg-teal-600"] * {
+  color: #ffffff !important;
+}
+

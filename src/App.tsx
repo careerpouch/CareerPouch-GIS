@@ -475,9 +475,16 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-6 space-y-10">
         
-        {/* ACTIVE WORKSPACE AREA AT ANCHOR - STRICT DARK THEME APPLIED TO AVOID TEXT WASHOUT/INVISIBILITY */}
+        {/* ACTIVE WORKSPACE AREA AT ANCHOR - THEME ADAPTIVE */}
         {selectedTool && (
-          <div id="tool-workspace-anchor" className="p-6 rounded-3xl border transition-all animate-fade bg-slate-950 border-slate-800/80 shadow-2xl shadow-slate-950/45 text-white">
+          <div 
+            id="tool-workspace-anchor" 
+            className={`p-6 rounded-3xl border transition-all animate-fade shadow-2xl ${
+              isDarkMode 
+                ? 'bg-slate-950 border-slate-800/80 shadow-slate-950/45 text-white' 
+                : 'light-tool-workspace bg-white border-slate-200 shadow-slate-200/40 text-slate-900'
+            }`}
+          >
             <div className="flex justify-between items-center pb-4 border-b border-slate-800/60 mb-5 flex-wrap gap-2">
               <div className="flex items-center gap-2.5">
                 <span className="inline-block px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-300 border border-indigo-500/15">
@@ -573,7 +580,7 @@ export default function App() {
             {/* DYNAMIC COLOURFUL GLOWING OUTLINE SEARCH BAR */}
             <div className="flex-1 w-full relative select-none p-[2.5px] rounded-full bg-gradient-to-r from-blue-500 via-indigo-600 via-sky-400 to-teal-400 shadow-md group hover:shadow-indigo-500/20 transition-all duration-350">
               {/* Smirky Companion "You will need me!" */}
-              <div className="absolute -top-7 left-6 flex items-center gap-1.5 px-2.5 py-1 bg-slate-900/90 dark:bg-slate-950/90 text-[10px] font-mono font-bold rounded-lg border border-slate-700/50 hover:border-teal-500/50 text-teal-404 shadow-lg cursor-default select-none animate-bounce z-25 group-hover:scale-105 transition-all">
+              <div className="absolute -top-7 left-6 flex items-center gap-1.5 px-2.5 py-1 bg-slate-900/95 dark:bg-slate-950/95 text-[10px] font-mono font-bold rounded-lg border border-indigo-505/30 hover:border-teal-500/50 text-slate-200 shadow-lg cursor-default select-none z-25 group-hover:-translate-y-0.5 transition-all duration-300">
                 <span>😏</span>
                 <span className="text-teal-400">You'll need me!</span>
               </div>
