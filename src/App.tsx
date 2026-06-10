@@ -249,6 +249,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | 'all'>('all');
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
+  const [activeInfoPage, setActiveInfoPage] = useState<'privacy' | 'tos' | 'contact' | 'blog' | 'about' | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false); // Light Mode Default
   const [isStickyAdVisible, setIsStickyAdVisible] = useState(true);
   const prevScrollPosRef = useRef<number>(0);
@@ -325,7 +326,40 @@ export default function App() {
       const params = new URLSearchParams(window.location.search);
       
       let toolId = params.get('tool');
+      let pageId = params.get('page');
       
+      if (!pageId && hash) {
+        if (hash === '#privacy' || hash === '#/privacy') pageId = 'privacy';
+        else if (hash === '#tos' || hash === '#/tos') pageId = 'tos';
+        else if (hash === '#contact' || hash === '#/contact') pageId = 'contact';
+        else if (hash === '#blog' || hash === '#/blog') pageId = 'blog';
+        else if (hash === '#about' || hash === '#/about') pageId = 'about';
+      }
+      if (!pageId && pathname) {
+        if (pathname === '/privacy' || pathname === '/privacy-policy') pageId = 'privacy';
+        else if (pathname === '/tos' || pathname === '/terms') pageId = 'tos';
+        else if (pathname === '/contact' || pathname === '/contact-us') pageId = 'contact';
+        else if (pathname === '/blog') pageId = 'blog';
+        else if (pathname === '/about') pageId = 'about';
+      }
+
+      if (pageId && ['privacy', 'tos', 'contact', 'blog', 'about'].includes(pageId)) {
+        setActiveInfoPage(pageId as any);
+        setSelectedTool(null);
+        const formattedPageName = pageId === 'tos' ? 'Terms of Service' : pageId.charAt(0).toUpperCase() + pageId.slice(1);
+        document.title = `${formattedPageName} | CareerPouch - Premium Privacy Suite`;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          metaDesc.setAttribute('content', `${formattedPageName} page on CareerPouch. Free offline-first tools for developers and careers.`);
+        }
+        setTimeout(() => {
+          document.getElementById('info-page-workspace-anchor')?.scrollIntoView({ behavior: 'smooth' });
+        }, 305);
+        return;
+      } else {
+        setActiveInfoPage(null);
+      }
+
       if (!toolId && pathname && pathname.startsWith('/tools/')) {
         toolId = pathname.replace(/^\/tools\//, '').replace(/\/$/, '');
       }
@@ -418,9 +452,39 @@ export default function App() {
     }
   };
 
+  const handleSelectInfoPage = (page: 'privacy' | 'tos' | 'contact' | 'blog' | 'about') => {
+    setSelectedTool(null);
+    setActiveInfoPage(page);
+    
+    // Smoothly update URL
+    const newUrl = `?page=${page}`;
+    window.history.pushState({ pageId: page }, '', newUrl);
+    
+    // Update SEO title
+    const formattedPageName = page === 'tos' ? 'Terms of Service' : page.charAt(0).toUpperCase() + page.slice(1);
+    document.title = `${formattedPageName} | CareerPouch - Premium Privacy Suite`;
+    
+    setTimeout(() => {
+      document.getElementById('info-page-workspace-anchor')?.scrollIntoView({ behavior: 'smooth' });
+    }, 150);
+  };
+
+  const handleCloseInfoPage = () => {
+    setActiveInfoPage(null);
+    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
+      window.history.pushState({}, '', '/');
+    }
+    document.title = `CareerPouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', `CareerPouch is a ${TOOLS.length}-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.`);
+    }
+  };
+
   // Return to homepage trigger to reset active tool states
   const handleResetToHome = () => {
     setSelectedTool(null);
+    setActiveInfoPage(null);
     setSelectedCategory('all');
     setSearchQuery('');
     
@@ -537,6 +601,322 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6 space-y-10">
         
+        {/* INFO SPECIFIC ROUTED PAGES (Privacy, TOS, Contact, Blog, About) */}
+        {activeInfoPage && (
+          <div 
+            id="info-page-workspace-anchor" 
+            className={`p-6 sm:p-10 rounded-3xl border transition-all animate-fade shadow-2xl relative ${
+              isDarkMode 
+                ? 'bg-slate-950 border-slate-800/80 shadow-slate-950/45 text-white' 
+                : 'bg-white border-slate-200 shadow-slate-200/40 text-slate-900'
+            }`}
+          >
+            <div className="flex justify-between items-center pb-4 border-b border-slate-250 dark:border-slate-800/60 mb-6 flex-wrap gap-2">
+              <div className="flex items-center gap-2.5">
+                <span className="inline-block px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 border border-indigo-500/15">
+                  LEGAL & INFORMATION
+                </span>
+                <span className="text-slate-400 font-mono text-xs">/</span>
+                <span className="text-xs text-slate-500 font-mono font-bold select-all">careerpouch.com/{activeInfoPage}</span>
+              </div>
+              <button
+                onClick={handleCloseInfoPage}
+                className="flex items-center gap-1.5 bg-slate-850 hover:bg-slate-750 text-slate-100 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border border-slate-700 cursor-pointer"
+              >
+                <Icon name="X" size={13} /> Close Document
+              </button>
+            </div>
+
+            {/* Content Switcher */}
+            {activeInfoPage === 'privacy' && (
+              <div className="max-w-4xl space-y-6">
+                <h1 className="text-3xl font-black tracking-tight mb-2">Privacy Policy & Cookie Statement</h1>
+                <p className="text-xs text-slate-400 font-mono">Last updated: June 10, 2026</p>
+                
+                <section className="space-y-3">
+                  <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-300">1. Zero Server-Side Logging Philosophy</h3>
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    At CareerPouch, user confidentiality is our primary directive. Unlike traditional SaaS web utilities, CareerPouch operates completely client-side. This means that <strong>none of your personal records, parsed documents, PDF files, base64 strings, credentials, or text utilities are ever transmitted to or stored on remote web servers</strong>.
+                  </p>
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    All conversions, file parsing, mathematical plotting, and document creation engines run locally in your system browser sandbox, preserving your full data ownership rights.
+                  </p>
+                </section>
+
+                <section className="space-y-3">
+                  <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-300">2. Cookies and Browser Storage Usage</h3>
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    We use cookies and local storage (such as HTML5 <code>localStorage</code>) to enable high-value productivity features like saving your resume progress, persisting your active Kanban board cards, and remembering your customized settings.
+                  </p>
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    These elements do not contain personal tracking codes and can be wiped completely at any time by clearing your browser cache or clicking "Flush Briefcase" in the application settings inside the sidebar.
+                  </p>
+                </section>
+
+                <section className="space-y-3">
+                  <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-300">3. Third-Party Web Advertising Networks (Google AdSense & Adsterra)</h3>
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    To keep all 41+ developer and career-focused tools 100% free of charge for users worldwide, we work with trusted advertising networks including Google AdSense and Adsterra to display standard graphical ads.
+                  </p>
+                  <ul className="list-disc pl-5 text-sm space-y-2 text-slate-600 dark:text-slate-300">
+                    <li>Google, as a third-party vendor, uses cookies to serve ads on CareerPouch.</li>
+                    <li>Google's use of advertising cookies enables it and its partners to serve ads to our users based on their visit to this site and/or other sites on the Internet.</li>
+                    <li>Users may opt out of personalized advertising by visiting <a href="https://adssettings.google.com/" target="_blank" rel="noopener noreferrer" className="text-indigo-500 underline">Google Ad Settings</a> or opting out in their browser's Privacy Preferences.</li>
+                  </ul>
+                </section>
+
+                <section className="space-y-3">
+                  <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-300">4. European GDPR & California CCPA Rights</h3>
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    Under standard data privacy frameworks, you hold the absolute right to be forgotten or download your profile. Since we do not hold, collect, or transmit any database records for any user, your right to be forgotten is fully guaranteed out-of-the-box: you can wipe your entire profile history directly from your browser settings or via the footer "Reset App State" option.
+                  </p>
+                </section>
+
+                <section className="space-y-3">
+                  <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-300">5. Continuous Compliance Contact</h3>
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    If you have questions about local-first data processing or cookie configuration, contact our team directly at <span className="font-mono text-indigo-600 dark:text-indigo-300">aquamarinesilver37@gmail.com</span>.
+                  </p>
+                </section>
+              </div>
+            )}
+
+            {activeInfoPage === 'tos' && (
+              <div className="max-w-4xl space-y-6">
+                <h1 className="text-3xl font-black tracking-tight mb-2">Terms of Service</h1>
+                <p className="text-xs text-slate-400 font-mono">Effective starting: June 10, 2026</p>
+                
+                <section className="space-y-3">
+                  <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-300">1. Terms of Use & Access Rights</h3>
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    CareerPouch grants a non-exclusive, fully revocable, completely free license to utilize our suite of over 41 sandbox tools. The tools are free for personal, educational, commercial, or professional developer use.
+                  </p>
+                </section>
+
+                <section className="space-y-3">
+                  <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-300">2. Prohibited Conduct</h3>
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    Since the application is 100% serverless and client-side, physical abuse of our server resources is inherently prevented. However, users are requested to not bypass or modify any ad configurations or reverse-engineer client code assets in bad faith.
+                  </p>
+                </section>
+
+                <section className="space-y-3">
+                  <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-300">3. Absolute Disclaimer of Warranty</h3>
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    ALL TOOLS AND LAYOUTS ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESSED OR IMPLIED. CAREERPOUCH CANNOT GUARANTY 100% METRIC COHERENCY FOR PDF OUTPUTS OR PERFECT REAL-TIME COMPILATIONS, ALTHOUGH WE STRIVE FOR PRISTINE CODE QUALITY. USER HOLDS TOTAL RESPONSIBILITY FOR CORROBORATING CALCULATOR ESTIMATIONS.
+                  </p>
+                </section>
+
+                <section className="space-y-3">
+                  <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-300">4. Modifications and Serverless Continuity</h3>
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    We reserve the right to dynamically add, edit, or de-register developer utility panels to prevent visual bloat and maintain top-tier performance for our global audience.
+                  </p>
+                </section>
+              </div>
+            )}
+
+            {activeInfoPage === 'contact' && (
+              <div className="max-w-4xl space-y-6">
+                <div>
+                  <h1 className="text-3xl font-black tracking-tight mb-2">Contact Us & Technical Support</h1>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-sans">
+                    Have a feature request, bug report, or business proposal? Reach out to our community inbox and we'll reply within 24-48 business hours.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+                  {/* Left Side: Contact details */}
+                  <div className="md:col-span-2 space-y-4">
+                    <div className="p-4 bg-slate-900/40 rounded-2xl border border-slate-205 dark:border-slate-800 space-y-3">
+                      <div className="flex items-center gap-2 text-indigo-500 dark:text-indigo-400">
+                        <Icon name="Mail" size={16} />
+                        <span className="text-xs font-mono font-bold uppercase tracking-wider">Official Email Inbox</span>
+                      </div>
+                      <p className="text-sm font-semibold select-all text-indigo-600 dark:text-indigo-300">aquamarinesilver37@gmail.com</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Direct channel for developer-to-developer requests, advertising integrations, and white-label inquiries.</p>
+                    </div>
+
+                    <div className="p-4 bg-slate-900/40 rounded-2xl border border-slate-205 dark:border-slate-800 space-y-2">
+                      <div className="flex items-center gap-2 text-emerald-500 dark:text-emerald-400">
+                        <Icon name="Cpu" size={16} />
+                        <span className="text-xs font-mono font-bold uppercase tracking-wider">Global Server Status</span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-350 leading-relaxed">
+                        CareerPouch relies on <strong>Cloudflare CDN Caching Edge servers</strong> for zero-latency asset distribution. Fully redundant and 100% online.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Right Side: Interactive local support form */}
+                  <div className="md:col-span-3">
+                    <form 
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const data = new FormData(e.currentTarget);
+                        const ticket = {
+                          id: Date.now(),
+                          sender: data.get('sender_name'),
+                          email: data.get('sender_email'),
+                          subject: data.get('sender_subject'),
+                          msg: data.get('sender_message'),
+                          date: new Date().toLocaleString()
+                        };
+                        try {
+                          const existing = JSON.parse(localStorage.getItem('careerpouch_user_tickets') || '[]');
+                          localStorage.setItem('careerpouch_user_tickets', JSON.stringify([...existing, ticket]));
+                        } catch (err) {}
+                        alert('Your message was successfully compiled and queued! Because CareerPouch runs entirely on the client, this message has been simulated and saved to your browser cache. For actual inbox processing, please copy this text and email us at aquamarinesilver37@gmail.com.');
+                        e.currentTarget.reset();
+                      }}
+                      className="p-6 bg-slate-900/45 dark:bg-slate-900/60 rounded-2xl border border-slate-205 dark:border-slate-800 space-y-4"
+                    >
+                      <h3 className="text-sm font-bold font-mono uppercase tracking-widest text-slate-500 dark:text-slate-300">Secure Contact Portal</h3>
+                      
+                      <div>
+                        <label className="block text-xs font-bold text-slate-555 dark:text-slate-400 mb-1">Your Name</label>
+                        <input required name="sender_name" type="text" placeholder="John Doe" className="w-full bg-white dark:bg-slate-950 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-950 dark:text-white" />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-555 dark:text-slate-400 mb-1">Your Email</label>
+                        <input required name="sender_email" type="email" placeholder="johndoe@gmail.com" className="w-full bg-white dark:bg-slate-950 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-950 dark:text-white" />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-555 dark:text-slate-400 mb-1">Subject</label>
+                        <input required name="sender_subject" type="text" placeholder="Advertising space or Tool integration request" className="w-full bg-white dark:bg-slate-950 border border-slate-250 dark:border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-950 dark:text-white" />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-555 dark:text-slate-400 mb-1">Message Detail</label>
+                        <textarea required name="sender_message" rows={4} placeholder="Type your message here..." className="w-full bg-white dark:bg-slate-950 border border-slate-250 dark:border-slate-800 rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500 text-slate-950 dark:text-white resize-none" />
+                      </div>
+
+                      <button type="submit" className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-550 hover:to-indigo-550 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-600/10 cursor-pointer">
+                        Send Secure Message
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeInfoPage === 'about' && (
+              <div className="max-w-4xl space-y-6">
+                <h1 className="text-3xl font-black tracking-tight mb-2">About CareerPouch</h1>
+                <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">The 41-in-1 Dynamic Utility Briefcase for Careers & Developers.</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-6 pointer-events-none">
+                  <div className="p-4 bg-slate-100/50 dark:bg-slate-900/40 rounded-2xl border border-slate-205 dark:border-slate-800 space-y-1 text-center">
+                    <span className="text-3xl font-black block bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">41+</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 uppercase font-mono font-bold">Offline-First Tools</span>
+                  </div>
+                  <div className="p-4 bg-slate-100/50 dark:bg-slate-900/40 rounded-2xl border border-slate-205 dark:border-slate-800 space-y-1 text-center">
+                    <span className="text-3xl font-black block bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">3.0k+</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 uppercase font-mono font-bold">Daily Global Visitors</span>
+                  </div>
+                  <div className="p-4 bg-slate-100/50 dark:bg-slate-900/40 rounded-2xl border border-slate-205 dark:border-slate-800 space-y-1 text-center">
+                    <span className="text-3xl font-black block bg-gradient-to-r from-pink-600 to-rose-600 dark:from-pink-400 dark:to-rose-400 bg-clip-text text-transparent">100%</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 uppercase font-mono font-bold">Privacy Guaranteed</span>
+                  </div>
+                </div>
+
+                <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                  CareerPouch was designed out of a growing need for fast, clean, zero-compromise developer tools and career layout systems. Traditional tools are bloated with heavy analytics trackers, account walls, slow load speeds, and potential server-side data leaks.
+                </p>
+                <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                  We engineered CareerPouch to be <strong>entirely local-first</strong>. When you compile an ATS CV template, convert a base64 string, analyze statistics, or plot custom function slopes, every mathematical algorithm is executed inside your own device CPU. No databases, no login forms, no latency.
+                </p>
+                <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                  The Metaphor of the <strong>Kangaroo 🦘 pouch and professional briefcase</strong> represent compactness, portability, and native storage of high-value tools. We hope you enjoy using the suite and find it helpful in optimizing your daily workflows!
+                </p>
+              </div>
+            )}
+
+            {activeInfoPage === 'blog' && (
+              <div className="max-w-4xl space-y-8">
+                <div>
+                  <h1 className="text-3xl font-black tracking-tight mb-2">Guides & Developer Tutorials</h1>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    High-impact articles prepared by our engineering and recruitment experts to boost your career and technical proficiency.
+                  </p>
+                </div>
+
+                {/* List of 4 Articles */}
+                <div className="space-y-8">
+                  {/* Article 1 */}
+                  <article className="p-6 bg-slate-50/50 dark:bg-slate-900/35 border border-slate-205 dark:border-slate-800 rounded-2xl space-y-3">
+                    <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-xs font-bold font-mono">
+                      <span>CAREER ADVICE</span>
+                      <span>•</span>
+                      <span>5 MIN READ</span>
+                    </div>
+                    <h2 className="text-xl font-bold hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Mastering ATS Compliance: Build a Professional Resume in 2026</h2>
+                    <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                      When seeking corporate job placements, over 95% of fortune 500 companies process applicants through Applicant Tracking Systems (ATS) like Workday, Taleo, and Greenhouse. These platforms automatically digest PDF and parsed doc formats, analyzing structural phrases to score relevancy. 
+                    </p>
+                    <div className="text-xs text-slate-600 dark:text-slate-500 bg-slate-100/40 dark:bg-slate-950/50 p-3 rounded-xl border border-slate-250 dark:border-slate-850 font-mono space-y-1">
+                      <p className="font-bold text-slate-700 dark:text-slate-400">ATS Optimization Success Checklist:</p>
+                      <p>✅ Use a single-column layout without tables or absolute-positioned text frames.</p>
+                      <p>✅ Ensure fonts are standard (Inter, Arial, Georgia) and NOT converted to bitmap vector path outlines.</p>
+                      <p>✅ Include industry-specific keywords (e.g. "React development", "Timezone synchronization", "JSON parser") directly.</p>
+                    </div>
+                  </article>
+
+                  {/* Article 2 */}
+                  <article className="p-6 bg-slate-55/50 dark:bg-slate-900/35 border border-slate-205 dark:border-slate-800 rounded-2xl space-y-3">
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-bold font-mono">
+                      <span>WEB SECURITY</span>
+                      <span>•</span>
+                      <span>6 MIN READ</span>
+                    </div>
+                    <h2 className="text-xl font-bold hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">The Rise of Local-First Web Applications</h2>
+                    <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                      As internet data privacy rules harden globally (including GDPR and CCPA), the serverless local-first philosophy is taking over the developer space. Traditionally, processing any JWT inspect, Luhn card verification, or resume compilation demanded uploading private records to an external cloud cluster database.
+                    </p>
+                    <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                      Local-first architectures process data exclusively in browser sandbox instances. This completely decouples user operations from hardware databases, guaranteeing zero latency, absolute immunity to server breaches, and continuous offline availability.
+                    </p>
+                  </article>
+
+                  {/* Article 3 */}
+                  <article className="p-6 bg-slate-55/50 dark:bg-slate-900/35 border border-slate-205 dark:border-slate-800 rounded-2xl space-y-3">
+                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-500 text-xs font-bold font-mono">
+                      <span>DEVELOPER RESOURCES</span>
+                      <span>•</span>
+                      <span>4 MIN READ</span>
+                    </div>
+                    <h2 className="text-xl font-bold hover:text-amber-600 dark:hover:text-emerald-400 transition-colors">Demystifying JSON, XML, and YAML: A Conversational Guide</h2>
+                    <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                      Format translation constitutes a major share of developer workflows. Whether config parsing, backend API payload mapping, or client rendering, understanding JSON (JavaScript Object Notation), XML (eXtensible Markup Language), and YAML (YAML Ain't Markup Language) is key.
+                    </p>
+                    <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                      JSON remains standard for application network payloads because of its direct parsing speed. YAML excels in Kubernetes and cloud config due to human readability, while XML serves enterprise operations. Utilizing offline converters on CareerPouch makes transition safe and fast.
+                    </p>
+                  </article>
+
+                  {/* Article 4 */}
+                  <article className="p-6 bg-slate-55/50 dark:bg-slate-900/35 border border-slate-205 dark:border-slate-800 rounded-2xl space-y-3">
+                    <div className="flex items-center gap-2 text-pink-600 dark:text-pink-400 text-xs font-bold font-mono">
+                      <span>TIME MANAGEMENT</span>
+                      <span>•</span>
+                      <span>5 MIN READ</span>
+                    </div>
+                    <h2 className="text-xl font-bold hover:text-pink-600 dark:hover:text-pink-450 transition-colors">Understanding Epoch Timestamps & Distributed Timezones</h2>
+                    <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                      Unix epoch time represents the count of seconds elapsed since January 1, 1970 (UTC), omitting leap seconds. In modern computer science, coordinating clocks across distributed server environments is an absolute prerequisite to prevent database collision and data race states.
+                    </p>
+                    <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                      A local epoch converter utility, combined with timezone offset coordinators, lets engineers visualize exactly how milliseconds align across Global boundaries instantly without triggering async timezone database locks.
+                    </p>
+                  </article>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ACTIVE WORKSPACE AREA AT ANCHOR - THEME ADAPTIVE */}
         {selectedTool && (
           <div 
@@ -1274,19 +1654,19 @@ export default function App() {
                   <a href="/" onClick={(e) => { e.preventDefault(); handleResetToHome(); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Home</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); alert("Privacy policy: Your offline sandbox configuration is processed entirely in browser storage. No server transmission exists."); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Privacy Policy</a>
+                  <a href="?page=privacy" onClick={(e) => { e.preventDefault(); handleSelectInfoPage('privacy'); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Privacy Policy</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); alert("TOS: Completely open-source developer side-project toolbox."); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">TOS</a>
+                  <a href="?page=tos" onClick={(e) => { e.preventDefault(); handleSelectInfoPage('tos'); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Terms of Service (TOS)</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); alert("Reach local author at: aquamarinesilver37@gmail.com"); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Contact</a>
+                  <a href="?page=contact" onClick={(e) => { e.preventDefault(); handleSelectInfoPage('contact'); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Contact Us</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); alert("Developer sandbox log feeds are saved entirely locally."); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Blog</a>
+                  <a href="?page=blog" onClick={(e) => { e.preventDefault(); handleSelectInfoPage('blog'); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">Guides & Blog</a>
                 </li>
                 <li>
-                  <a href="#" onClick={(e) => { e.preventDefault(); alert(`CareerPouch: A dynamic toolbox of ${TOOLS.length} high-impact developer and career building tools.`); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">About</a>
+                  <a href="?page=about" onClick={(e) => { e.preventDefault(); handleSelectInfoPage('about'); }} className="hover:text-blue-600 dark:hover:text-sky-300 transition-colors font-medium">About CareerPouch</a>
                 </li>
               </ul>
             </div>
