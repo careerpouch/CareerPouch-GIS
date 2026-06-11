@@ -254,6 +254,93 @@ export default function App() {
   const [isStickyAdVisible, setIsStickyAdVisible] = useState(true);
   const prevScrollPosRef = useRef<number>(0);
 
+  // X Auto-Poster States
+  const [isXPosterOpen, setIsXPosterOpen] = useState(false);
+  const [xState, setXState] = useState<any>(null);
+  const [xLoading, setXLoading] = useState(false);
+  const [xMsg, setXMsg] = useState({ type: '', text: '' });
+  const [customIndexInput, setCustomIndexInput] = useState('0');
+
+  const fetchXState = async () => {
+    try {
+      const res = await fetch('/api/x/state');
+      if (res.ok) {
+        const data = await res.json();
+        setXState(data);
+        setCustomIndexInput(data.currentIndex.toString());
+      }
+    } catch (err) {
+      console.error('Failed to parse X Auto-Poster state', err);
+    }
+  };
+
+  const toggleXLoop = async () => {
+    setXLoading(true);
+    setXMsg({ type: '', text: '' });
+    try {
+      const res = await fetch('/api/x/toggle-loop', { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        setXMsg({ type: 'success', text: `Scheduler status updated. Loop is now ${data.isLoopActive ? 'ACTIVE' : 'PAUSED'}.` });
+        fetchXState();
+      }
+    } catch (err) {
+      setXMsg({ type: 'error', text: 'Network request failure while toggling scheduler state.' });
+    } finally {
+      setXLoading(false);
+    }
+  };
+
+  const triggerXPostNow = async () => {
+    setXLoading(true);
+    setXMsg({ type: 'info', text: 'Invoking X API daily queue scheduler. Please wait...' });
+    try {
+      const res = await fetch('/api/x/post-now', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        const status = data.record.status === 'success' ? 'SUCCESS' : 'SIMULATED (keys missing)';
+        setXMsg({ type: 'success', text: `Post triggered successfully! Mode: ${status} for "${data.record.toolName}".` });
+        fetchXState();
+      } else {
+        setXMsg({ type: 'error', text: `Failed to trigger post: ${data.error}` });
+      }
+    } catch (err) {
+      setXMsg({ type: 'error', text: 'Network request failure while executing post.' });
+    } finally {
+      setXLoading(false);
+    }
+  };
+
+  const updateXIndex = async (indexNum: number) => {
+    setXLoading(true);
+    setXMsg({ type: '', text: '' });
+    try {
+      const res = await fetch('/api/x/set-index', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ index: indexNum }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setXMsg({ type: 'success', text: `Tool queue head shifted to index ${data.currentIndex} (${data.nextTool?.name || 'unknown'}).` });
+        fetchXState();
+      } else {
+        setXMsg({ type: 'error', text: data.error || 'Failed to update queue index.' });
+      }
+    } catch (err) {
+      setXMsg({ type: 'error', text: 'Network error updating loop index.' });
+    } finally {
+      setXLoading(false);
+    }
+  };
+
+  // Fetch X state periodically
+  useEffect(() => {
+    fetchXState();
+    const timer = setInterval(fetchXState, 60000); // refresh panel info 60s
+    return () => clearInterval(timer);
+  }, []);
+
   // States for Tool request engine
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [userRequests, setUserRequests] = useState<any[]>(() => {
@@ -1184,8 +1271,8 @@ export default function App() {
             </button>
           </div>
 
-          {/* DYNAMIC REQUEST A TOOL BUTTON DIRECTLY BELOW THE SEARCH BAR SECTION */}
-          <div className="mt-6 flex justify-center">
+          {/* DYNAMIC ACTIONS BAR DIRECTLY BELOW THE SEARCH BAR SECTION */}
+          <div className="mt-6 flex flex-wrap justify-center gap-3.5">
             <button
               onClick={() => setIsRequestModalOpen(true)}
               className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 cursor-pointer relative overflow-hidden group/req-btn border ${
@@ -1204,6 +1291,23 @@ export default function App() {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
               )}
+            </button>
+
+            <button
+              onClick={() => { setIsXPosterOpen(true); fetchXState(); }}
+              className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 cursor-pointer relative overflow-hidden group/x-btn border ${
+                isDarkMode 
+                  ? 'bg-slate-900 border-slate-800 hover:bg-blue-950 hover:border-blue-500/40 text-blue-400 hover:text-white shadow-indigo-950/20' 
+                  : 'bg-blue-50 border-blue-200 hover:bg-blue-100 hover:border-blue-300 text-blue-700 hover:text-blue-900 shadow-blue-100/10'
+              }`}
+              title="Open the X Auto-Posting Loop Controls and state dashboard"
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${xState?.isLoopActive ? 'bg-emerald-550' : 'bg-rose-550'}`} />
+              <Icon name="Twitter" size={13} className="text-blue-500 group-hover/x-btn:scale-115 transition-transform" />
+              <span>X Auto-Poster Integration</span>
+              <span className="text-[10px] opacity-75 px-1.5 py-0.5 rounded-md bg-white/10 dark:bg-black/20 text-blue-600 dark:text-blue-400">
+                {xState?.isLoopActive ? 'Loop Active' : 'Paused'}
+              </span>
             </button>
           </div>
 
@@ -2030,6 +2134,268 @@ export default function App() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* X AUTO-POSTING CRON CONTROL HUB MODAL */}
+      {isXPosterOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className={`relative w-full max-w-4xl rounded-3xl border shadow-2xl overflow-hidden transition-all duration-300 ${
+            isDarkMode ? 'bg-[#0b0f19] border-slate-800' : 'bg-white border-slate-200'
+          }`}>
+            
+            {/* Header glow banner */}
+            <div className="h-2 bg-gradient-to-r from-blue-500 via-indigo-600 to-teal-400" />
+            
+            {/* Modal Head */}
+            <div className="p-6 pb-4 border-b border-slate-200/35 dark:border-slate-800/50 flex justify-between items-center bg-slate-900/10">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-blue-550/10 text-blue-550 flex items-center justify-center">
+                  <Icon name="Twitter" size={20} />
+                </div>
+                <div>
+                  <h3 className={`text-lg font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    X (Twitter) Auto-Poster Controller
+                  </h3>
+                  <p className="text-xs text-slate-400 font-mono">Loop Automation Status & Queue Deck</p>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => { setIsXPosterOpen(false); setXMsg({ type: '', text: '' }); }}
+                className="p-2 hover:bg-slate-500/10 rounded-full transition-colors cursor-pointer"
+              >
+                <Icon name="X" size={16} className="text-slate-400" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto max-h-[72vh] space-y-6">
+              
+              {/* Status Message Prompt */}
+              {xMsg.text && (
+                <div className={`p-4 rounded-xl text-xs font-bold border transition-all flex items-center gap-2.5 ${
+                  xMsg.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-650 dark:text-emerald-400' :
+                  xMsg.type === 'error' ? 'bg-rose-500/10 border-rose-500/25 text-rose-650 dark:text-rose-450' :
+                  'bg-indigo-500/10 border-indigo-500/25 text-indigo-600 dark:text-indigo-400'
+                }`}>
+                  <span className="w-2 h-2 rounded-full bg-current animate-ping" />
+                  <span className="flex-1 font-mono uppercase tracking-wide leading-tight">{xMsg.text}</span>
+                  <button onClick={() => setXMsg({ type: '', text: '' })} className="underline cursor-pointer opacity-75 hover:opacity-100">Dismiss</button>
+                </div>
+              )}
+
+              {/* API Credentials Verification Box */}
+              {xState && (
+                <div className={`p-4 rounded-2xl border ${
+                  xState.keysConfigured 
+                    ? 'bg-emerald-500/[0.03] border-emerald-500/20' 
+                    : 'bg-amber-500/[0.03] border-amber-500/20'
+                }`}>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2.5 h-2.5 rounded-full ${xState.keysConfigured ? 'bg-emerald-550' : 'bg-amber-500 animate-pulse'}`} />
+                        <h4 className={`text-xs font-black uppercase font-mono tracking-wider ${isDarkMode ? 'text-slate-200' : 'text-slate-900'}`}>
+                          {xState.keysConfigured ? "X API Credentials Verified" : "Keys Not Connected (Draft Preview Mode active)"}
+                        </h4>
+                      </div>
+                      <p className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                        {xState.keysConfigured 
+                          ? "Real tweets will be posted to your configured X timeline autonomously." 
+                          : "Because your X_API_KEY credentials are not yet populated, tweets are generated as simulated high-contrast test logs."}
+                      </p>
+                    </div>
+                    
+                    {!xState.keysConfigured && (
+                      <div className="p-2.5 px-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-[10px] font-mono font-bold text-amber-600 dark:text-amber-405 uppercase tracking-widest leading-relaxed shrink-0 max-w-sm">
+                        ⚠️ Live connection: Configure keys inside Settings pane using .env variables.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Automation Control Widgets Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* Control Panel: Loop State & Override triggers */}
+                <div className={`p-5 rounded-2xl border space-y-4 ${isDarkMode ? 'bg-[#0f1423]/50 border-slate-800' : 'bg-slate-50 border-slate-205'}`}>
+                  <h4 className={`text-xs font-extrabold uppercase font-mono tracking-wider ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Active Controls
+                  </h4>
+                  
+                  <div className="space-y-3.5">
+                    {/* Active Loop Power Toggle Switch */}
+                    <div className="flex items-center justify-between p-3.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200/40 dark:border-slate-850">
+                      <div>
+                        <span className="block text-xs font-bold">Automation Loop Status</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-405 font-mono">Loop through all tools continuously</span>
+                      </div>
+                      
+                      <button
+                        onClick={toggleXLoop}
+                        disabled={xLoading}
+                        className={`px-4 py-2 rounded-xl text-xs font-black font-sans uppercase transition-all tracking-wider border cursor-pointer ${
+                          xState?.isLoopActive
+                            ? 'bg-emerald-500/15 text-emerald-550 border-emerald-500/25 hover:bg-emerald-500/20'
+                            : 'bg-rose-500/15 text-rose-550 border-rose-500/25 hover:bg-rose-500/20'
+                        }`}
+                      >
+                        {xState?.isLoopActive ? '● Active' : '○ Paused'}
+                      </button>
+                    </div>
+
+                    {/* Manual Post Override Button */}
+                    <div className="flex items-center justify-between p-3.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200/40 dark:border-slate-850">
+                      <div>
+                        <span className="block text-xs font-bold">Manual Trigger Mode</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-405 font-mono font-bold">Post next tool right now</span>
+                      </div>
+                      
+                      <button
+                        onClick={triggerXPostNow}
+                        disabled={xLoading}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-55"
+                      >
+                        Post Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Queue Master Control */}
+                <div className={`p-5 rounded-2xl border space-y-4 ${isDarkMode ? 'bg-[#0f1423]/50 border-slate-800' : 'bg-slate-50 border-slate-205'}`}>
+                  <h4 className={`text-xs font-extrabold uppercase font-mono tracking-wider ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Queue Operations
+                  </h4>
+                  
+                  {xState && (
+                    <div className="space-y-4">
+                      {/* Current & Next Tool description preview */}
+                      <div className="p-3 bg-white dark:bg-slate-950 rounded-xl border border-slate-200/40 dark:border-slate-850 space-y-1">
+                        <span className="text-[9px] uppercase font-mono text-indigo-500 dark:text-indigo-400 block font-bold">Up Next in Rotation:</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-slate-900 dark:text-white">
+                            [{xState.currentIndex}] {xState.nextTool?.name || 'No tool scheduled'}
+                          </span>
+                          <span className="text-[8px] font-mono px-1.5 py-0.5 rounded uppercase bg-slate-100 dark:bg-slate-900 text-slate-400 font-bold">
+                            {xState.nextTool?.category || 'Utility'}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-405 italic line-clamp-1 leading-normal select-all">
+                          {xState.nextTool?.description}
+                        </p>
+                      </div>
+
+                      {/* Manual index cue modifier input */}
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <label className="block text-[10px] font-bold text-slate-400 font-mono mb-1">Queue Head Index (0 to {xState.totalTools - 1})</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max={xState.totalTools - 1}
+                            value={customIndexInput}
+                            onChange={(e) => setCustomIndexInput(e.target.value)}
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-250 dark:border-slate-850 rounded-xl p-2 px-3 text-xs focus:outline-none focus:border-indigo-550 text-slate-950 dark:text-white font-mono"
+                          />
+                        </div>
+                        
+                        <button
+                          onClick={() => {
+                            const val = parseInt(customIndexInput, 10);
+                            if (!isNaN(val) && val >= 0 && val < xState.totalTools) {
+                              updateXIndex(val);
+                            } else {
+                              alert(`Please specify a valid index integer between 0 and ${xState.totalTools - 1}.`);
+                            }
+                          }}
+                          disabled={xLoading}
+                          className="mt-5 px-3.5 py-2 hover:bg-slate-200 dark:hover:bg-slate-850 text-xs font-bold transition-all border border-slate-250 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-100 cursor-pointer"
+                        >
+                          Modify Cue
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* History Timeline feed */}
+              <div className="space-y-3">
+                <h4 className={`text-xs font-extrabold uppercase font-mono tracking-wider ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                  Post Loop Activity logs (last {xState?.history?.length || 0} cycles)
+                </h4>
+                
+                {xState?.history && xState.history.length === 0 ? (
+                  <p className="text-xs text-slate-500 italic font-sans py-7 text-center border border-dashed border-slate-250 dark:border-slate-850 rounded-2xl bg-slate-500/[0.01]">
+                    No timeline actions logged yet. Click "Post Now" to queue/trigger your first automated loop post.
+                  </p>
+                ) : (
+                  <div className="space-y-3.5 max-h-[300px] overflow-y-auto pr-1">
+                    {xState?.history?.map((log: any) => (
+                      <div 
+                        key={log.id} 
+                        className={`p-4 rounded-xl border space-y-2.5 transition-all text-left ${
+                          log.status === 'success' ? 'bg-emerald-500/[0.015] border-emerald-500/10' :
+                          log.status === 'failed' ? 'bg-rose-500/[0.015] border-rose-500/10' :
+                          'bg-amber-500/[0.015] border-amber-500/10'
+                        }`}
+                      >
+                        {/* Title bar of item */}
+                        <div className="flex items-center justify-between flex-wrap gap-2 text-xs font-mono">
+                          <div className="flex items-center gap-2">
+                            <span className="font-extrabold text-indigo-500 dark:text-indigo-400 uppercase">{log.toolName}</span>
+                            <span className="text-slate-400 dark:text-slate-600">·</span>
+                            <span className="text-slate-505 dark:text-slate-400 font-normal">{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({new Date(log.timestamp).toLocaleDateString()})</span>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border font-mono ${
+                              log.status === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' :
+                              log.status === 'failed' ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' :
+                              'bg-amber-500/10 border-amber-500/20 text-amber-500'
+                            }`}>
+                              {log.status === 'success' ? 'SUCCESS' : log.status === 'failed' ? 'FAILED' : 'SIMULATED DRAFT'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Exact tweet mock text styling */}
+                        <div className="p-3.5 bg-white dark:bg-slate-950/60 rounded-xl border border-slate-150 dark:border-slate-850 text-xs font-mono leading-relaxed whitespace-pre-wrap select-all">
+                          {log.tweetText}
+                        </div>
+
+                        {/* Error log details */}
+                        {log.errorMessage && (
+                          <div className="p-2.5 px-3 bg-red-500/[0.03] rounded-lg border border-red-500/10 text-[10px] font-mono text-red-500/90 leading-normal">
+                            <strong className="uppercase">Internal Log Diagnostic:</strong> {log.errorMessage}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 px-6 border-t border-slate-200/35 dark:border-slate-800/50 bg-slate-900/10 text-right flex items-center justify-between">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                LOOPING RATIO: {xState ? `1/${xState.totalTools} tools daily` : "Loading..."}
+              </span>
+              <button
+                onClick={() => { setIsXPosterOpen(false); setXMsg({ type: '', text: '' }); }}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-100 text-xs font-bold transition-all border border-slate-200 dark:border-slate-700 cursor-pointer rounded-xl"
+              >
+                Close Panel
+              </button>
+            </div>
+
           </div>
         </div>
       )}

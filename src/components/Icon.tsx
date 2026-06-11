@@ -70,7 +70,8 @@ import {
   Pin,
   UserCheck,
   Activity,
-  Compass
+  Compass,
+  Twitter
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<any>> = {
@@ -144,7 +145,8 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Pin,
   UserCheck,
   Activity,
-  Compass
+  Compass,
+  Twitter
 };
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
