@@ -3,6 +3,7 @@ import { TOOLS } from './data/toolsData';
 import { CATEGORIES, Tool, CategoryType } from './types';
 import { Icon } from './components/Icon';
 import { AdsterraBanner } from './components/AdsterraBanner';
+import { BloggerAutomationHub } from './components/BloggerAutomationHub';
 
 // Import our modular tool categories components
 import { CareerTools } from './components/tools/CareerTools';
@@ -694,7 +695,52 @@ export default function App() {
       {/* Primary elevate wrapper */}
       <div className="relative z-10 flex flex-col min-h-screen">
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-6 space-y-10">
+        {/* Global Navigation Header to easily navigate to the Blogger Hub */}
+        <header className={`sticky top-0 z-40 backdrop-blur-md border-b transition-all ${
+          isDarkMode 
+            ? 'bg-slate-950/80 border-slate-900 text-white shadow-lg shadow-black/10' 
+            : 'bg-white/80 border-slate-200 text-slate-900 shadow-sm'
+        }`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <a 
+                href="/" 
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  handleResetToHome(); 
+                }} 
+                className="flex items-center gap-2 group cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center shadow-md shadow-indigo-505/20 group-hover:scale-105 transition-transform">
+                  <span className="text-white text-sm font-black">CP</span>
+                </div>
+                <span className="text-xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent transform group-hover:translate-x-0.5 transition-transform">
+                  CareerPouch
+                </span>
+              </a>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => handleSelectInfoPage('blog')}
+                className={`relative px-4 py-2 rounded-xl text-xs font-black transition-all duration-300 flex items-center gap-1.5 shadow-md hover:scale-105 active:scale-95 cursor-pointer border ${
+                  activeInfoPage === 'blog'
+                    ? 'bg-gradient-to-r from-indigo-600 to-violet-600 border-indigo-500 text-white shadow-indigo-500/20'
+                    : 'bg-amber-500 hover:bg-amber-600 text-slate-950 border-amber-400 font-bold shadow-amber-500/10'
+                }`}
+              >
+                {/* Glowing beacon for priority visibility */}
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                </span>
+                <span>🔥 Blogger Automation Hub</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-6 space-y-10">
         
         {/* INFO SPECIFIC ROUTED PAGES (Privacy, TOS, Contact, Blog, About) */}
         {activeInfoPage && (
@@ -930,10 +976,13 @@ export default function App() {
             )}
 
             {activeInfoPage === 'blog' && (
-              <div className="max-w-4xl space-y-8">
-                <div>
-                  <h1 className="text-3xl font-black tracking-tight mb-2">Guides & Developer Tutorials</h1>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
+              <div className="max-w-4xl space-y-8 text-left">
+                {/* Blogger Automation & Marketing Hub */}
+                <BloggerAutomationHub isDarkMode={isDarkMode} appUrl={window.location.origin} />
+
+                <div className="pt-8 border-t border-slate-200 dark:border-slate-800">
+                  <h2 className="text-2xl font-black tracking-tight mb-2">Guides & Developer Tutorials</h2>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-normal">
                     High-impact articles prepared by our engineering and recruitment experts to boost your career and technical proficiency.
                   </p>
                 </div>
