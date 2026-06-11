@@ -782,5 +782,26 @@ export const TOOLS: Tool[] = [
     description: 'Input freelance revenues, calculate deductions, self-employment tax, and estimated quarterly IRS vouchers.',
     category: 'accounting',
     icon: 'Coins'
+  },
+  {
+    id: 'salary-deductions',
+    name: 'Salary Paycheck Deduction Calculator',
+    description: 'Calculate gross-to-net paychecks with federal, state, Social Security, Medicare, and benefit holding deductions.',
+    category: 'accounting',
+    icon: 'Briefcase'
+  },
+  {
+    id: 'compounding-calc',
+    name: 'Investment Compound Interest Calculator',
+    description: 'Track compound capital growth over years with customizable deposit timelines and interest rates.',
+    category: 'accounting',
+    icon: 'LineChart'
+  },
+  {
+    id: 'savings-profit',
+    name: 'Savings Profit Tax-Adjusted Calculator',
+    description: 'Structure tax-withholding savings yields to forecast actual net APY gains and account growth.',
+    category: 'accounting',
+    icon: 'TrendingUp'
   }
 ];

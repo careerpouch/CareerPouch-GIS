@@ -109,7 +109,171 @@ export const CareerTools: React.FC<CareerToolsProps> = ({ toolId }) => {
   };
 
   const handlePrint = () => {
-    window.print();
+    try {
+      // 1. Seek the CV rendering element
+      const cvElement = document.querySelector('.printable-print-target');
+      if (!cvElement) {
+        window.print();
+        return;
+      }
+
+      // 2. Open a custom styled popup sheet that bypasses standard iframe restrictions
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        // Popups blocked fallback to standard print
+        window.print();
+        return;
+      }
+
+      // 3. Compile all stylesheet objects from parent document
+      let styleString = '';
+      const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
+      styles.forEach(item => {
+        styleString += item.outerHTML;
+      });
+
+      // 4. Inject styled elements into the clean print panel
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>${profile.name} - CV</title>
+            ${styleString}
+            <style>
+              body {
+                background: white !important;
+                color: black !important;
+                padding: 1.5cm !important;
+                margin: 0 !important;
+              }
+              .printable-print-target {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 auto !important;
+                width: 100% !important;
+                max-width: 21cm !important;
+                display: flex !important;
+                flex-direction: column !important;
+                min-height: auto !important;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="printable-print-target bg-white text-slate-900 font-sans flex flex-col justify-between">
+              ${cvElement.innerHTML}
+            </div>
+            <script>
+              window.focus();
+              setTimeout(() => {
+                window.print();
+                window.close();
+              }, 500);
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    } catch (err) {
+      console.warn("Iframe popup print failed, running native print method", err);
+      try {
+        window.print();
+      } catch (printErr) {
+        alert("The visual sandbox blocks printing inside the workspace. To print or save this PDF, please click the 'Open in New Tab' button in the bottom right corner of the website and use the Print action there!");
+      }
+    }
+  };
+
+  const handleDocxDownload = () => {
+    // Generate styling-compliant HTML and download it as an MS Word (.doc) attachment
+    const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><title>${profile.name} CV</title>
+    <style>
+      body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; line-height: 1.5; color: #1e293b; padding: 20px; }
+      h1 { font-size: 26pt; color: #0f172a; margin-bottom: 2px; text-align: center; font-weight: bold; }
+      h2 { font-size: 13pt; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; margin-top: 24px; text-transform: uppercase; font-weight: bold; }
+      .title-label { font-size: 12pt; color: #10b981; font-weight: bold; text-align: center; margin-bottom: 12px; }
+      .contact-info { text-align: center; font-size: 9.5pt; color: #64748b; margin-bottom: 24px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
+      .exp-header { margin-bottom: 4px; overflow: hidden; }
+      .exp-title { font-weight: bold; color: #0f172a; font-size: 11pt; }
+      .exp-company { font-weight: normal; color: #475569; }
+      .exp-period { float: right; color: #64748b; font-size: 10pt; font-family: monospace; }
+      ul { margin-top: 4px; margin-bottom: 12px; padding-left: 20px; }
+      li { margin-bottom: 4px; color: #334155; font-size: 10pt; }
+      .skills-list { margin-top: 10px; margin-bottom: 10px; }
+      .skill-item { display: inline-block; background-color: #f1f5f9; color: #334155; padding: 4px 10px; margin-right: 6px; margin-bottom: 6px; border-radius: 4px; font-size: 9.5pt; border: 1px solid #e2e8f0; }
+    </style>
+    </head>
+    <body>`;
+
+    let body = `<h1>${profile.name}</h1>`;
+    if (toolId === 'europass-builder') {
+      body += `<div class="title-label">EUROPASS CURRICULUM VITAE</div>`;
+    } else {
+      body += `<div class="title-label">${profile.title}</div>`;
+    }
+    body += `<div class="contact-info">${profile.email} &bull; ${profile.phone} &bull; ${profile.location} &bull; ${profile.website}</div>`;
+
+    if (toolId !== 'academic-cv') {
+      body += `<h2>Professional Summary</h2><p style="text-align: justify; font-size: 10pt; color: #334155;">${profile.summary}</p>`;
+    }
+
+    if (toolId === 'functional-cv') {
+      body += `<h2>Core Skills & Competencies</h2><div class="skills-list">`;
+      profile.skills.forEach(skill => {
+        body += `<span class="skill-item">${skill}</span>`;
+      });
+      body += `</div>`;
+    }
+
+    if (toolId !== 'functional-cv') {
+      body += `<h2>Work History</h2>`;
+      profile.experience.forEach(exp => {
+        body += `<div class="exp-header">
+          <span class="exp-title">${exp.role} <span class="exp-company">&mdash; ${exp.company}</span></span>
+          <span class="exp-period" style="float: right;">${exp.period}</span>
+        </div>
+        <ul>
+          <li>${exp.bullet1}</li>
+          <li>${exp.bullet2}</li>
+        </ul>`;
+      });
+    }
+
+    if (toolId === 'academic-cv') {
+      body += `<h2>Publications & Invited Lectures</h2><ul>`;
+      profile.publications.forEach(pub => {
+        body += `<li style="font-size: 10pt;"><strong>"${pub.title}"</strong>. Published in <em>${pub.venue}</em> (${pub.year}).</li>`;
+      });
+      body += `</ul>`;
+    }
+
+    if (toolId !== 'functional-cv' && profile.skills && profile.skills.length > 0) {
+      body += `<h2>Technical Skills & Expertise</h2><div class="skills-list">`;
+      profile.skills.forEach(skill => {
+        body += `<span class="skill-item">${skill}</span>`;
+      });
+      body += `</div>`;
+    }
+
+    body += `<h2>Education & Professional Academics</h2>`;
+    profile.education.forEach(edu => {
+      body += `<div style="overflow: hidden; margin-bottom: 8px;">
+        <span style="font-weight: bold; color: #0f172a; font-size: 10.5pt;">${edu.degree}</span> &mdash; <span style="color: #475569;">${edu.school}</span>
+        <span style="float: right; color: #64748b; font-size: 10pt; font-family: monospace;">${edu.year}</span>
+      </div>`;
+    });
+
+    body += `</body></html>`;
+
+    const blob = new Blob([header + body], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${profile.name.replace(/\s+/g, '_')}_Resume.doc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   // ---- AI RESUME BULLET OPTIMIZER STATE & REAL-TIME ALGORITHM ----
@@ -1479,15 +1643,23 @@ Familiar with basic Agile team methods but looking to grow.`);
             </button>
             <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer"
+              title="Print directly or save as PDF using system print dialogue"
             >
-              <Icon name="Download" size={14} /> Printable Layout
+              <Icon name="FileText" size={14} /> Print / Save PDF
+            </button>
+            <button
+              onClick={handleDocxDownload}
+              className="flex items-center gap-1.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer"
+              title="Download document as fully structured MS Word format"
+            >
+              <Icon name="Download" size={14} /> Download DOCX
             </button>
           </div>
         </div>
 
-        {activeTab === 'edit' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {activeTab === 'edit' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:hidden">
             <div className="space-y-4 bg-slate-800/40 p-5 rounded-xl border border-slate-700/50 backdrop-blur-md">
               <h3 className="text-sm font-semibold text-slate-300 border-b border-slate-700 pb-2">Personal Information</h3>
               <div className="grid grid-cols-2 gap-3">
@@ -1624,8 +1796,9 @@ Familiar with basic Agile team methods but looking to grow.`);
               ))}
             </div>
           </div>
-        ) : (
-          <div className="bg-white text-slate-900 p-8 rounded-xl shadow-2xl border border-slate-100 max-w-[21cm] mx-auto min-h-[29.7cm] flex flex-col justify-between font-sans">
+        )}
+
+        <div className={`printable-print-target bg-white text-slate-900 p-8 rounded-xl shadow-2xl border border-slate-100 max-w-[21cm] mx-auto min-h-[29.7cm] flex-col justify-between font-sans ${activeTab === 'edit' ? 'hidden print:flex' : 'flex'}`}>
             <div>
               {/* Header */}
               {toolId === 'europass-builder' ? (
@@ -1745,7 +1918,6 @@ Familiar with basic Agile team methods but looking to grow.`);
               Generated securely with CareerPouch Static Client Toolkit — Optimized for immediate ATS crawlers.
             </div>
           </div>
-        )}
       </div>
     );
   }

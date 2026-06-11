@@ -16,6 +16,12 @@ export const AccountingTools: React.FC<AccountingToolsProps> = ({ toolId }) => {
       return <DepreciationPlanner />;
     case 'tax-estimator':
       return <TaxEstimator />;
+    case 'salary-deductions':
+      return <SalaryDeductions />;
+    case 'compounding-calc':
+      return <CompoundingCalc />;
+    case 'savings-profit':
+      return <SavingsProfit />;
     default:
       return (
         <div className="text-center py-12 text-slate-505 font-medium">
@@ -1012,6 +1018,580 @@ const TaxEstimator: React.FC = () => {
             <div className="text-right border-l border-white/25 pl-4 select-none">
               <span className="text-[10px] text-indigo-200 block">EST. MONTHLY</span>
               <span className="text-sm font-extrabold font-mono">${(netTakeHome / 12).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================================
+   7. SALARY PAYCHECK DEDUCTION CALCULATOR
+   ============================================================================ */
+const SalaryDeductions: React.FC = () => {
+  const [grossAnnual, setGrossAnnual] = useState<number>(85000);
+  const [frequency, setFrequency] = useState<'weekly' | 'biweekly' | 'semimonthly' | 'monthly'>('biweekly');
+  const [status, setStatus] = useState<'single' | 'jointly'>('single');
+  const [preTaxPct, setPreTaxPct] = useState<number>(5);
+  const [medical, setMedical] = useState<number>(150); // per paycheck
+  const [stateTaxRate, setStateTaxRate] = useState<number>(4.2);
+
+  // Paycheck properties
+  const periodCount = useMemo(() => {
+    switch (frequency) {
+      case 'weekly': return 52;
+      case 'biweekly': return 26;
+      case 'semimonthly': return 24;
+      case 'monthly': return 12;
+      default: return 26;
+    }
+  }, [frequency]);
+
+  const grossPaycheck = grossAnnual / periodCount;
+
+  // Deductions calculation
+  const pretaxContribution = grossPaycheck * (preTaxPct / 100);
+  const medicalDeduction = medical;
+  const taxableDeductionGross = Math.max(0, grossPaycheck - pretaxContribution - medicalDeduction);
+
+  // Standard progressive federal withholding estimation
+  const estFederalAnnualTax = useMemo(() => {
+    const income = taxableDeductionGross * periodCount;
+    let tax = 0;
+    if (status === 'single') {
+      if (income <= 11600) {
+        tax = income * 0.10;
+      } else if (income <= 47150) {
+        tax = (11600 * 0.10) + ((income - 11600) * 0.12);
+      } else if (income <= 100525) {
+        tax = (11600 * 0.10) + ((47150 - 11600) * 0.12) + ((income - 47150) * 0.22);
+      } else if (income <= 191950) {
+        tax = (11600 * 0.10) + ((47150 - 11600) * 0.12) + ((100525 - 47150) * 0.22) + ((income - 100525) * 0.24);
+      } else {
+        tax = (11600 * 0.10) + ((47150 - 11600) * 0.12) + ((100525 - 47150) * 0.22) + ((191950 - 100525) * 0.24) + ((income - 191950) * 0.32);
+      }
+    } else {
+      // Married Jointly
+      if (income <= 23200) {
+        tax = income * 0.10;
+      } else if (income <= 94300) {
+        tax = (23200 * 0.10) + ((income - 23200) * 0.12);
+      } else if (income <= 201050) {
+        tax = (23200 * 0.10) + ((94300 - 23200) * 0.12) + ((income - 94300) * 0.22);
+      } else if (income <= 383900) {
+        tax = (23200 * 0.10) + ((94300 - 23200) * 0.12) + ((201050 - 94300) * 0.22) + ((income - 201050) * 0.24);
+      } else {
+        tax = (23200 * 0.10) + ((94300 - 23200) * 0.12) + ((201050 - 94300) * 0.22) + ((383900 - 201050) * 0.24) + ((income - 383900) * 0.32);
+      }
+    }
+    return tax;
+  }, [taxableDeductionGross, periodCount, status]);
+
+  const fedWithholding = estFederalAnnualTax / periodCount;
+  const stateWithholding = taxableDeductionGross * (stateTaxRate / 100);
+
+  // FICA (6.2% SS + 1.45% Medicare on gross paycheck)
+  const socialSecurity = grossPaycheck * 0.062;
+  const medicare = grossPaycheck * 0.0145;
+
+  const totalTaxes = fedWithholding + stateWithholding + socialSecurity + medicare;
+  const netPaycheck = Math.max(0, taxableDeductionGross - totalTaxes);
+
+  return (
+    <div className="bg-slate-900/60 p-6 rounded-2xl border border-slate-700/60 backdrop-blur-md">
+      <div className="border-b border-slate-700/60 pb-4 mb-6">
+        <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+          <Icon name="Briefcase" className="text-indigo-455" /> Salary Paycheck Deduction Calculator
+        </h2>
+        <p className="text-xs text-slate-400 mt-1">
+          Perform a microscopic look at your gross paycheck values to evaluate pre-tax benefit holds, federal withholds, state structures, and real net take-homes.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Inputs */}
+        <div className="lg:col-span-5 bg-slate-800/40 p-5 rounded-xl border border-slate-700/50 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-350">Configure Income & Holds</h3>
+          
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">Gross Annual Income ($)</label>
+              <input
+                type="number"
+                value={grossAnnual}
+                onChange={(e) => setGrossAnnual(Math.max(0, Number(e.target.value)))}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Pay Frequency</label>
+                <select
+                  value={frequency}
+                  onChange={(e) => setFrequency(e.target.value as any)}
+                  className="w-full bg-slate-900 border border-slate-700 text-xs text-slate-100 rounded px-2 py-1.5 focus:outline-none focus:border-indigo-505"
+                >
+                  <option value="weekly">Weekly (52x/yr)</option>
+                  <option value="biweekly">Bi-Weekly (26x/yr)</option>
+                  <option value="semimonthly">Semi-Monthly (24x/yr)</option>
+                  <option value="monthly">Monthly (12x/yr)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Tax Filing Status</label>
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as any)}
+                  className="w-full bg-slate-900 border border-slate-700 text-xs text-slate-100 rounded px-2 py-1.5 focus:outline-none focus:border-indigo-500"
+                >
+                  <option value="single">Single Filer</option>
+                  <option value="jointly">Married Jointly</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">401k Pre-tax Share (%)</label>
+                <input
+                  type="number"
+                  step="0.5"
+                  value={preTaxPct}
+                  onChange={(e) => setPreTaxPct(Math.max(0, Math.min(100, Number(e.target.value))))}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Medical Care (per pay)</label>
+                <input
+                  type="number"
+                  value={medical}
+                  onChange={(e) => setMedical(Math.max(0, Number(e.target.value)))}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">State Income Tax Rate (%)</label>
+              <input
+                type="number"
+                step="0.1"
+                value={stateTaxRate}
+                onChange={(e) => setStateTaxRate(Math.max(0, Number(e.target.value)))}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Right Output Sheet */}
+        <div className="lg:col-span-7 space-y-6">
+          <div className="bg-slate-800/20 p-5 rounded-xl border border-slate-700/30">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-350 border-b border-slate-700 pb-2">Itemized Paycheck Analysis</h3>
+            
+            <div className="mt-4 space-y-3 font-sans">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400">Representative Gross Paycheck</span>
+                <span className="font-bold font-mono text-slate-101">${grossPaycheck.toFixed(2)}</span>
+              </div>
+              
+              <div className="h-px bg-slate-700/40 my-1"></div>
+
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400 italic">401k Pre-tax Allocation ({preTaxPct}%)</span>
+                <span className="font-mono text-rose-400">-${pretaxContribution.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400 italic">Medical Health Hold (per Paycheck)</span>
+                <span className="font-mono text-rose-400">-${medicalDeduction.toFixed(2)}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-xs bg-slate-800/60 p-2 rounded">
+                <span className="text-slate-250 font-medium">Estimated Taxable Income Base</span>
+                <span className="font-extrabold font-mono text-teal-400">${taxableDeductionGross.toFixed(2)}</span>
+              </div>
+
+              <div className="h-px bg-slate-700/40 my-1"></div>
+
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400">Federal Progressive Income Tax</span>
+                <span className="font-mono text-rose-400">-${fedWithholding.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400">State Income Tax Withholding</span>
+                <span className="font-mono text-rose-400">-${stateWithholding.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400">Social Security FICA Tax (6.2%)</span>
+                <span className="font-mono text-rose-400">-${socialSecurity.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-slate-400">Medicare FICA Tax (1.45%)</span>
+                <span className="font-mono text-rose-400">-${medicare.toFixed(2)}</span>
+              </div>
+
+              <div className="h-px bg-slate-700/50 my-2"></div>
+
+              <div className="p-4 bg-emerald-950/40 border border-emerald-500/20 rounded-xl flex justify-between items-center">
+                <div>
+                  <span className="text-xs uppercase tracking-wide font-black text-emerald-300 block">ESTIMATED NET PAYCHECK</span>
+                  <span className="text-3xl font-black font-mono text-emerald-400">${netPaycheck.toFixed(2)}</span>
+                </div>
+                <div className="text-right border-l border-emerald-500/20 pl-4 text-emerald-200">
+                  <span className="text-[10px] uppercase block">YEARLY NET</span>
+                  <span className="text-lg font-bold font-mono text-emerald-400">${(netPaycheck * periodCount).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================================
+   8. INVESTMENT COMPOUND INTEREST CALCULATOR
+   ============================================================================ */
+const CompoundingCalc: React.FC = () => {
+  const [initAmt, setInitAmt] = useState<number>(10000);
+  const [recurAmt, setRecurAmt] = useState<number>(500);
+  const [recurPeriod, setRecurPeriod] = useState<'monthly' | 'annually'>('monthly');
+  const [rate, setRate] = useState<number>(8.0);
+  const [years, setYears] = useState<number>(15);
+
+  const timelineData = useMemo(() => {
+    let balance = initAmt;
+    let totalInvested = initAmt;
+    const history: Array<{
+      year: number;
+      start: number;
+      invested: number;
+      interest: number;
+      end: number;
+    }> = [];
+
+    for (let y = 1; y <= Math.min(50, Math.max(1, years)); y++) {
+      const yearStart = balance;
+      let interestEarnedThisYear = 0;
+
+      if (recurPeriod === 'annually') {
+        const interest = balance * (rate / 100);
+        interestEarnedThisYear = interest;
+        balance += interest + recurAmt;
+        totalInvested += recurAmt;
+      } else {
+        // Monthly calculation cycles
+        for (let m = 1; m <= 12; m++) {
+          const monthlyIntRate = (rate / 100) / 12;
+          const monthlyInt = balance * monthlyIntRate;
+          interestEarnedThisYear += monthlyInt;
+          balance += monthlyInt + recurAmt;
+          totalInvested += recurAmt;
+        }
+      }
+
+      history.push({
+        year: y,
+        start: yearStart,
+        invested: totalInvested,
+        interest: interestEarnedThisYear,
+        end: balance
+      });
+    }
+    return history;
+  }, [initAmt, recurAmt, recurPeriod, rate, years]);
+
+  const finalValue = timelineData.length > 0 ? timelineData[timelineData.length - 1].end : initAmt;
+  const finalInvested = timelineData.length > 0 ? timelineData[timelineData.length - 1].invested : initAmt;
+  const totalGain = finalValue - finalInvested;
+
+  return (
+    <div className="bg-slate-900/60 p-6 rounded-2xl border border-slate-700/60 backdrop-blur-md">
+      <div className="border-b border-slate-700/60 pb-4 mb-6">
+        <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+          <Icon name="LineChart" className="text-emerald-400" /> Investment Compound Interest Calculator
+        </h2>
+        <p className="text-xs text-slate-400 mt-1">
+          Simulate professional long-term asset compound equations. Model how periodic monthly cash addition matches compounding timelines.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Input variables */}
+        <div className="lg:col-span-4 bg-slate-800/40 p-5 rounded-xl border border-slate-700/50 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-350">Asset Properties</h3>
+          <div className="space-y-3 font-sans">
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">Principal Capital ($)</label>
+              <input
+                type="number"
+                value={initAmt}
+                onChange={(e) => setInitAmt(Math.max(0, Number(e.target.value)))}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Recur Amount ($)</label>
+                <input
+                  type="number"
+                  value={recurAmt}
+                  onChange={(e) => setRecurAmt(Math.max(0, Number(e.target.value)))}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Recur Period</label>
+                <select
+                  value={recurPeriod}
+                  onChange={(e) => setRecurPeriod(e.target.value as any)}
+                  className="w-full bg-slate-900 border border-slate-700 text-xs text-slate-100 rounded px-2 py-1.5 focus:outline-none focus:border-indigo-500"
+                >
+                  <option value="monthly">Monthly</option>
+                  <option value="annually">Annually</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">APY Interest (%)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={rate}
+                  onChange={(e) => setRate(Math.max(0, Number(e.target.value)))}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Duration (Years)</label>
+                <input
+                  type="number"
+                  value={years}
+                  onChange={(e) => setYears(Math.max(1, Number(e.target.value)))}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Dynamic charts and projections table */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-slate-800/25 p-3 rounded-lg border border-slate-700/30">
+              <span className="text-[10px] text-slate-400 uppercase tracking-widest block font-bold">TOTAL CAPITAL VALUE</span>
+              <span className="text-lg font-black text-slate-200 mt-1 font-mono">${finalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+            </div>
+            <div className="bg-slate-800/25 p-3 rounded-lg border border-slate-700/30">
+              <span className="text-[10px] text-slate-400 uppercase tracking-widest block font-bold">PRINCIPAL OUTLAY</span>
+              <span className="text-lg font-black text-slate-300 mt-1 font-mono">${finalInvested.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+            </div>
+            <div className="bg-slate-800/25 p-3 rounded-lg border border-slate-700/30">
+              <span className="text-[10px] text-teal-400 uppercase tracking-widest block font-bold">INTEREST GENERATED</span>
+              <span className="text-lg font-black text-teal-400 mt-1 font-mono">${totalGain.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+            </div>
+          </div>
+
+          <div className="bg-slate-800/20 rounded-xl p-4 border border-slate-700/30">
+            <h4 className="text-xs font-bold uppercase text-slate-300 mb-3 font-mono">Compounding Capital Progression</h4>
+            
+            <div className="max-h-[300px] overflow-y-auto pr-1">
+              <table className="w-full text-left text-xs font-sans">
+                <thead>
+                  <tr className="text-slate-400 border-b border-slate-700/50 pb-2">
+                    <th className="py-2">Year</th>
+                    <th className="py-2">Starting Amt</th>
+                    <th className="py-2 text-indigo-400">Deposits added</th>
+                    <th className="py-2 text-teal-400">Interest Earned</th>
+                    <th className="py-2 text-right text-slate-200">Ending Amt</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-700/30">
+                  {timelineData.map((row) => (
+                    <tr key={row.year} className="hover:bg-slate-800/40 transition-colors">
+                      <td className="py-2 font-mono font-bold text-slate-400">Year {row.year}</td>
+                      <td className="py-2 font-mono">${row.start.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                      <td className="py-2 font-mono text-indigo-300">+${(row.invested - (row.year === 1 ? initAmt : timelineData[row.year - 2].invested)).toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                      <td className="py-2 font-mono text-teal-300">+${row.interest.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                      <td className="py-2 font-mono text-right text-teal-400 font-extrabold">${row.end.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================================
+   9. SAVINGS PROFIT TAX-ADJUSTED CALCULATOR
+   ============================================================================ */
+const SavingsProfit: React.FC = () => {
+  const [initialSavings, setInitialSavings] = useState<number>(5000);
+  const [apy, setApy] = useState<number>(4.3);
+  const [monthlyAddition, setMonthlyAddition] = useState<number>(300);
+  const [months, setMonths] = useState<number>(24);
+  const [marginalTax, setMarginalTax] = useState<number>(24);
+
+  const analysis = useMemo(() => {
+    let balance = initialSavings;
+    let cumulatedInterest = 0;
+    let cumulativeTax = 0;
+    const history: Array<{
+      month: number;
+      interest: number;
+      taxWithheld: number;
+      deposits: number;
+      netValue: number;
+    }> = [];
+
+    const monthlyIntRate = (apy / 100) / 12;
+
+    for (let m = 1; m <= Math.min(120, Math.max(1, months)); m++) {
+      // monthly interest compound
+      const grossMonthlyInt = balance * monthlyIntRate;
+      const taxWithheld = grossMonthlyInt * (marginalTax / 100);
+      const netMonthlyInt = grossMonthlyInt - taxWithheld;
+
+      balance += netMonthlyInt + monthlyAddition;
+      cumulatedInterest += grossMonthlyInt;
+      cumulativeTax += taxWithheld;
+
+      history.push({
+        month: m,
+        interest: grossMonthlyInt,
+        taxWithheld,
+        deposits: monthlyAddition,
+        netValue: balance
+      });
+    }
+
+    return {
+      history,
+      totalInterest: cumulatedInterest,
+      totalTax: cumulativeTax,
+      totalDeposited: monthlyAddition * months,
+      netProfit: cumulatedInterest - cumulativeTax,
+      finalValue: balance
+    };
+  }, [initialSavings, apy, monthlyAddition, months, marginalTax]);
+
+  return (
+    <div className="bg-slate-900/60 p-6 rounded-2xl border border-slate-700/60 backdrop-blur-md">
+      <div className="border-b border-slate-700/60 pb-4 mb-6">
+        <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+          <Icon name="TrendingUp" className="text-indigo-400" /> Savings Profit Tax-Adjusted Calculator
+        </h2>
+        <p className="text-xs text-slate-400 mt-1">
+          Perform state-of-the-art APY cash modeling. Understand exactly how federal and local tax brackets chip away at annual savings profit (tax drag).
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Inputs */}
+        <div className="lg:col-span-5 bg-slate-800/40 p-5 rounded-xl border border-slate-700/50 space-y-4">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-350">Savings Strategy</h3>
+          
+          <div className="space-y-3 font-sans">
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">Savings Initial Balance ($)</label>
+              <input
+                type="number"
+                value={initialSavings}
+                onChange={(e) => setInitialSavings(Math.max(0, Number(e.target.value)))}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">AEP Savings APY (%)</label>
+                <input
+                  type="number"
+                  step="0.05"
+                  value={apy}
+                  onChange={(e) => setApy(Math.max(0, Number(e.target.value)))}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-501"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Monthly Deposit ($)</label>
+                <input
+                  type="number"
+                  value={monthlyAddition}
+                  onChange={(e) => setMonthlyAddition(Math.max(0, Number(e.target.value)))}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Term Duration (Months)</label>
+                <input
+                  type="number"
+                  value={months}
+                  onChange={(e) => setMonths(Math.max(1, Number(e.target.value)))}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Marginal Tax Bracket (%)</label>
+                <input
+                  type="number"
+                  value={marginalTax}
+                  onChange={(e) => setMarginalTax(Math.max(0, Math.min(100, Number(e.target.value))))}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Output Sheet */}
+        <div className="lg:col-span-7 space-y-4 font-sans">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-slate-800/25 p-4 rounded-xl border border-slate-700/30">
+              <span className="text-[10px] text-slate-400 uppercase tracking-widest block font-bold">CUMULATIVE GROSS INTEREST</span>
+              <span className="text-xl font-bold font-mono text-emerald-400 mt-1 block">${analysis.totalInterest.toFixed(2)}</span>
+            </div>
+            <div className="bg-slate-800/25 p-4 rounded-xl border border-slate-700/30">
+              <span className="text-[10px] text-rose-400 uppercase tracking-widest block font-bold">UNREALIZED TAX LIABILITY DRAG</span>
+              <span className="text-xl font-bold font-mono text-rose-400 mt-1 block">-${analysis.totalTax.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div className="p-4 bg-slate-800/30 border border-slate-700/40 rounded-xl space-y-3">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-slate-400">Total Deposited Contribution</span>
+              <span className="font-bold font-mono text-slate-200">${analysis.totalDeposited.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-slate-400">Net Take-Home Yields Profit (Post-Tax)</span>
+              <span className="font-bold font-mono text-emerald-400">${analysis.netProfit.toFixed(2)}</span>
+            </div>
+            
+            <div className="h-px bg-slate-700/30 my-2"></div>
+            
+            <div className="flex justify-between items-center overflow-hidden">
+              <div>
+                <span className="text-[10px] text-slate-400 uppercase select-none font-bold">TOTAL SAVINGS VALUE</span>
+                <span className="text-3xl font-black text-indigo-400 block font-mono">${analysis.finalValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+              </div>
+              <div className="text-right bg-indigo-500/10 border border-indigo-500/20 rounded-lg px-3 py-1.5 shrink-0">
+                <span className="text-[10px] text-indigo-300 block select-none">TAX DRAG METRIC</span>
+                <span className="text-sm font-black text-indigo-300 font-mono">-{marginalTax}% Bracket</span>
+              </div>
             </div>
           </div>
         </div>

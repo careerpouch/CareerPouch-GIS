@@ -189,7 +189,7 @@ const DASHBOARD_BLOCKS = [
     name: 'Accounting & Finance',
     subtitle: 'Solve Your Ledger Entries & Asset Lives Schedules',
     qty: '4+ tools',
-    colorClasses: 'from-slate-700 to-sky-850 text-white',
+    colorClasses: 'from-zinc-900 to-slate-900 text-white border-b border-black/40',
     ringColor: 'focus:ring-slate-400',
     featuredId: 'ledger-simulator',
     featuredName: 'Double-Entry Ledger Sim',
@@ -253,93 +253,6 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false); // Light Mode Default
   const [isStickyAdVisible, setIsStickyAdVisible] = useState(true);
   const prevScrollPosRef = useRef<number>(0);
-
-  // X Auto-Poster States
-  const [isXPosterOpen, setIsXPosterOpen] = useState(false);
-  const [xState, setXState] = useState<any>(null);
-  const [xLoading, setXLoading] = useState(false);
-  const [xMsg, setXMsg] = useState({ type: '', text: '' });
-  const [customIndexInput, setCustomIndexInput] = useState('0');
-
-  const fetchXState = async () => {
-    try {
-      const res = await fetch('/api/x/state');
-      if (res.ok) {
-        const data = await res.json();
-        setXState(data);
-        setCustomIndexInput(data.currentIndex.toString());
-      }
-    } catch (err) {
-      console.error('Failed to parse X Auto-Poster state', err);
-    }
-  };
-
-  const toggleXLoop = async () => {
-    setXLoading(true);
-    setXMsg({ type: '', text: '' });
-    try {
-      const res = await fetch('/api/x/toggle-loop', { method: 'POST' });
-      if (res.ok) {
-        const data = await res.json();
-        setXMsg({ type: 'success', text: `Scheduler status updated. Loop is now ${data.isLoopActive ? 'ACTIVE' : 'PAUSED'}.` });
-        fetchXState();
-      }
-    } catch (err) {
-      setXMsg({ type: 'error', text: 'Network request failure while toggling scheduler state.' });
-    } finally {
-      setXLoading(false);
-    }
-  };
-
-  const triggerXPostNow = async () => {
-    setXLoading(true);
-    setXMsg({ type: 'info', text: 'Invoking X API daily queue scheduler. Please wait...' });
-    try {
-      const res = await fetch('/api/x/post-now', { method: 'POST' });
-      const data = await res.json();
-      if (data.success) {
-        const status = data.record.status === 'success' ? 'SUCCESS' : 'SIMULATED (keys missing)';
-        setXMsg({ type: 'success', text: `Post triggered successfully! Mode: ${status} for "${data.record.toolName}".` });
-        fetchXState();
-      } else {
-        setXMsg({ type: 'error', text: `Failed to trigger post: ${data.error}` });
-      }
-    } catch (err) {
-      setXMsg({ type: 'error', text: 'Network request failure while executing post.' });
-    } finally {
-      setXLoading(false);
-    }
-  };
-
-  const updateXIndex = async (indexNum: number) => {
-    setXLoading(true);
-    setXMsg({ type: '', text: '' });
-    try {
-      const res = await fetch('/api/x/set-index', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ index: indexNum }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setXMsg({ type: 'success', text: `Tool queue head shifted to index ${data.currentIndex} (${data.nextTool?.name || 'unknown'}).` });
-        fetchXState();
-      } else {
-        setXMsg({ type: 'error', text: data.error || 'Failed to update queue index.' });
-      }
-    } catch (err) {
-      setXMsg({ type: 'error', text: 'Network error updating loop index.' });
-    } finally {
-      setXLoading(false);
-    }
-  };
-
-  // Fetch X state periodically
-  useEffect(() => {
-    fetchXState();
-    const timer = setInterval(fetchXState, 60000); // refresh panel info 60s
-    return () => clearInterval(timer);
-  }, []);
 
   // States for Tool request engine
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
@@ -405,6 +318,119 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
+  // ---- DYNAMIC SEO PROGRAMMATIC METADATA UPDATER ----
+  const updateSEOMetadata = (tool: Tool | null, infoPageId: string | null = null) => {
+    try {
+      const updateTag = (selector: string, attribute: string, value: string, isMetaOrLink: 'meta' | 'link' = 'meta') => {
+        let el = document.querySelector(selector);
+        if (!el) {
+          el = document.createElement(isMetaOrLink);
+          if (selector.startsWith('meta[')) {
+            const matchName = selector.match(/name="([^"]+)"/);
+            const matchProp = selector.match(/property="([^"]+)"/);
+            if (matchName) (el as HTMLMetaElement).name = matchName[1];
+            if (matchProp) (el as HTMLMetaElement).setAttribute('property', matchProp[1]);
+          } else if (selector.startsWith('link[')) {
+            const matchRel = selector.match(/rel="([^"]+)"/);
+            if (matchRel) (el as HTMLLinkElement).rel = matchRel[1];
+          }
+          document.head.appendChild(el);
+        }
+        el.setAttribute(attribute, value);
+      };
+
+      if (tool) {
+        const title = `${tool.name} - Free Offline Builder | CareerPouch`;
+        const desc = `${tool.description} Free online-first dev and career utility on CareerPouch. Private and secure locally in browser. No cookies, no trackers.`;
+        const url = `https://careerpouch.com/tools/${tool.id}`;
+
+        document.title = title;
+        updateTag('meta[name="description"]', 'content', desc);
+        updateTag('link[rel="canonical"]', 'href', url, 'link');
+        updateTag('meta[property="og:type"]', 'content', 'website');
+        updateTag('meta[property="og:title"]', 'content', title);
+        updateTag('meta[property="og:description"]', 'content', desc);
+        updateTag('meta[property="og:url"]', 'content', url);
+        updateTag('meta[name="twitter:title"]', 'content', title);
+        updateTag('meta[name="twitter:description"]', 'content', desc);
+
+        const schemaScript = document.getElementById('default-manifest-schema');
+        if (schemaScript) {
+          const dynamicSchema = {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": `${tool.name} - CareerPouch Suite`,
+            "url": url,
+            "image": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%234f46e5%22/><text y=%22.7em%22 x=%225%25%22 font-size=%2250%22 fill=%22%23ffffff%22 font-family=%22sans-serif%22 font-weight=%22bold%22>🦘 CP</text></svg>",
+            "operatingSystem": "All",
+            "applicationCategory": "DeveloperApplication",
+            "description": tool.description,
+            "browserRequirements": "Requires HTML5 compatible browser",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            }
+          };
+          schemaScript.innerHTML = JSON.stringify(dynamicSchema, null, 2);
+        }
+      } else if (infoPageId) {
+        const formattedPageName = infoPageId === 'tos' ? 'Terms of Service' : infoPageId.charAt(0).toUpperCase() + infoPageId.slice(1);
+        const title = `${formattedPageName} | CareerPouch - Premium Privacy Suite`;
+        const desc = `${formattedPageName} page on CareerPouch. Free offline-first tools for developers and careers. Securing dev outputs.`;
+        const url = `https://careerpouch.com/${infoPageId}`;
+
+        document.title = title;
+        updateTag('meta[name="description"]', 'content', desc);
+        updateTag('link[rel="canonical"]', 'href', url, 'link');
+        updateTag('meta[property="og:type"]', 'content', 'website');
+        updateTag('meta[property="og:title"]', 'content', title);
+        updateTag('meta[property="og:description"]', 'content', desc);
+        updateTag('meta[property="og:url"]', 'content', url);
+        updateTag('meta[name="twitter:title"]', 'content', title);
+        updateTag('meta[name="twitter:description"]', 'content', desc);
+      } else {
+        const defaultTitle = `CareerPouch | Premium Suite of ${TOOLS.length}+ Technical & Career Tools`;
+        const defaultDesc = `CareerPouch is a completely free, lightning-fast, secure suite of ${TOOLS.length}+ offline-first tools: ATS resume writers, secure converters, visual equation graphers, timezone coordinators, and mathematical analyzers.`;
+        const defaultUrl = `https://careerpouch.com/`;
+
+        document.title = defaultTitle;
+        updateTag('meta[name="description"]', 'content', defaultDesc);
+        updateTag('link[rel="canonical"]', 'href', defaultUrl, 'link');
+        updateTag('meta[property="og:type"]', 'content', 'website');
+        updateTag('meta[property="og:title"]', 'content', defaultTitle);
+        updateTag('meta[property="og:description"]', 'content', defaultDesc);
+        updateTag('meta[property="og:url"]', 'content', defaultUrl);
+        updateTag('meta[name="twitter:title"]', 'content', defaultTitle);
+        updateTag('meta[name="twitter:description"]', 'content', defaultDesc);
+
+        const schemaScript = document.getElementById('default-manifest-schema');
+        if (schemaScript) {
+          const defaultSchema = {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "CareerPouch",
+            "alternateName": "CareerPouch Suitcase of Utilities",
+            "url": defaultUrl,
+            "image": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%234f46e5%22/><text y=%22.7em%22 x=%225%25%22 font-size=%2250%22 fill=%22%23ffffff%22 font-family=%22sans-serif%22 font-weight=%22bold%22>🦘 CP</text></svg>",
+            "operatingSystem": "All",
+            "applicationCategory": "DeveloperApplication",
+            "description": `Premium 100% responsive, client-side utility suite showcasing over ${TOOLS.length} career builders, coding converters, and designers.`,
+            "browserRequirements": "Requires HTML5 compatible browser",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            }
+          };
+          schemaScript.innerHTML = JSON.stringify(defaultSchema, null, 2);
+        }
+      }
+    } catch (e) {
+      console.warn('SEO dynamic headers update skipped:', e);
+    }
+  };
+
   // ---- LIGHTWEIGHT NATIVE SEO ROUTING SYNC ----
   useEffect(() => {
     const syncToolFromUrl = () => {
@@ -433,12 +459,7 @@ export default function App() {
       if (pageId && ['privacy', 'tos', 'contact', 'blog', 'about'].includes(pageId)) {
         setActiveInfoPage(pageId as any);
         setSelectedTool(null);
-        const formattedPageName = pageId === 'tos' ? 'Terms of Service' : pageId.charAt(0).toUpperCase() + pageId.slice(1);
-        document.title = `${formattedPageName} | CareerPouch - Premium Privacy Suite`;
-        const metaDesc = document.querySelector('meta[name="description"]');
-        if (metaDesc) {
-          metaDesc.setAttribute('content', `${formattedPageName} page on CareerPouch. Free offline-first tools for developers and careers.`);
-        }
+        updateSEOMetadata(null, pageId);
         setTimeout(() => {
           document.getElementById('info-page-workspace-anchor')?.scrollIntoView({ behavior: 'smooth' });
         }, 305);
@@ -459,22 +480,18 @@ export default function App() {
         const foundTool = TOOLS.find(t => t.id === toolId);
         if (foundTool) {
           setSelectedTool(foundTool);
-          document.title = `${foundTool.name} - Free Offline Builder | CareerPouch`;
-          const metaDesc = document.querySelector('meta[name="description"]');
-          if (metaDesc) {
-            metaDesc.setAttribute('content', `${foundTool.description} Free offline-first developer and business utility tool inside CareerPouch.`);
-          }
+          updateSEOMetadata(foundTool);
           // Scroll into view elegantly on direct load
           setTimeout(() => {
             document.getElementById('tool-workspace-anchor')?.scrollIntoView({ behavior: 'smooth' });
           }, 300);
         } else {
           setSelectedTool(null);
-          document.title = `CareerPouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
+          updateSEOMetadata(null);
         }
       } else {
         setSelectedTool(null);
-        document.title = `CareerPouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
+        updateSEOMetadata(null);
       }
     };
 
@@ -555,9 +572,8 @@ export default function App() {
     const newUrl = `?page=${page}`;
     window.history.pushState({ pageId: page }, '', newUrl);
     
-    // Update SEO title
-    const formattedPageName = page === 'tos' ? 'Terms of Service' : page.charAt(0).toUpperCase() + page.slice(1);
-    document.title = `${formattedPageName} | CareerPouch - Premium Privacy Suite`;
+    // Update SEO title and dynamic headers
+    updateSEOMetadata(null, page);
     
     setTimeout(() => {
       document.getElementById('info-page-workspace-anchor')?.scrollIntoView({ behavior: 'smooth' });
@@ -569,11 +585,7 @@ export default function App() {
     if (typeof window !== 'undefined' && window.history && window.history.pushState) {
       window.history.pushState({}, '', '/');
     }
-    document.title = `CareerPouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute('content', `CareerPouch is a ${TOOLS.length}-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.`);
-    }
+    updateSEOMetadata(null);
   };
 
   // Return to homepage trigger to reset active tool states
@@ -585,11 +597,7 @@ export default function App() {
     
     // Smoothly update URL to root
     window.history.pushState({}, '', '/');
-    document.title = `CareerPouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute('content', `CareerPouch is a ${TOOLS.length}-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.`);
-    }
+    updateSEOMetadata(null);
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -615,33 +623,7 @@ export default function App() {
     window.history.pushState({ toolId: tool.id }, '', newUrl);
     
     // Swap SEO titles & description metadata
-    document.title = `${tool.name} - Free Offline Builder | CareerPouch`;
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute('content', `${tool.description} Free, 100% offline-first developer and career utility on CareerPouch.`);
-    }
-
-    // Dynamic Schema.org Google Rich Snippets updates
-    const schemaScript = document.getElementById('default-manifest-schema');
-    if (schemaScript) {
-      const dynamicSchema = {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": `${tool.name} - CareerPouch Suite`,
-        "url": `https://careerpouch.com/tools/${tool.id}`,
-        "image": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%234f46e5%22/><text y=%22.7em%22 x=%225%25%22 font-size=%2250%22 fill=%22%23ffffff%22 font-family=%22sans-serif%22 font-weight=%22bold%22>🦘 CP</text></svg>",
-        "operatingSystem": "All",
-        "applicationCategory": "DeveloperApplication",
-        "description": tool.description,
-        "browserRequirements": "Requires HTML5 compatible browser",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        }
-      };
-      schemaScript.innerHTML = JSON.stringify(dynamicSchema, null, 2);
-    }
+    updateSEOMetadata(tool);
 
     // Auto scroll to active tool workspace elegantly
     setTimeout(() => {
@@ -656,34 +638,7 @@ export default function App() {
     if (typeof window !== 'undefined' && window.history && window.history.pushState) {
       window.history.pushState({}, '', '/');
     }
-    document.title = `CareerPouch - ${TOOLS.length}-in-1 Dynamic Utility Briefcase`;
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute('content', `CareerPouch is a ${TOOLS.length}-in-1 premium utility suitcase featuring ATS resume writers, secure converters, visual graphers, and calculators running securely inside your local browser memory.`);
-    }
-
-    // Reset default manifest schema
-    const schemaScript = document.getElementById('default-manifest-schema');
-    if (schemaScript) {
-      const defaultSchema = {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "CareerPouch",
-        "alternateName": "CareerPouch Suitcase of Utilities",
-        "url": "https://careerpouch.com/",
-        "image": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%234f46e5%22/><text y=%22.7em%22 x=%225%25%22 font-size=%2250%22 fill=%22%23ffffff%22 font-family=%22sans-serif%22 font-weight=%22bold%22>🦘 CP</text></svg>",
-        "operatingSystem": "All",
-        "applicationCategory": "DeveloperApplication",
-        "description": `Premium 100% responsive, client-side utility suite showcasing over ${TOOLS.length} career builders, coding converters, and designers.`,
-        "browserRequirements": "Requires HTML5 compatible browser",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        }
-      };
-      schemaScript.innerHTML = JSON.stringify(defaultSchema, null, 2);
-    }
+    updateSEOMetadata(null);
 
     // Restore the scroll position they were at before choosing a tool
     const targetScroll = prevScrollPosRef.current;
@@ -739,7 +694,7 @@ export default function App() {
       {/* Primary elevate wrapper */}
       <div className="relative z-10 flex flex-col min-h-screen">
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6 space-y-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-6 space-y-10">
         
         {/* INFO SPECIFIC ROUTED PAGES (Privacy, TOS, Contact, Blog, About) */}
         {activeInfoPage && (
@@ -1077,7 +1032,7 @@ export default function App() {
               </div>
               <button
                 onClick={handleCloseTool}
-                className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-100 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border border-slate-200 dark:border-slate-700 cursor-pointer shadow-sm"
+                className="flex items-center gap-1.5 bg-rose-50 hover:bg-rose-150/80 dark:bg-rose-950/40 dark:hover:bg-rose-900/30 text-rose-700 dark:text-rose-350 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border border-rose-200/80 dark:border-rose-900/50 cursor-pointer shadow-sm"
               >
                 <Icon name="X" size={13} /> Dismiss Sandbox
               </button>
@@ -1095,6 +1050,22 @@ export default function App() {
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-550 dark:bg-emerald-500 animate-pulse" />
                     Google Core Vitally Indexed
                   </span>
+                  <button
+                    onClick={() => {
+                      try {
+                        const shareUrl = `${window.location.origin}/tools/${selectedTool.id}`;
+                        navigator.clipboard.writeText(shareUrl);
+                        alert(`📋 Direct link copied: ${shareUrl}\n\nShare this secure, offline-first tool with colleagues! 🚀`);
+                      } catch (err) {
+                        alert("Clipboard write failed. Please copy the URL from your address bar!");
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold font-sans bg-indigo-500/10 hover:bg-indigo-500/20 dark:bg-indigo-400/10 dark:hover:bg-indigo-400/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/10 dark:border-indigo-400/20 transition-all cursor-pointer shrink-0"
+                    title="Copy direct share link to clipboard"
+                  >
+                    <Icon name="Share2" size={10} />
+                    Copy Direct Share Path
+                  </button>
                 </div>
                 <p className="text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-slate-400 font-sans">
                   {selectedTool.description} This tool runs entirely in your local browser sandbox to provide instant results with zero server transfers.
@@ -1271,8 +1242,8 @@ export default function App() {
             </button>
           </div>
 
-          {/* DYNAMIC ACTIONS BAR DIRECTLY BELOW THE SEARCH BAR SECTION */}
-          <div className="mt-6 flex flex-wrap justify-center gap-3.5">
+          {/* DYNAMIC REQUEST A TOOL BUTTON DIRECTLY BELOW THE SEARCH BAR SECTION */}
+          <div className="mt-6 flex justify-center">
             <button
               onClick={() => setIsRequestModalOpen(true)}
               className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 cursor-pointer relative overflow-hidden group/req-btn border ${
@@ -1291,23 +1262,6 @@ export default function App() {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
               )}
-            </button>
-
-            <button
-              onClick={() => { setIsXPosterOpen(true); fetchXState(); }}
-              className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 cursor-pointer relative overflow-hidden group/x-btn border ${
-                isDarkMode 
-                  ? 'bg-slate-900 border-slate-800 hover:bg-blue-950 hover:border-blue-500/40 text-blue-400 hover:text-white shadow-indigo-950/20' 
-                  : 'bg-blue-50 border-blue-200 hover:bg-blue-100 hover:border-blue-300 text-blue-700 hover:text-blue-900 shadow-blue-100/10'
-              }`}
-              title="Open the X Auto-Posting Loop Controls and state dashboard"
-            >
-              <span className={`w-1.5 h-1.5 rounded-full ${xState?.isLoopActive ? 'bg-emerald-550' : 'bg-rose-550'}`} />
-              <Icon name="Twitter" size={13} className="text-blue-500 group-hover/x-btn:scale-115 transition-transform" />
-              <span>X Auto-Poster Integration</span>
-              <span className="text-[10px] opacity-75 px-1.5 py-0.5 rounded-md bg-white/10 dark:bg-black/20 text-blue-600 dark:text-blue-400">
-                {xState?.isLoopActive ? 'Loop Active' : 'Paused'}
-              </span>
             </button>
           </div>
 
@@ -1550,18 +1504,61 @@ export default function App() {
               const count = TOOLS.filter(t => t.category === block.id).length;
               const matchesSelection = selectedCategory === block.id;
 
+              const getPremiumFrameClass = () => {
+                if (!isDarkMode) {
+                  return 'ring-[1.5px] ring-slate-950 border-slate-950 shadow-xl';
+                }
+                switch (block.id) {
+                  case 'career':
+                    return 'ring-[3px] ring-rose-500/80 border-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.15)]';
+                  case 'productivity':
+                    return 'ring-[3px] ring-purple-500/80 border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.15)]';
+                  case 'math':
+                    return 'ring-[3px] ring-fuchsia-500/80 border-fuchsia-500 shadow-[0_0_20px_rgba(217,70,239,0.15)]';
+                  case 'converters':
+                    return 'ring-[3px] ring-orange-500/80 border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.15)]';
+                  case 'text':
+                    return 'ring-[3px] ring-blue-500/80 border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.15)]';
+                  case 'design':
+                    return 'ring-[3px] ring-emerald-500/80 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]';
+                  case 'accounting':
+                    return 'ring-[3px] ring-cyan-500/80 border-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.15)]';
+                  default:
+                    return 'ring-[3px] ring-slate-800 border-slate-800 shadow-xl';
+                }
+              };
+
+              const getBadgeStyleAndText = () => {
+                switch (block.id) {
+                  case 'career':
+                    return { text: 'HIRE READY', style: 'bg-white text-rose-600 border-white' };
+                  case 'productivity':
+                    return { text: 'WORKFLOW PRO', style: 'bg-white text-indigo-700 border-white' };
+                  case 'math':
+                    return { text: 'ESTIMATOR', style: 'bg-white text-fuchsia-600 border-white' };
+                  case 'converters':
+                    return { text: 'CONVERTER', style: 'bg-white text-orange-600 border-white' };
+                  case 'text':
+                    return { text: 'TEXT PRO', style: 'bg-white text-blue-600 border-white' };
+                  case 'design':
+                    return { text: 'DESIGN DRAFT', style: 'bg-white text-emerald-600 border-white' };
+                  case 'accounting':
+                    return { text: 'UNIQUE SUITE', style: 'bg-white text-slate-900 border-white' };
+                  default:
+                    return { text: 'UTILITY', style: 'bg-white text-slate-600 border-white' };
+                }
+              };
+
+              const badge = getBadgeStyleAndText();
+
               return (
                 <div
                   key={block.id}
                   onClick={() => handleCategorySelection(block.id)}
-                  className={`group rounded-3xl border transition-all duration-300 flex flex-col cursor-pointer overflow-hidden transform hover:-translate-y-1 ${
-                    matchesSelection 
-                      ? 'ring-4 ring-blue-500/20 shadow-lg' 
-                      : 'hover:shadow-xl'
+                  className={`group rounded-3xl border transition-all duration-300 flex flex-col cursor-pointer overflow-hidden transform hover:-translate-y-1 relative ${
+                    getPremiumFrameClass()
                   } ${
-                    isDarkMode 
-                      ? 'border-slate-800 bg-slate-900/60' 
-                      : 'border-slate-200/60 bg-white'
+                    matchesSelection ? 'scale-[1.01] z-10' : ''
                   }`}
                 >
                   {/* TOP COLOR WRAPPER - SOLID COLOURED HEADER MODULE */}
@@ -1572,10 +1569,17 @@ export default function App() {
                         <Icon name={block.icon} size={20} />
                       </div>
                       
-                      {/* Translucent pill badge quantity */}
-                      <span className="px-2.5 py-1 bg-white/20 text-white rounded-full text-[11px] font-bold font-mono tracking-wide backdrop-blur-md">
-                        {count} tools
-                      </span>
+                      {/* Integrated badge row to eliminate overlapping & visibility issues */}
+                      <div className="flex items-center gap-1.5 select-none">
+                        <span className={`px-2 py-0.5 text-[9px] font-mono font-extrabold uppercase tracking-wider rounded border shadow-sm ${badge.style}`}>
+                          {badge.text}
+                        </span>
+
+                        {/* Translucent pill badge quantity */}
+                        <span className="px-2.5 py-1 bg-white/20 text-white rounded-full text-[11px] font-bold font-mono tracking-wide backdrop-blur-md">
+                          {count} tools
+                        </span>
+                      </div>
                     </div>
 
                     <div className="mt-5 space-y-1">
@@ -2133,267 +2137,6 @@ export default function App() {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* X AUTO-POSTING CRON CONTROL HUB MODAL */}
-      {isXPosterOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className={`relative w-full max-w-4xl rounded-3xl border shadow-2xl overflow-hidden transition-all duration-300 ${
-            isDarkMode ? 'bg-[#0b0f19] border-slate-800' : 'bg-white border-slate-200'
-          }`}>
-            
-            {/* Header glow banner */}
-            <div className="h-2 bg-gradient-to-r from-blue-500 via-indigo-600 to-teal-400" />
-            
-            {/* Modal Head */}
-            <div className="p-6 pb-4 border-b border-slate-200/35 dark:border-slate-800/50 flex justify-between items-center bg-slate-900/10">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-blue-550/10 text-blue-550 flex items-center justify-center">
-                  <Icon name="Twitter" size={20} />
-                </div>
-                <div>
-                  <h3 className={`text-lg font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                    X (Twitter) Auto-Poster Controller
-                  </h3>
-                  <p className="text-xs text-slate-400 font-mono">Loop Automation Status & Queue Deck</p>
-                </div>
-              </div>
-              
-              <button
-                onClick={() => { setIsXPosterOpen(false); setXMsg({ type: '', text: '' }); }}
-                className="p-2 hover:bg-slate-500/10 rounded-full transition-colors cursor-pointer"
-              >
-                <Icon name="X" size={16} className="text-slate-400" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 overflow-y-auto max-h-[72vh] space-y-6">
-              
-              {/* Status Message Prompt */}
-              {xMsg.text && (
-                <div className={`p-4 rounded-xl text-xs font-bold border transition-all flex items-center gap-2.5 ${
-                  xMsg.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-650 dark:text-emerald-400' :
-                  xMsg.type === 'error' ? 'bg-rose-500/10 border-rose-500/25 text-rose-650 dark:text-rose-450' :
-                  'bg-indigo-500/10 border-indigo-500/25 text-indigo-600 dark:text-indigo-400'
-                }`}>
-                  <span className="w-2 h-2 rounded-full bg-current animate-ping" />
-                  <span className="flex-1 font-mono uppercase tracking-wide leading-tight">{xMsg.text}</span>
-                  <button onClick={() => setXMsg({ type: '', text: '' })} className="underline cursor-pointer opacity-75 hover:opacity-100">Dismiss</button>
-                </div>
-              )}
-
-              {/* API Credentials Verification Box */}
-              {xState && (
-                <div className={`p-4 rounded-2xl border ${
-                  xState.keysConfigured 
-                    ? 'bg-emerald-500/[0.03] border-emerald-500/20' 
-                    : 'bg-amber-500/[0.03] border-amber-500/20'
-                }`}>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className={`w-2.5 h-2.5 rounded-full ${xState.keysConfigured ? 'bg-emerald-550' : 'bg-amber-500 animate-pulse'}`} />
-                        <h4 className={`text-xs font-black uppercase font-mono tracking-wider ${isDarkMode ? 'text-slate-200' : 'text-slate-900'}`}>
-                          {xState.keysConfigured ? "X API Credentials Verified" : "Keys Not Connected (Draft Preview Mode active)"}
-                        </h4>
-                      </div>
-                      <p className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                        {xState.keysConfigured 
-                          ? "Real tweets will be posted to your configured X timeline autonomously." 
-                          : "Because your X_API_KEY credentials are not yet populated, tweets are generated as simulated high-contrast test logs."}
-                      </p>
-                    </div>
-                    
-                    {!xState.keysConfigured && (
-                      <div className="p-2.5 px-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-[10px] font-mono font-bold text-amber-600 dark:text-amber-405 uppercase tracking-widest leading-relaxed shrink-0 max-w-sm">
-                        ⚠️ Live connection: Configure keys inside Settings pane using .env variables.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Automation Control Widgets Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* Control Panel: Loop State & Override triggers */}
-                <div className={`p-5 rounded-2xl border space-y-4 ${isDarkMode ? 'bg-[#0f1423]/50 border-slate-800' : 'bg-slate-50 border-slate-205'}`}>
-                  <h4 className={`text-xs font-extrabold uppercase font-mono tracking-wider ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                    Active Controls
-                  </h4>
-                  
-                  <div className="space-y-3.5">
-                    {/* Active Loop Power Toggle Switch */}
-                    <div className="flex items-center justify-between p-3.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200/40 dark:border-slate-850">
-                      <div>
-                        <span className="block text-xs font-bold">Automation Loop Status</span>
-                        <span className="text-[10px] text-slate-500 dark:text-slate-405 font-mono">Loop through all tools continuously</span>
-                      </div>
-                      
-                      <button
-                        onClick={toggleXLoop}
-                        disabled={xLoading}
-                        className={`px-4 py-2 rounded-xl text-xs font-black font-sans uppercase transition-all tracking-wider border cursor-pointer ${
-                          xState?.isLoopActive
-                            ? 'bg-emerald-500/15 text-emerald-550 border-emerald-500/25 hover:bg-emerald-500/20'
-                            : 'bg-rose-500/15 text-rose-550 border-rose-500/25 hover:bg-rose-500/20'
-                        }`}
-                      >
-                        {xState?.isLoopActive ? '● Active' : '○ Paused'}
-                      </button>
-                    </div>
-
-                    {/* Manual Post Override Button */}
-                    <div className="flex items-center justify-between p-3.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200/40 dark:border-slate-850">
-                      <div>
-                        <span className="block text-xs font-bold">Manual Trigger Mode</span>
-                        <span className="text-[10px] text-slate-500 dark:text-slate-405 font-mono font-bold">Post next tool right now</span>
-                      </div>
-                      
-                      <button
-                        onClick={triggerXPostNow}
-                        disabled={xLoading}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-55"
-                      >
-                        Post Now
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Queue Master Control */}
-                <div className={`p-5 rounded-2xl border space-y-4 ${isDarkMode ? 'bg-[#0f1423]/50 border-slate-800' : 'bg-slate-50 border-slate-205'}`}>
-                  <h4 className={`text-xs font-extrabold uppercase font-mono tracking-wider ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                    Queue Operations
-                  </h4>
-                  
-                  {xState && (
-                    <div className="space-y-4">
-                      {/* Current & Next Tool description preview */}
-                      <div className="p-3 bg-white dark:bg-slate-950 rounded-xl border border-slate-200/40 dark:border-slate-850 space-y-1">
-                        <span className="text-[9px] uppercase font-mono text-indigo-500 dark:text-indigo-400 block font-bold">Up Next in Rotation:</span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-slate-900 dark:text-white">
-                            [{xState.currentIndex}] {xState.nextTool?.name || 'No tool scheduled'}
-                          </span>
-                          <span className="text-[8px] font-mono px-1.5 py-0.5 rounded uppercase bg-slate-100 dark:bg-slate-900 text-slate-400 font-bold">
-                            {xState.nextTool?.category || 'Utility'}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-slate-405 italic line-clamp-1 leading-normal select-all">
-                          {xState.nextTool?.description}
-                        </p>
-                      </div>
-
-                      {/* Manual index cue modifier input */}
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1">
-                          <label className="block text-[10px] font-bold text-slate-400 font-mono mb-1">Queue Head Index (0 to {xState.totalTools - 1})</label>
-                          <input
-                            type="number"
-                            min="0"
-                            max={xState.totalTools - 1}
-                            value={customIndexInput}
-                            onChange={(e) => setCustomIndexInput(e.target.value)}
-                            className="w-full bg-white dark:bg-slate-950 border border-slate-250 dark:border-slate-850 rounded-xl p-2 px-3 text-xs focus:outline-none focus:border-indigo-550 text-slate-950 dark:text-white font-mono"
-                          />
-                        </div>
-                        
-                        <button
-                          onClick={() => {
-                            const val = parseInt(customIndexInput, 10);
-                            if (!isNaN(val) && val >= 0 && val < xState.totalTools) {
-                              updateXIndex(val);
-                            } else {
-                              alert(`Please specify a valid index integer between 0 and ${xState.totalTools - 1}.`);
-                            }
-                          }}
-                          disabled={xLoading}
-                          className="mt-5 px-3.5 py-2 hover:bg-slate-200 dark:hover:bg-slate-850 text-xs font-bold transition-all border border-slate-250 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-100 cursor-pointer"
-                        >
-                          Modify Cue
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-              </div>
-
-              {/* History Timeline feed */}
-              <div className="space-y-3">
-                <h4 className={`text-xs font-extrabold uppercase font-mono tracking-wider ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                  Post Loop Activity logs (last {xState?.history?.length || 0} cycles)
-                </h4>
-                
-                {xState?.history && xState.history.length === 0 ? (
-                  <p className="text-xs text-slate-500 italic font-sans py-7 text-center border border-dashed border-slate-250 dark:border-slate-850 rounded-2xl bg-slate-500/[0.01]">
-                    No timeline actions logged yet. Click "Post Now" to queue/trigger your first automated loop post.
-                  </p>
-                ) : (
-                  <div className="space-y-3.5 max-h-[300px] overflow-y-auto pr-1">
-                    {xState?.history?.map((log: any) => (
-                      <div 
-                        key={log.id} 
-                        className={`p-4 rounded-xl border space-y-2.5 transition-all text-left ${
-                          log.status === 'success' ? 'bg-emerald-500/[0.015] border-emerald-500/10' :
-                          log.status === 'failed' ? 'bg-rose-500/[0.015] border-rose-500/10' :
-                          'bg-amber-500/[0.015] border-amber-500/10'
-                        }`}
-                      >
-                        {/* Title bar of item */}
-                        <div className="flex items-center justify-between flex-wrap gap-2 text-xs font-mono">
-                          <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-indigo-500 dark:text-indigo-400 uppercase">{log.toolName}</span>
-                            <span className="text-slate-400 dark:text-slate-600">·</span>
-                            <span className="text-slate-505 dark:text-slate-400 font-normal">{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({new Date(log.timestamp).toLocaleDateString()})</span>
-                          </div>
-                          
-                          <div className="flex items-center gap-2">
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border font-mono ${
-                              log.status === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' :
-                              log.status === 'failed' ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' :
-                              'bg-amber-500/10 border-amber-500/20 text-amber-500'
-                            }`}>
-                              {log.status === 'success' ? 'SUCCESS' : log.status === 'failed' ? 'FAILED' : 'SIMULATED DRAFT'}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Exact tweet mock text styling */}
-                        <div className="p-3.5 bg-white dark:bg-slate-950/60 rounded-xl border border-slate-150 dark:border-slate-850 text-xs font-mono leading-relaxed whitespace-pre-wrap select-all">
-                          {log.tweetText}
-                        </div>
-
-                        {/* Error log details */}
-                        {log.errorMessage && (
-                          <div className="p-2.5 px-3 bg-red-500/[0.03] rounded-lg border border-red-500/10 text-[10px] font-mono text-red-500/90 leading-normal">
-                            <strong className="uppercase">Internal Log Diagnostic:</strong> {log.errorMessage}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-4 px-6 border-t border-slate-200/35 dark:border-slate-800/50 bg-slate-900/10 text-right flex items-center justify-between">
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
-                LOOPING RATIO: {xState ? `1/${xState.totalTools} tools daily` : "Loading..."}
-              </span>
-              <button
-                onClick={() => { setIsXPosterOpen(false); setXMsg({ type: '', text: '' }); }}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-100 text-xs font-bold transition-all border border-slate-200 dark:border-slate-700 cursor-pointer rounded-xl"
-              >
-                Close Panel
-              </button>
             </div>
 
           </div>

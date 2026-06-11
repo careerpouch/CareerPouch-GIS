@@ -634,6 +634,139 @@ export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId, is
 
   const calculateSubtotal = () => invoiceItems.reduce((acc, row) => acc + (row.rate * row.hours), 0);
 
+  const handleInvoiceDocx = () => {
+    const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><title>Invoice #${invoiceMetadata.id}</title>
+    <style>
+      body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11pt; line-height: 1.5; color: #1e293b; padding: 20px; }
+      h1 { font-size: 22pt; color: #0a0a0a; margin-bottom: 2px; font-weight: bold; }
+      .brand { font-size: 10pt; color: #475569; margin-bottom: 15px; font-family: monospace; text-transform: uppercase; }
+      .meta { font-size: 10pt; color: #64748b; margin-top: 20px; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 25px; }
+      th { background-color: #f8fafc; border-bottom: 2px solid #cbd5e1; padding: 10px; font-weight: bold; text-align: left; color: #0f172a; }
+      td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; color: #334155; }
+      .text-right { text-align: right; }
+      .grand-total { font-size: 16pt; font-weight: bold; color: #0f172a; margin-top: 20px; border-top: 1px solid #cbd5e1; padding-top: 10px; }
+    </style>
+    </head>
+    <body>
+    <h1>CareerPouch Business Invoice</h1>
+    <div class="brand">Static Offline Billing Engine</div>
+    <div class="meta">
+      <strong>Invoice ID:</strong> #${invoiceMetadata.id}<br/>
+      <strong>Billing Date:</strong> ${invoiceMetadata.date || new Date().toISOString().split('T')[0]}<br/>
+      <strong>Billed To:</strong> ${invoiceMetadata.client || 'Valued Corporate Representative'}
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Service Element Description</th>
+          <th class="text-right">Hourly Rate</th>
+          <th class="text-right">Hours</th>
+          <th class="text-right">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>`;
+    
+    let rows = '';
+    invoiceItems.forEach(item => {
+      rows += `<tr>
+        <td>${item.name}</td>
+        <td class="text-right">$${item.rate}</td>
+        <td class="text-right">${item.hours}</td>
+        <td class="text-right"><strong>$${item.rate * item.hours}</strong></td>
+      </tr>`;
+    });
+    
+    const footer = `</tbody>
+    </table>
+    <div class="grand-total text-right">
+      TOTAL DUE FOR CLEARANCE: $${calculateSubtotal()}
+    </div>
+    </body>
+    </html>`;
+    
+    const blob = new Blob([header + rows + footer], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Invoice_${invoiceMetadata.id}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleInvoicePrint = () => {
+    try {
+      const invoiceElement = document.querySelector('.printable-print-target');
+      if (!invoiceElement) {
+        window.print();
+        return;
+      }
+
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        window.print();
+        return;
+      }
+
+      let styleString = '';
+      const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
+      styles.forEach(item => {
+        styleString += item.outerHTML;
+      });
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Invoice - ${invoiceMetadata.id}</title>
+            ${styleString}
+            <style>
+              body {
+                background: white !important;
+                color: black !important;
+                padding: 1.5cm !important;
+                margin: 0 !important;
+              }
+              .printable-print-target {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 auto !important;
+                width: 100% !important;
+                max-width: 21cm !important;
+                display: flex !important;
+                flex-direction: column !important;
+                min-height: auto !important;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="printable-print-target bg-white text-slate-900 font-sans flex flex-col justify-between">
+              ${invoiceElement.innerHTML}
+            </div>
+            <script>
+              window.focus();
+              setTimeout(() => {
+                window.print();
+                window.close();
+              }, 500);
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    } catch (err) {
+      console.warn("Iframe popup print failed, running native print method", err);
+      try {
+        window.print();
+      } catch (printErr) {
+        alert("The visual sandbox blocks printing inside the workspace. To print or save this Invoice, please click the 'Open in New Tab' button in the bottom right corner of the website and use the Print action there!");
+      }
+    }
+  };
+
 
   // ---- 6. EMAIL/LETTER WIREFRAMER STATE ----
   const [emailLayout, setEmailLayout] = useState({
@@ -1177,11 +1310,29 @@ export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId, is
       {/* 5. INVOICE GENERATOR */}
       {toolId === 'invoice-generator' && (
         <div className="space-y-6">
-          <div className="border-b border-slate-700/60 pb-3">
-            <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
-              <Icon name="Receipt" className="text-amber-400" /> Commercial Services Invoice Generator
-            </h2>
-            <p className="text-xs text-slate-400 mt-1">Build standard corporate printable invoices with tax integrations.</p>
+          <div className="border-b border-slate-700/60 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-100 flex items-center gap-2">
+                <Icon name="Receipt" className="text-amber-400" /> Commercial Services Invoice Generator
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">Build standard corporate printable invoices with tax integrations.</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleInvoicePrint}
+                className="flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer"
+                title="Print directly or save as PDF using system print dialogue"
+              >
+                <Icon name="Printer" size={14} /> Print / Save PDF
+              </button>
+              <button
+                onClick={handleInvoiceDocx}
+                className="flex items-center gap-1.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-400 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer"
+                title="Download invoice as Microsoft Word file"
+              >
+                <Icon name="Download" size={14} /> Download DOCX
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1204,7 +1355,7 @@ export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId, is
                       type="text"
                       value={invoiceMetadata.id}
                       onChange={(e) => setInvoiceMetadata(p => ({ ...p, id: e.target.value }))}
-                      className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-xs"
+                      className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs"
                     />
                   </div>
                   <div>
@@ -1213,13 +1364,13 @@ export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId, is
                       type="text"
                       value={invoiceMetadata.date}
                       onChange={(e) => setInvoiceMetadata(p => ({ ...p, date: e.target.value }))}
-                      className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-xs"
+                      className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="border-t border-slate-700/60 pt-4 space-y-3">
+              <div className="border-t border-slate-700/60 pt-4 space-y-3 font-sans">
                 <span className="text-xs font-bold text-slate-300">New Invoice Row Entry</span>
                 <input
                   type="text"
@@ -1228,7 +1379,7 @@ export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId, is
                   onChange={(e) => setNewInvoiceName(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-100"
                 />
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 font-sans">
                   <div>
                     <label className="block text-[9px] text-slate-400">Rate ($)</label>
                     <input
@@ -1250,14 +1401,14 @@ export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId, is
                 </div>
                 <button
                   onClick={addInvoiceItem}
-                  className="w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold py-1.5 rounded text-xs transition-colors"
+                  className="w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold py-1.5 rounded text-xs transition-colors cursor-pointer"
                 >
                   Append Line Item
                 </button>
               </div>
             </div>
 
-            <div className="md:col-span-2 bg-white text-slate-900 p-8 rounded-2xl border border-slate-100 shadow-xl font-sans min-h-[500px] flex flex-col justify-between">
+            <div className="printable-print-target md:col-span-2 bg-white text-slate-900 p-8 rounded-2xl border border-slate-100 shadow-xl font-sans min-h-[500px] flex flex-col justify-between">
               <div>
                 <div className="flex justify-between items-start border-b border-slate-200 pb-5 mb-6">
                   <div>
@@ -1266,7 +1417,7 @@ export const ProductivityTools: React.FC<ProductivityToolsProps> = ({ toolId, is
                   </div>
                   <div className="text-right text-xs">
                     <p className="font-bold">ID: {invoiceMetadata.id}</p>
-                    <p className="text-slate-500">Date: {invoiceMetadata.id}</p>
+                    <p className="text-slate-500">Date: {invoiceMetadata.date}</p>
                   </div>
                 </div>
 
