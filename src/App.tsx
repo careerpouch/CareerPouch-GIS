@@ -270,6 +270,58 @@ export default function App() {
   const [reqDesc, setReqDesc] = useState('');
   const [reqPriority, setReqPriority] = useState('Standard');
 
+  // States for Report Problem Engine
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isAdminInboxOpen, setIsAdminInboxOpen] = useState(false);
+  const [reportCategory, setReportCategory] = useState('bug');
+  const [reportTool, setReportTool] = useState('General Platform');
+  const [reportDetails, setReportDetails] = useState('');
+  const [reportSuccessMsg, setReportSuccessMsg] = useState(false);
+  const [reportsList, setReportsList] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem('careerpouch_problem_reports');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  const handleSendReport = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reportDetails.trim()) return;
+
+    const newReport = {
+      id: Date.now().toString(),
+      category: reportCategory,
+      tool: reportTool,
+      details: reportDetails,
+      timestamp: new Date().toLocaleString()
+    };
+
+    const updated = [newReport, ...reportsList];
+    setReportsList(updated);
+
+    try {
+      localStorage.setItem('careerpouch_problem_reports', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('Unable to save report:', e);
+    }
+
+    // Trigger direct mailto link to notify the owner directly
+    const mailSubject = encodeURIComponent(`[CareerPouch Issue] ${reportCategory.toUpperCase()}: ${reportTool}`);
+    const mailBody = encodeURIComponent(`CareerPouch Problem Report:\n----------------------------------------\nCategory: ${reportCategory}\nAffected Utility: ${reportTool}\nSubmitted: ${newReport.timestamp}\n\nIssue Details:\n${reportDetails}\n----------------------------------------\nSent via CareerPouch Platform Report Tool`);
+    
+    // Open mailto link
+    window.open(`mailto:aquamarinesilver37@gmail.com,careerpouchofficial@gmail.com?subject=${mailSubject}&body=${mailBody}`, '_blank');
+
+    setReportSuccessMsg(true);
+    setTimeout(() => {
+      setReportSuccessMsg(false);
+      setIsReportModalOpen(false);
+      setReportDetails('');
+    }, 2500);
+  };
+
   useEffect(() => {
     localStorage.setItem('careerpouch_tool_requests', JSON.stringify(userRequests));
   }, [userRequests]);
@@ -1292,7 +1344,7 @@ export default function App() {
           </div>
 
           {/* DYNAMIC REQUEST A TOOL BUTTON DIRECTLY BELOW THE SEARCH BAR SECTION */}
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6 flex flex-col items-center gap-2.5">
             <button
               onClick={() => setIsRequestModalOpen(true)}
               className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 cursor-pointer relative overflow-hidden group/req-btn border ${
@@ -1311,6 +1363,20 @@ export default function App() {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
               )}
+            </button>
+
+            {/* BUTTON DIRECTLY UNDER IT: REPORT A PROBLEM */}
+            <button
+              onClick={() => setIsReportModalOpen(true)}
+              className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm hover:scale-105 active:scale-95 cursor-pointer border ${
+                isDarkMode
+                  ? 'bg-slate-900/90 border-rose-900/40 hover:bg-rose-950/40 hover:border-rose-500/50 text-rose-300 shadow-rose-950/20'
+                  : 'bg-rose-50/90 border-rose-200/80 hover:bg-rose-100 hover:border-rose-300 text-rose-700 shadow-rose-100/10'
+              }`}
+              title="Report a problem or bug to our technical team"
+            >
+              <Icon name="AlertTriangle" size={13} className="text-rose-500 shrink-0" />
+              <span>Report a problem</span>
             </button>
           </div>
 
@@ -1978,10 +2044,20 @@ export default function App() {
           </div>
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-200/40 dark:border-slate-800">
-            <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
+            <div className="flex items-center gap-3 text-xs text-slate-400 font-mono">
               <span>All {TOOLS.length} items executed client-side in secure sandbox memory structures offline.</span>
             </div>
-            <p className="text-xs text-slate-400">&copy; {new Date().getFullYear()} CareerPouch. All rights reserved.</p>
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setIsAdminInboxOpen(true)} 
+                className="text-xs font-mono text-indigo-600 dark:text-cyan-400 hover:underline flex items-center gap-1.5 font-bold cursor-pointer"
+                title="View reported issues & user tool submissions"
+              >
+                <Icon name="Inbox" size={13} />
+                <span>Admin Issue Inbox ({reportsList.length})</span>
+              </button>
+              <p className="text-xs text-slate-400">&copy; {new Date().getFullYear()} CareerPouch. All rights reserved.</p>
+            </div>
           </div>
         </div>
       </footer>
@@ -2188,6 +2264,224 @@ export default function App() {
               </div>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* REPORT A PROBLEM MODAL OVERLAY */}
+      {isReportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md animate-fade">
+          <div className={`relative w-full max-w-lg rounded-2xl border shadow-2xl overflow-hidden transition-all duration-300 max-h-[90vh] flex flex-col ${
+            isDarkMode 
+              ? 'bg-slate-900 border-slate-800 text-slate-100 shadow-rose-950/20' 
+              : 'bg-white border-slate-200 text-slate-800 shadow-slate-200/50'
+          }`}>
+            {/* Modal header */}
+            <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/60 flex items-center justify-between bg-rose-500/5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
+                  <Icon name="AlertTriangle" size={18} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black tracking-tight font-sans">Report a Problem</h3>
+                  <p className="text-[10px] text-slate-400">Encountered a bug or issue? Let our technical team know.</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsReportModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+              >
+                <Icon name="X" size={14} />
+              </button>
+            </div>
+
+            {/* Modal body */}
+            <div className="p-5 overflow-y-auto space-y-4">
+              {reportSuccessMsg ? (
+                <div className="p-6 text-center space-y-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+                  <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center">
+                    <Icon name="Check" size={24} />
+                  </div>
+                  <h4 className="font-bold text-sm text-emerald-600 dark:text-emerald-400">Report Submitted Successfully</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Thank you! Your issue report has been logged and forwarded to our technical team for review.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleSendReport} className="space-y-3.5">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Problem Category</label>
+                    <select
+                      value={reportCategory}
+                      onChange={(e) => setReportCategory(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs font-semibold focus:ring-2 focus:ring-rose-500/30 focus:outline-none"
+                    >
+                      <option value="bug">Bug / Calculation Error</option>
+                      <option value="ui">UI / Layout Glitch</option>
+                      <option value="ad">Ad / Banner Display Issue</option>
+                      <option value="feature">Unexpected Tool Behavior</option>
+                      <option value="other">Other Technical Problem</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Affected Utility / Page</label>
+                    <select
+                      value={reportTool}
+                      onChange={(e) => setReportTool(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs font-semibold focus:ring-2 focus:ring-rose-500/30 focus:outline-none"
+                    >
+                      <option value="General Platform">General Platform / Home</option>
+                      {TOOLS.map(t => (
+                        <option key={t.id} value={t.name}>{t.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Describe the Problem</label>
+                    <textarea
+                      rows={4}
+                      required
+                      value={reportDetails}
+                      onChange={(e) => setReportDetails(e.target.value)}
+                      placeholder="Please describe what happened, expected behavior, or steps to reproduce the issue..."
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 font-medium text-xs focus:ring-2 focus:ring-rose-500/30 focus:outline-none resize-none leading-relaxed"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <button 
+                      type="button"
+                      onClick={() => setIsReportModalOpen(false)}
+                      className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit"
+                      className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-rose-500/20"
+                    >
+                      <Icon name="Send" size={13} /> Submit Report
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ADMIN REPORTS & ISSUES INBOX MODAL */}
+      {isAdminInboxOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade">
+          <div className={`relative w-full max-w-2xl rounded-2xl border shadow-2xl overflow-hidden transition-all duration-300 max-h-[85vh] flex flex-col ${
+            isDarkMode 
+              ? 'bg-slate-900 border-slate-800 text-slate-100 shadow-indigo-950/20' 
+              : 'bg-white border-slate-200 text-slate-800 shadow-slate-200/50'
+          }`}>
+            {/* Modal Header */}
+            <div className="p-5 border-b border-slate-200/50 dark:border-slate-800/60 flex items-center justify-between bg-indigo-500/5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center font-bold">
+                  <Icon name="Inbox" size={20} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black tracking-tight font-sans flex items-center gap-2">
+                    Admin Issue & Feedback Inbox
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-500/10 text-indigo-500">
+                      {reportsList.length} Received
+                    </span>
+                  </h3>
+                  <p className="text-[10px] text-slate-400">Reports submitted by site visitors and users.</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsAdminInboxOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+              >
+                <Icon name="X" size={14} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 overflow-y-auto space-y-4 flex-1">
+              <div className="p-3.5 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-500 dark:text-slate-400 space-y-1">
+                <p className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Icon name="Mail" size={12} className="text-indigo-500" />
+                  Email Notifications Sent To:
+                </p>
+                <p className="font-mono text-[11px] text-indigo-600 dark:text-cyan-400">
+                  aquamarinesilver37@gmail.com • careerpouchofficial@gmail.com
+                </p>
+                <p className="text-[10px] pt-1 text-slate-400">
+                  When users submit reports via "Report a problem", an email draft is opened addressed to your inbox, and a local copy is recorded here.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                  Logged Reports ({reportsList.length})
+                </h4>
+                {reportsList.length > 0 && (
+                  <button 
+                    onClick={() => {
+                      if (confirm('Are you sure you want to clear all report logs?')) {
+                        setReportsList([]);
+                        localStorage.removeItem('careerpouch_problem_reports');
+                      }
+                    }}
+                    className="text-[10px] font-mono text-rose-500 hover:underline font-bold cursor-pointer"
+                  >
+                    Clear Inbox
+                  </button>
+                )}
+              </div>
+
+              {reportsList.length === 0 ? (
+                <div className="text-center py-10 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl space-y-2">
+                  <Icon name="CheckCircle" size={28} className="mx-auto text-slate-300 dark:text-slate-700" />
+                  <p className="text-xs text-slate-400 font-semibold">No issues currently reported!</p>
+                  <p className="text-[10px] text-slate-500">New reports submitted by users will show up here and arrive in your email.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {reportsList.map((rep) => (
+                    <div 
+                      key={rep.id} 
+                      className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 text-left space-y-2"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="font-extrabold text-xs text-slate-800 dark:text-slate-200 block">
+                            {rep.tool || 'General Platform'}
+                          </span>
+                          <span className="text-[10px] font-mono text-slate-400">
+                            {rep.timestamp}
+                          </span>
+                        </div>
+                        <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                          {rep.category || 'Issue'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 font-sans leading-relaxed whitespace-pre-wrap bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800/80">
+                        {rep.details}
+                      </p>
+                      <div className="flex justify-end pt-1">
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(`Tool: ${rep.tool}\nCategory: ${rep.category}\nDate: ${rep.timestamp}\nDetails: ${rep.details}`);
+                            alert('Report details copied to clipboard!');
+                          }}
+                          className="text-[10px] font-mono text-indigo-500 hover:underline flex items-center gap-1 font-semibold"
+                        >
+                          <Icon name="Copy" size={10} /> Copy Details
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
